@@ -1,7 +1,10 @@
 import { HomeScreen, SignupScreen } from '@app/screens';
+import { AppTheme } from '@app/theme/themes';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { FC, useContext } from 'react';
+import React, { FC, useContext } from 'react';
+import { StatusBar } from 'react-native';
+import { ThemeProvider } from 'react-native-elements';
 import { ProfileContext } from 'src/context/ProfileContext';
 import { RootStackParamList } from './paramsList';
 
@@ -35,9 +38,12 @@ const NavigationProvider: FC = () => {
 	};
 
 	return (
-		<NavigationContainer>
-			{stackScreens(getInitialRoute())}
-		</NavigationContainer>
+		<ThemeProvider theme={AppTheme} useDark>
+			<StatusBar barStyle='light-content' />
+			<NavigationContainer theme={AppTheme}>
+				{stackScreens(getInitialRoute())}
+			</NavigationContainer>
+		</ThemeProvider>
 	);
 };
 

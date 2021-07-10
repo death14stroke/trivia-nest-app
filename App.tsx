@@ -1,11 +1,19 @@
 import { NavigationProvider } from '@app/navigation';
-import { FC } from 'react';
+import React, { FC } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { ProfileProvider } from 'src/context/ProfileContext';
+
+const queryClient = new QueryClient();
 
 const App: FC = () => {
 	return (
 		<SafeAreaProvider>
-			<NavigationProvider />
+			<QueryClientProvider client={queryClient}>
+				<ProfileProvider>
+					<NavigationProvider />
+				</ProfileProvider>
+			</QueryClientProvider>
 		</SafeAreaProvider>
 	);
 };

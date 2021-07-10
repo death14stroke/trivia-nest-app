@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { useCurrentUser } from '@app/hooks/firebase';
 
+export const BASE_URL = 'http://localhost:3002';
+
 const client = axios.create({
-	baseURL: 'http://localhost:3002'
+	baseURL: BASE_URL
 });
 
 client.interceptors.request.use(

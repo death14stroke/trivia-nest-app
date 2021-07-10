@@ -23,3 +23,7 @@ export const apiCreateUserProfile = ({
 // Get current authenticated user
 export const apiCurrentUser = async () =>
 	(await client.get<CurrentUser>('/users/me')).data;
+
+// Get all avatars
+export const apiGetAvatars = async () =>
+	(await client.get<string[]>('/avatars')).data;
