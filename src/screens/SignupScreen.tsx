@@ -1,13 +1,17 @@
 import { BASE_URL } from '@app/api/client';
 import { apiGetAvatars } from '@app/api/users';
+import { Input } from '@app/components';
+import { useFormik } from 'formik';
 import React, { FC } from 'react';
 import { StyleSheet } from 'react-native';
 import { View } from 'react-native';
-import { Text, Image, Input, Button, Avatar } from 'react-native-elements';
+import { Text, Image, Button, Avatar } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from 'react-query';
 
 const SignupScreen: FC = () => {
+	//const {} = useFormik();
+
 	const { data: avatars } = useQuery<string[]>('avatars', apiGetAvatars, {
 		staleTime: 120 * 60 * 1000
 	});
@@ -33,9 +37,9 @@ const SignupScreen: FC = () => {
 					activeOpacity={0.8}
 					onPress={() => {}}
 				/>
-				<Input label='Username' placeholder='Your username' />
-				<Input label='Email' placeholder='Your email' />
-				<Input label='Password' placeholder='Your password' />
+				<Input.Username />
+				<Input.Email />
+				<Input.Password />
 				<Button
 					title='Continue'
 					raised

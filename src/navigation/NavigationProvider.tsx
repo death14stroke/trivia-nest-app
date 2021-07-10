@@ -1,5 +1,5 @@
 import { HomeScreen, SignupScreen } from '@app/screens';
-import { AppTheme } from '@app/theme/themes';
+import { AppNativeTheme, AppNavigationTheme } from '@app/theme/themes';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import React, { FC, useContext } from 'react';
@@ -38,9 +38,9 @@ const NavigationProvider: FC = () => {
 	};
 
 	return (
-		<ThemeProvider theme={AppTheme} useDark>
+		<ThemeProvider theme={AppNativeTheme} useDark>
 			<StatusBar barStyle='light-content' />
-			<NavigationContainer theme={AppTheme}>
+			<NavigationContainer theme={AppNavigationTheme}>
 				{stackScreens(getInitialRoute())}
 			</NavigationContainer>
 		</ThemeProvider>
