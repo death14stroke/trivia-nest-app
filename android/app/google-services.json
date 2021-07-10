@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "211802899827",
+    "project_id": "trivianest",
+    "storage_bucket": "trivianest.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:211802899827:android:b88a302efbdd0d178f3106",
+        "android_client_info": {
+          "package_name": "com.trivianest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "211802899827-78bpd48q7jmrr0lq30ag63c1eaom0ikm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbNFcHB03tWy0-FJxdLVF_HVm3qb9vIHs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "211802899827-78bpd48q7jmrr0lq30ag63c1eaom0ikm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
