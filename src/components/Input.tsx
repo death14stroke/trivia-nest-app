@@ -86,7 +86,7 @@ const UsernameInput: FC<Props> = props => {
 				color: colors?.secondary
 			}}
 			autoCorrect={false}
-			autoCapitalize='words'
+			autoCapitalize='none'
 			inputContainerStyle={styles.inputContainer}
 			labelStyle={styles.label}
 			inputStyle={styles.input}
@@ -108,7 +108,8 @@ const useStyles = ({ colors }: Theme) =>
 			padding: 4
 		},
 		input: {
-			paddingStart: 4
+			paddingStart: 4,
+			color: 'black'
 		}
 	});
 

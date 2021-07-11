@@ -4,7 +4,7 @@ import client from './client';
 type CreateProfileParams = {
 	email: string;
 	username: string;
-	avatar: string;
+	avatar?: string;
 };
 
 // Create user profile in the database

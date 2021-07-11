@@ -37,6 +37,10 @@ const NavigationProvider: FC = () => {
 		return 'Signup';
 	};
 
+	if (user === undefined) {
+		return null;
+	}
+
 	return (
 		<ThemeProvider theme={AppNativeTheme} useDark>
 			<StatusBar barStyle='light-content' />

@@ -1,8 +1,4 @@
-import { SolidButton } from './SolidButton';
-import { TextButton } from './TextButton';
-
+export * from './Button';
+export * from './Form';
 export * from './Input';
-export const Button = {
-	Solid: SolidButton,
-	Text: TextButton
-};
+export * from './SelectAvatarModal';
