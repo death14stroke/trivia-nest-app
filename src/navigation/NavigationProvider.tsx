@@ -1,5 +1,5 @@
 import { HomeScreen, SignupScreen } from '@app/screens';
-import { AppNativeTheme, AppNavigationTheme } from '@app/theme/themes';
+import { AppNativeTheme, AppNavigationTheme } from '@app/theme';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import React, { FC, useContext } from 'react';
