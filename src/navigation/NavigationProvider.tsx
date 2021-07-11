@@ -5,7 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import React, { FC, useContext } from 'react';
 import { StatusBar } from 'react-native';
 import { ThemeProvider } from 'react-native-elements';
-import { ProfileContext } from 'src/context/ProfileContext';
+import { ProfileContext } from '@app/context';
 import { RootStackParamList } from './paramsList';
 
 const Stack = createStackNavigator<RootStackParamList>();
