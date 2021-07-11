@@ -5,11 +5,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Carousel from 'react-native-snap-carousel';
 import { BASE_URL } from '@app/api/client';
 import { ProfileContext } from '@app/context';
-import { IntroMode } from '@app/models';
+import { IntroMode, Mode } from '@app/models';
 import { IntroCard } from '@app/components';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '@app/navigation';
 
 const modes: IntroMode[] = [
 	{
+		key: '1v1',
 		title: '1 vs 1',
 		description:
 			'Play with random players online and get a chance to win more.',
@@ -17,12 +20,14 @@ const modes: IntroMode[] = [
 		image: require('@assets/mode_1v1.jpg')
 	},
 	{
+		key: 'multi',
 		title: 'Multiplayer',
 		description: "Challenge your friends and beat 'em all",
 		cost: 20,
 		image: require('@assets/mode_multi.jpg')
 	},
 	{
+		key: 'test',
 		title: 'How to play?',
 		description:
 			'Test the interface by giving answers to some fixed questions',
@@ -33,12 +38,26 @@ const modes: IntroMode[] = [
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const HomeScreen: FC = () => {
+interface Props {
+	navigation: StackNavigationProp<RootStackParamList, 'Home'>;
+}
+
+const HomeScreen: FC<Props> = ({ navigation }) => {
 	const { state: user } = useContext(ProfileContext);
 
 	const renderIntroCard: ListRenderItem<IntroMode> = ({ item }) => (
-		<IntroCard mode={item} containerStyle={{ height: '55%' }} />
+		<IntroCard
+			mode={item}
+			containerStyle={{ height: '55%' }}
+			onModeSelected={() => navigateToGame(item.key)}
+		/>
 	);
+
+	const navigateToGame = (key: Mode) => {
+		if (key === '1v1') {
+			navigation.navigate('OneVsOne');
+		}
+	};
 
 	return (
 		<SafeAreaView style={styles.root}>
