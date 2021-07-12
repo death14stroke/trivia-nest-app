@@ -6,28 +6,18 @@ import React, {
 	useEffect,
 	useRef
 } from 'react';
-import {
-	View,
-	Animated,
-	FlatList,
-	ImageBackground,
-	StyleSheet,
-	ListRenderItem,
-	TouchableOpacity
-} from 'react-native';
-import { Text, Avatar, LinearProgress } from 'react-native-elements';
+import { View, ImageBackground, StyleSheet } from 'react-native';
+import { Text, Avatar } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { Socket, io } from 'socket.io-client';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@app/navigation';
-import { Dimens } from '@app/theme';
 import { ProfileContext } from '@app/context';
 import { Player, Question } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { useCurrentUser } from '@app/hooks/firebase';
 import { showToast } from '@app/hooks/ui';
-import { LottieOverlay, WaitingTimer } from '@app/components';
+import { QuestionView, WaitingTimer } from '@app/components';
 
 interface Props {
 	navigation: StackNavigationProp<RootStackParamList, 'OneVsOne'>;
@@ -53,11 +43,11 @@ const quizReducer = (state: State, action: Action): State => {
 		case 'update_question':
 			return {
 				...state,
-				correctAnswer: undefined,
-				...action.payload
+				question: action.payload,
+				correctAnswer: undefined
 			};
 		case 'update_correct_answer':
-			return { ...state, correctAnswer: action.payload };
+			return { ...state, ...action.payload };
 		default:
 			return state;
 	}
@@ -69,7 +59,6 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 
 	const [timer, setTimer] = useState(true);
 	const [loading, setLoading] = useState(false);
-	const [selected, setSelected] = useState<string>();
 	const [duration, setDuration] = useState<number>(15);
 	const [state, dispatch] = useReducer(quizReducer, { position: 0 });
 
@@ -123,14 +112,12 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 			setTimeout(() => {
 				dispatch({ type: 'update_question', payload: question });
 				setLoading(false);
-				setSelected(undefined);
 				setDuration(Math.round((next - Date.now()) / 1000));
 			}, 1000);
 		});
 
 		socket.current.on('results', results => {
-			console.log(results);
-			navigation.navigate('Results', results);
+			navigation.replace('Results', results);
 		});
 	};
 
@@ -141,38 +128,6 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 	const onCancel = () => {
 		leaveRoom();
 		navigation.pop();
-	};
-
-	const renderOption: ListRenderItem<{ id: string; opt: string }> = ({
-		item: { id, opt }
-	}) => {
-		let backgroundColor = '#162447';
-		if (id === selected) {
-			if (correctAnswer && correctAnswer !== selected) {
-				backgroundColor = 'red';
-			} else {
-				backgroundColor = 'gray';
-			}
-		}
-		if (id === correctAnswer) {
-			backgroundColor = 'green';
-		}
-
-		return (
-			<TouchableOpacity
-				style={[styles.option, { backgroundColor }]}
-				onPress={() => {
-					setSelected(id);
-					socket.current?.emit('answer', {
-						battleId,
-						questionId: question?._id,
-						answer: id
-					});
-				}}
-				disabled={selected !== undefined}>
-				<Text style={{ fontSize: 20, padding: 4 }}>{opt}</Text>
-			</TouchableOpacity>
-		);
 	};
 
 	const renderPlayer = (player: Player) => (
@@ -202,62 +157,22 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 			style={{ flex: 1 }}
 			source={require('@assets/background.jpg')}>
 			<SafeAreaView style={styles.safeArea}>
-				<View style={{ flex: 1 }}>
-					<View style={styles.playersContainer}>
-						{renderPlayer(currentUser!)}
-						{renderPlayer(opponent!)}
-					</View>
-					<View style={styles.progressContainer}>
-						<View style={styles.timer}>
-							<CountdownCircleTimer
-								key={position}
-								isPlaying
-								duration={duration}
-								size={75}
-								strokeWidth={12}
-								colors={[
-									['#004777', 0.4],
-									['#F7B801', 0.4],
-									['#A30000', 0.2]
-								]}>
-								{({ remainingTime }) => (
-									<Animated.Text style={styles.timerText}>
-										{remainingTime}
-									</Animated.Text>
-								)}
-							</CountdownCircleTimer>
-						</View>
-						<View style={styles.questionContainer}>
-							<View style={{ flexDirection: 'row' }}>
-								<Text h4>Question {position + 1} of 10</Text>
-							</View>
-							<LinearProgress
-								value={(position + 1) / 10}
-								color='red'
-								variant='determinate'
-								style={{ height: 10, marginVertical: 8 }}
-							/>
-						</View>
-					</View>
-					<View style={styles.questionCard}>
-						<Text style={{ textAlign: 'center', fontSize: 18 }}>
-							{question?.question}
-						</Text>
-					</View>
+				<View style={styles.playersContainer}>
+					{renderPlayer(currentUser!)}
+					{renderPlayer(opponent!)}
 				</View>
-				<FlatList
-					data={question?.options}
-					keyExtractor={opt => opt.id}
-					renderItem={renderOption}
-					style={{ flexGrow: 0, marginBottom: 24 }}
-				/>
-				<LottieOverlay
-					isVisible={correctAnswer !== undefined}
-					source={
-						correctAnswer === selected
-							? require('@assets/correct.json')
-							: require('@assets/wrong.json')
-					}
+				<QuestionView
+					question={question!}
+					position={position}
+					duration={duration}
+					correctAnswer={correctAnswer}
+					onOptionSelected={id => {
+						socket.current?.emit('answer', {
+							battleId,
+							questionId: question?._id,
+							answer: id
+						});
+					}}
 				/>
 			</SafeAreaView>
 		</ImageBackground>
@@ -267,28 +182,7 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
 	safeArea: { flex: 1, padding: 12, justifyContent: 'space-between' },
 	avatar: { borderRadius: 12 },
-	playersContainer: { flexDirection: 'row', justifyContent: 'space-between' },
-	progressContainer: {
-		flexDirection: 'row',
-		justifyContent: 'center',
-		alignItems: 'center',
-		alignContent: 'center',
-		marginTop: 18
-	},
-	timer: { justifyContent: 'center', marginEnd: 12, alignItems: 'center' },
-	timerText: { color: 'white', fontSize: 24 },
-	questionContainer: { flex: 1, justifyContent: 'center' },
-	questionCard: {
-		backgroundColor: '#162447',
-		borderRadius: Dimens.borderRadius,
-		padding: 12,
-		marginTop: 24
-	},
-	option: {
-		borderRadius: Dimens.borderRadius,
-		padding: 12,
-		marginVertical: 8
-	}
+	playersContainer: { flexDirection: 'row', justifyContent: 'space-between' }
 });
 
 export { OneVsOneScreen };
