@@ -7,25 +7,28 @@ import { Player, Question } from '@app/models';
 import { RootStackParamList } from '@app/navigation';
 import { Dimens } from '@app/theme';
 import { StackNavigationProp } from '@react-navigation/stack';
-import React, { Dispatch, FC, useEffect, useRef } from 'react';
-import { useCallback } from 'react';
+import React, { FC, useEffect, useRef } from 'react';
 import { useContext } from 'react';
 import { useReducer } from 'react';
 import { useState } from 'react';
-import { FlatList, ImageBackground, StyleSheet } from 'react-native';
+import { Animated, FlatList, ImageBackground, StyleSheet } from 'react-native';
 import { ListRenderItem } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import { View } from 'react-native';
+import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { Text } from 'react-native-elements';
 import { Avatar } from 'react-native-elements/dist/avatar/Avatar';
+import LinearProgress from 'react-native-elements/dist/linearProgress/LinearProgress';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Socket, io } from 'socket.io-client';
+import LottieView from 'lottie-react-native';
 
 interface Props {
 	navigation: StackNavigationProp<RootStackParamList, 'OneVsOne'>;
 }
 
 type State = {
+	battleId?: string;
 	opponent?: Player;
 	question?: Question;
 	correctAnswer?: string;
@@ -39,7 +42,8 @@ type Action = {
 const quizReducer = (state: State, action: Action): State => {
 	switch (action.type) {
 		case 'update_opponent':
-			return { ...state, opponent: action.payload };
+			const { battleId, opponent } = action.payload;
+			return { ...state, battleId, opponent };
 		case 'update_question':
 			return {
 				...state,
@@ -53,7 +57,7 @@ const quizReducer = (state: State, action: Action): State => {
 	}
 };
 
-//TODO: update timer and receive answer at server
+//TODO: correct/wrong animation, results screen
 
 const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 	const [timer, setTimer] = useState(true);
@@ -62,24 +66,15 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 	const [state, dispatch] = useReducer(quizReducer, {});
 	const { state: currentUser } = useContext(ProfileContext);
 	const socket = useRef<Socket>();
-	const { opponent, question, correctAnswer } = state;
-	const [countDown, setCountDown] = useState(15);
+	const { battleId, opponent, question, correctAnswer } = state;
+	const [duration, setDuration] = useState<number>(15);
+	const [pos, setPos] = useState(0);
 
 	useEffect(() => {
 		init();
 
 		return leaveRoom;
 	}, []);
-
-	const updateCountDown = useCallback(
-		timer => {
-			if (countDown === 0) {
-				clearInterval(timer);
-			}
-			setCountDown(prevCountDown => prevCountDown - 1);
-		},
-		[countDown]
-	);
 
 	const init = async () => {
 		const token = await useCurrentUser()?.getIdToken();
@@ -91,22 +86,45 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 		socket.current = io(BASE_URL, { auth: { token } });
 		socket.current.emit('joinWaitingRoom');
 
-		socket.current.once('start', ({ players }: { players: Player[] }) => {
-			console.log('players:', players);
-			dispatch({
-				type: 'update_opponent',
-				payload: players.find(player => player._id !== currentUser!._id)
-			});
-			setTimer(false);
-			setLoading(true);
+		socket.current.once(
+			'start',
+			({
+				battleId,
+				players
+			}: {
+				battleId: string;
+				players: Player[];
+			}) => {
+				console.log('players:', players);
+				dispatch({
+					type: 'update_opponent',
+					payload: {
+						battleId,
+						opponent: players.find(
+							player => player._id !== currentUser!._id
+						)
+					}
+				});
+				setTimer(false);
+				setLoading(true);
+			}
+		);
+
+		socket.current.on('question', ({ pos, question, next, prevAns }) => {
+			dispatch({ type: 'update_correct_answer', payload: prevAns });
+
+			setTimeout(() => {
+				dispatch({ type: 'update_question', payload: question });
+				setLoading(false);
+				setSelected(undefined);
+				setDuration(Math.round((next - Date.now()) / 1000));
+				setPos(pos);
+			}, 1000);
 		});
 
-		socket.current.on('question', ({ pos, question, next }) => {
-			setLoading(false);
-			setSelected(undefined);
-			setCountDown((next - Date.now()) / 1000);
-			const timer = setInterval(updateCountDown, 1000);
-			dispatch({ type: 'update_question', payload: question });
+		socket.current.on('results', results => {
+			console.log(results);
+			navigation.navigate('Results', results);
 		});
 	};
 
@@ -146,7 +164,7 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 					console.log('selected:', id);
 					setSelected(id);
 					socket.current?.emit('answer', {
-						battleId: '',
+						battleId,
 						questionId: question?._id,
 						answer: id
 					});
@@ -165,6 +183,19 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 		return <Text>Loading...</Text>;
 	}
 
+	if (correctAnswer) {
+		return (
+			<LottieView
+				autoPlay
+				source={
+					correctAnswer === selected
+						? require('@assets/correct.json')
+						: require('@assets/wrong.json')
+				}
+			/>
+		);
+	}
+
 	return (
 		<ImageBackground
 			style={{ flex: 1 }}
@@ -175,7 +206,7 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 					padding: 12,
 					justifyContent: 'space-between'
 				}}>
-				<View>
+				<View style={{ flex: 1 }}>
 					<View
 						style={{
 							flexDirection: 'row',
@@ -188,7 +219,7 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 								containerStyle={styles.avatar}
 								avatarStyle={styles.avatar}
 							/>
-							<Text style={{ marginTop: 4 }}>
+							<Text style={{ marginTop: 4, fontSize: 16 }}>
 								{currentUser?.username}
 							</Text>
 						</View>
@@ -199,12 +230,63 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 								containerStyle={styles.avatar}
 								avatarStyle={styles.avatar}
 							/>
-							<Text style={{ marginTop: 4 }}>
+							<Text style={{ marginTop: 4, fontSize: 16 }}>
 								{opponent?.username}
 							</Text>
 						</View>
 					</View>
-					<Text>{countDown.toFixed(0)}</Text>
+					<View
+						style={{
+							flexDirection: 'row',
+							justifyContent: 'center',
+							alignItems: 'center',
+							alignContent: 'center',
+							marginTop: 18
+						}}>
+						<View
+							style={{
+								justifyContent: 'center',
+								marginEnd: 12,
+								alignItems: 'center'
+							}}>
+							<CountdownCircleTimer
+								key={pos}
+								isPlaying
+								duration={duration}
+								size={75}
+								strokeWidth={12}
+								colors={[
+									['#004777', 0.4],
+									['#F7B801', 0.4],
+									['#A30000', 0.2]
+								]}>
+								{({ remainingTime }) => (
+									<Animated.Text
+										style={{
+											color: 'white',
+											fontSize: 24
+										}}>
+										{remainingTime}
+									</Animated.Text>
+								)}
+							</CountdownCircleTimer>
+						</View>
+						<View
+							style={{
+								flex: 1,
+								justifyContent: 'center'
+							}}>
+							<View style={{ flexDirection: 'row' }}>
+								<Text h4>Question {pos + 1} of 10</Text>
+							</View>
+							<LinearProgress
+								value={(pos + 1) / 10}
+								color='red'
+								variant='determinate'
+								style={{ height: 10, marginVertical: 8 }}
+							/>
+						</View>
+					</View>
 					<View
 						style={{
 							backgroundColor: '#162447',
@@ -212,11 +294,7 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 							padding: 12,
 							marginTop: 24
 						}}>
-						<Text
-							h4
-							h4Style={{
-								textAlign: 'center'
-							}}>
+						<Text style={{ textAlign: 'center', fontSize: 18 }}>
 							{question?.question}
 						</Text>
 					</View>

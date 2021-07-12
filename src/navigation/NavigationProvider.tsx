@@ -1,4 +1,9 @@
-import { HomeScreen, OneVsOneScreen, SignupScreen } from '@app/screens';
+import {
+	HomeScreen,
+	OneVsOneScreen,
+	ResultsScreen,
+	SignupScreen
+} from '@app/screens';
 import { AppNativeTheme, AppNavigationTheme } from '@app/theme';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -26,6 +31,11 @@ const stackScreens = (initialRoute: keyof RootStackParamList) => {
 			<Stack.Screen
 				name='OneVsOne'
 				component={OneVsOneScreen}
+				options={{ headerShown: false }}
+			/>
+			<Stack.Screen
+				name='Results'
+				component={ResultsScreen}
 				options={{ headerShown: false }}
 			/>
 		</Stack.Navigator>
