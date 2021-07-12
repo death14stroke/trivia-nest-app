@@ -15,6 +15,7 @@
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		C3821C0841567965EBC2736B /* libPods-TriviaNest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EE51DBD03CB065065BCAB364 /* libPods-TriviaNest.a */; };
 		EEA6214C2699E5DA00C8FBC0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EEA6214B2699E5DA00C8FBC0 /* GoogleService-Info.plist */; };
+		EEF1B3E9269C866200ED9CEA /* Lottie.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEF1B3E8269C866200ED9CEA /* Lottie.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +62,8 @@
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		EE51DBD03CB065065BCAB364 /* libPods-TriviaNest.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TriviaNest.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEA6214B2699E5DA00C8FBC0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		EEF1B3E7269C866100ED9CEA /* TriviaNest-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TriviaNest-Bridging-Header.h"; sourceTree = "<group>"; };
+		EEF1B3E8269C866200ED9CEA /* Lottie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lottie.swift; sourceTree = "<group>"; };
 		F84B128F9F7A4E579054F141 /* FontAwesome5_Brands.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Brands.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Brands.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -145,6 +148,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				EEF1B3E8269C866200ED9CEA /* Lottie.swift */,
 				EEA6214B2699E5DA00C8FBC0 /* GoogleService-Info.plist */,
 				13B07FAE1A68108700A75B9A /* TriviaNest */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
@@ -153,6 +157,7 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				125931BFAB88E049F4A0402C /* Pods */,
 				93A50A8986B140CB8B5D94DD /* Resources */,
+				EEF1B3E7269C866100ED9CEA /* TriviaNest-Bridging-Header.h */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -251,7 +256,7 @@
 						TestTargetID = 13B07F861A680F5B00A75B9A;
 					};
 					13B07F861A680F5B00A75B9A = {
-						LastSwiftMigration = 1120;
+						LastSwiftMigration = 1250;
 					};
 				};
 			};
@@ -470,6 +475,7 @@
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				EEF1B3E9269C866200ED9CEA /* Lottie.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -488,6 +494,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 705D860A1CC81F55F880D8E2 /* Pods-TriviaNest-TriviaNestTests.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -515,6 +522,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A7A94BF947F496412028550C /* Pods-TriviaNest-TriviaNestTests.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
 				INFOPLIST_FILE = TriviaNestTests/Info.plist;
@@ -555,6 +563,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = TriviaNest;
+				SWIFT_OBJC_BRIDGING_HEADER = "TriviaNest-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -580,6 +589,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = TriviaNest;
+				SWIFT_OBJC_BRIDGING_HEADER = "TriviaNest-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};

@@ -1,27 +1,33 @@
-import { BASE_URL } from '@app/api/client';
-import { WaitingTimer } from '@app/components';
-import { ProfileContext } from '@app/context';
-import { useCurrentUser } from '@app/hooks/firebase';
-import { showToast } from '@app/hooks/ui';
-import { Player, Question } from '@app/models';
+import React, {
+	FC,
+	useState,
+	useReducer,
+	useContext,
+	useEffect,
+	useRef
+} from 'react';
+import {
+	View,
+	Animated,
+	FlatList,
+	ImageBackground,
+	StyleSheet,
+	ListRenderItem,
+	TouchableOpacity
+} from 'react-native';
+import { Text, Avatar, LinearProgress } from 'react-native-elements';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
+import { Socket, io } from 'socket.io-client';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@app/navigation';
 import { Dimens } from '@app/theme';
-import { StackNavigationProp } from '@react-navigation/stack';
-import React, { FC, useEffect, useRef } from 'react';
-import { useContext } from 'react';
-import { useReducer } from 'react';
-import { useState } from 'react';
-import { Animated, FlatList, ImageBackground, StyleSheet } from 'react-native';
-import { ListRenderItem } from 'react-native';
-import { TouchableOpacity } from 'react-native';
-import { View } from 'react-native';
-import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
-import { Text } from 'react-native-elements';
-import { Avatar } from 'react-native-elements/dist/avatar/Avatar';
-import LinearProgress from 'react-native-elements/dist/linearProgress/LinearProgress';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Socket, io } from 'socket.io-client';
-import LottieView from 'lottie-react-native';
+import { ProfileContext } from '@app/context';
+import { Player, Question } from '@app/models';
+import { BASE_URL } from '@app/api/client';
+import { useCurrentUser } from '@app/hooks/firebase';
+import { showToast } from '@app/hooks/ui';
+import { LottieOverlay, WaitingTimer } from '@app/components';
 
 interface Props {
 	navigation: StackNavigationProp<RootStackParamList, 'OneVsOne'>;
@@ -32,6 +38,7 @@ type State = {
 	opponent?: Player;
 	question?: Question;
 	correctAnswer?: string;
+	position: number;
 };
 
 type Action = {
@@ -42,13 +49,12 @@ type Action = {
 const quizReducer = (state: State, action: Action): State => {
 	switch (action.type) {
 		case 'update_opponent':
-			const { battleId, opponent } = action.payload;
-			return { ...state, battleId, opponent };
+			return { ...state, ...action.payload };
 		case 'update_question':
 			return {
 				...state,
 				correctAnswer: undefined,
-				question: action.payload
+				...action.payload
 			};
 		case 'update_correct_answer':
 			return { ...state, correctAnswer: action.payload };
@@ -57,22 +63,20 @@ const quizReducer = (state: State, action: Action): State => {
 	}
 };
 
-//TODO: correct/wrong animation, results screen
-
 const OneVsOneScreen: FC<Props> = ({ navigation }) => {
+	const { state: currentUser } = useContext(ProfileContext);
+	const socket = useRef<Socket>();
+
 	const [timer, setTimer] = useState(true);
 	const [loading, setLoading] = useState(false);
 	const [selected, setSelected] = useState<string>();
-	const [state, dispatch] = useReducer(quizReducer, {});
-	const { state: currentUser } = useContext(ProfileContext);
-	const socket = useRef<Socket>();
-	const { battleId, opponent, question, correctAnswer } = state;
 	const [duration, setDuration] = useState<number>(15);
-	const [pos, setPos] = useState(0);
+	const [state, dispatch] = useReducer(quizReducer, { position: 0 });
+
+	const { battleId, opponent, question, correctAnswer, position } = state;
 
 	useEffect(() => {
 		init();
-
 		return leaveRoom;
 	}, []);
 
@@ -80,6 +84,7 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 		const token = await useCurrentUser()?.getIdToken();
 		if (!token) {
 			showToast('Could not connect to game server!');
+			navigation.pop();
 			return;
 		}
 
@@ -95,7 +100,6 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 				battleId: string;
 				players: Player[];
 			}) => {
-				console.log('players:', players);
 				dispatch({
 					type: 'update_opponent',
 					payload: {
@@ -111,14 +115,16 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 		);
 
 		socket.current.on('question', ({ pos, question, next, prevAns }) => {
-			dispatch({ type: 'update_correct_answer', payload: prevAns });
+			dispatch({
+				type: 'update_correct_answer',
+				payload: { correctAnswer: prevAns, position: pos }
+			});
 
 			setTimeout(() => {
 				dispatch({ type: 'update_question', payload: question });
 				setLoading(false);
 				setSelected(undefined);
 				setDuration(Math.round((next - Date.now()) / 1000));
-				setPos(pos);
 			}, 1000);
 		});
 
@@ -154,14 +160,8 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 
 		return (
 			<TouchableOpacity
-				style={{
-					backgroundColor,
-					borderRadius: Dimens.borderRadius,
-					padding: 12,
-					marginVertical: 8
-				}}
+				style={[styles.option, { backgroundColor }]}
 				onPress={() => {
-					console.log('selected:', id);
 					setSelected(id);
 					socket.current?.emit('answer', {
 						battleId,
@@ -175,6 +175,20 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 		);
 	};
 
+	const renderPlayer = (player: Player) => (
+		<View>
+			<Avatar
+				size='large'
+				source={{ uri: BASE_URL + player.avatar }}
+				containerStyle={styles.avatar}
+				avatarStyle={styles.avatar}
+			/>
+			<Text style={{ marginTop: 4, fontSize: 16 }}>
+				{player.username}
+			</Text>
+		</View>
+	);
+
 	if (timer) {
 		return <WaitingTimer onCancel={onCancel} />;
 	}
@@ -183,74 +197,20 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 		return <Text>Loading...</Text>;
 	}
 
-	if (correctAnswer) {
-		return (
-			<LottieView
-				autoPlay
-				source={
-					correctAnswer === selected
-						? require('@assets/correct.json')
-						: require('@assets/wrong.json')
-				}
-			/>
-		);
-	}
-
 	return (
 		<ImageBackground
 			style={{ flex: 1 }}
 			source={require('@assets/background.jpg')}>
-			<SafeAreaView
-				style={{
-					flex: 1,
-					padding: 12,
-					justifyContent: 'space-between'
-				}}>
+			<SafeAreaView style={styles.safeArea}>
 				<View style={{ flex: 1 }}>
-					<View
-						style={{
-							flexDirection: 'row',
-							justifyContent: 'space-between'
-						}}>
-						<View>
-							<Avatar
-								size='large'
-								source={{ uri: BASE_URL + currentUser?.avatar }}
-								containerStyle={styles.avatar}
-								avatarStyle={styles.avatar}
-							/>
-							<Text style={{ marginTop: 4, fontSize: 16 }}>
-								{currentUser?.username}
-							</Text>
-						</View>
-						<View>
-							<Avatar
-								size='large'
-								source={{ uri: BASE_URL + opponent?.avatar }}
-								containerStyle={styles.avatar}
-								avatarStyle={styles.avatar}
-							/>
-							<Text style={{ marginTop: 4, fontSize: 16 }}>
-								{opponent?.username}
-							</Text>
-						</View>
+					<View style={styles.playersContainer}>
+						{renderPlayer(currentUser!)}
+						{renderPlayer(opponent!)}
 					</View>
-					<View
-						style={{
-							flexDirection: 'row',
-							justifyContent: 'center',
-							alignItems: 'center',
-							alignContent: 'center',
-							marginTop: 18
-						}}>
-						<View
-							style={{
-								justifyContent: 'center',
-								marginEnd: 12,
-								alignItems: 'center'
-							}}>
+					<View style={styles.progressContainer}>
+						<View style={styles.timer}>
 							<CountdownCircleTimer
-								key={pos}
+								key={position}
 								isPlaying
 								duration={duration}
 								size={75}
@@ -261,39 +221,25 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 									['#A30000', 0.2]
 								]}>
 								{({ remainingTime }) => (
-									<Animated.Text
-										style={{
-											color: 'white',
-											fontSize: 24
-										}}>
+									<Animated.Text style={styles.timerText}>
 										{remainingTime}
 									</Animated.Text>
 								)}
 							</CountdownCircleTimer>
 						</View>
-						<View
-							style={{
-								flex: 1,
-								justifyContent: 'center'
-							}}>
+						<View style={styles.questionContainer}>
 							<View style={{ flexDirection: 'row' }}>
-								<Text h4>Question {pos + 1} of 10</Text>
+								<Text h4>Question {position + 1} of 10</Text>
 							</View>
 							<LinearProgress
-								value={(pos + 1) / 10}
+								value={(position + 1) / 10}
 								color='red'
 								variant='determinate'
 								style={{ height: 10, marginVertical: 8 }}
 							/>
 						</View>
 					</View>
-					<View
-						style={{
-							backgroundColor: '#162447',
-							borderRadius: Dimens.borderRadius,
-							padding: 12,
-							marginTop: 24
-						}}>
+					<View style={styles.questionCard}>
 						<Text style={{ textAlign: 'center', fontSize: 18 }}>
 							{question?.question}
 						</Text>
@@ -305,15 +251,44 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 					renderItem={renderOption}
 					style={{ flexGrow: 0, marginBottom: 24 }}
 				/>
+				<LottieOverlay
+					isVisible={correctAnswer !== undefined}
+					source={
+						correctAnswer === selected
+							? require('@assets/correct.json')
+							: require('@assets/wrong.json')
+					}
+				/>
 			</SafeAreaView>
 		</ImageBackground>
 	);
 };
 
 const styles = StyleSheet.create({
-	root: { flex: 1, backgroundColor: 'blue' },
-
-	avatar: { borderRadius: 12 }
+	safeArea: { flex: 1, padding: 12, justifyContent: 'space-between' },
+	avatar: { borderRadius: 12 },
+	playersContainer: { flexDirection: 'row', justifyContent: 'space-between' },
+	progressContainer: {
+		flexDirection: 'row',
+		justifyContent: 'center',
+		alignItems: 'center',
+		alignContent: 'center',
+		marginTop: 18
+	},
+	timer: { justifyContent: 'center', marginEnd: 12, alignItems: 'center' },
+	timerText: { color: 'white', fontSize: 24 },
+	questionContainer: { flex: 1, justifyContent: 'center' },
+	questionCard: {
+		backgroundColor: '#162447',
+		borderRadius: Dimens.borderRadius,
+		padding: 12,
+		marginTop: 24
+	},
+	option: {
+		borderRadius: Dimens.borderRadius,
+		padding: 12,
+		marginVertical: 8
+	}
 });
 
 export { OneVsOneScreen };
