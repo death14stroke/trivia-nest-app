@@ -1,9 +1,13 @@
-import React, { FC } from 'react';
-import { useEffect } from 'react';
-import { useState } from 'react';
-import { Text, View } from 'react-native';
+import React, { FC, useState, useEffect } from 'react';
+import { ImageBackground, StyleSheet } from 'react-native';
+import { Text } from 'react-native-elements';
+import { Button } from './Button';
 
-const WaitingTimer: FC = () => {
+interface Props {
+	onCancel?: () => void;
+}
+
+const WaitingTimer: FC<Props> = ({ onCancel }) => {
 	const [time, setTime] = useState(0);
 
 	useEffect(() => {
@@ -17,10 +21,33 @@ const WaitingTimer: FC = () => {
 	}, []);
 
 	return (
-		<View style={{ flex: 1, justifyContent: 'center' }}>
-			<Text style={{ color: 'white' }}>{time}</Text>
-		</View>
+		<ImageBackground
+			style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 12 }}
+			source={require('@assets/background.jpg')}>
+			<Text h2 h2Style={styles.text}>
+				Searching Opponent...
+			</Text>
+			<Text h1 h1Style={styles.timer}>
+				{time}
+			</Text>
+			<Button.Solid
+				title='Cancel'
+				raised
+				titleStyle={{ fontSize: 24 }}
+				onPress={onCancel}
+			/>
+		</ImageBackground>
 	);
 };
+
+const styles = StyleSheet.create({
+	timer: {
+		textAlign: 'center',
+		marginTop: 16,
+		marginBottom: 48,
+		fontWeight: 'bold'
+	},
+	text: { textAlign: 'center', fontWeight: '500' }
+});
 
 export { WaitingTimer };
