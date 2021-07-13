@@ -33,8 +33,10 @@ const QuestionView: FC<Props> = ({
 	const [disabled, setDisabled] = useState(false);
 
 	useEffect(() => {
-		setDisabled(false);
-		setSelected(undefined);
+		setTimeout(() => {
+			setDisabled(false);
+			setSelected(undefined);
+		}, 1000);
 	}, [position]);
 
 	const renderOption: ListRenderItem<{ id: string; opt: string }> = ({
@@ -65,6 +67,13 @@ const QuestionView: FC<Props> = ({
 			</TouchableOpacity>
 		);
 	};
+
+	console.log(
+		'correct answer:',
+		correctAnswer,
+		selected,
+		correctAnswer === selected
+	);
 
 	return (
 		<View style={{ flex: 1 }}>

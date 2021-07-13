@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useCurrentUser } from '@app/hooks/firebase';
 
-export const BASE_URL = 'http://192.168.0.102:3002';
+export const BASE_URL = 'http://192.168.0.101:3002';
 
 const client = axios.create({
 	baseURL: BASE_URL
