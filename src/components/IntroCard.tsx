@@ -7,11 +7,17 @@ import { Button } from './Button';
 
 interface Props {
 	mode: IntroMode;
+	currentCoins: number;
 	onModeSelected?: () => void;
 	containerStyle?: StyleProp<ViewStyle>;
 }
 
-const IntroCard: FC<Props> = ({ mode, onModeSelected, containerStyle }) => {
+const IntroCard: FC<Props> = ({
+	mode,
+	currentCoins,
+	onModeSelected,
+	containerStyle
+}) => {
 	const { title, description, cost, image } = mode;
 
 	return (
@@ -30,6 +36,7 @@ const IntroCard: FC<Props> = ({ mode, onModeSelected, containerStyle }) => {
 					title={cost === 0 ? 'Free' : cost.toString()}
 					titleStyle={styles.buttonTitle}
 					onPress={onModeSelected}
+					disabled={currentCoins < cost}
 					iconPosition='right'
 					icon={
 						<Avatar

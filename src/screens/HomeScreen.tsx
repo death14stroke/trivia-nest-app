@@ -48,6 +48,7 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 	const renderIntroCard: ListRenderItem<IntroMode> = ({ item }) => (
 		<IntroCard
 			mode={item}
+			currentCoins={user?.coins ?? 0}
 			containerStyle={{ height: '55%' }}
 			onModeSelected={() => navigateToGame(item.key)}
 		/>
