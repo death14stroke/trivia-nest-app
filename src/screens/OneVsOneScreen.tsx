@@ -43,11 +43,11 @@ const quizReducer = (state: State, action: Action): State => {
 		case 'update_question':
 			return {
 				...state,
-				question: action.payload,
-				correctAnswer: undefined
+				correctAnswer: undefined,
+				...action.payload
 			};
 		case 'update_correct_answer':
-			return { ...state, ...action.payload };
+			return { ...state, correctAnswer: action.payload };
 		default:
 			return state;
 	}
@@ -80,6 +80,11 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 		socket.current = io(BASE_URL, { auth: { token } });
 		socket.current.emit('joinWaitingRoom');
 
+		socket.current.on('error', ({ message }) => {
+			showToast(message);
+			navigation.pop();
+		});
+
 		socket.current.once(
 			'start',
 			({
@@ -106,11 +111,14 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 		socket.current.on('question', ({ pos, question, next, prevAns }) => {
 			dispatch({
 				type: 'update_correct_answer',
-				payload: { correctAnswer: prevAns, position: pos }
+				payload: prevAns
 			});
 
 			setTimeout(() => {
-				dispatch({ type: 'update_question', payload: question });
+				dispatch({
+					type: 'update_question',
+					payload: { question, position: pos }
+				});
 				setLoading(false);
 				setDuration(Math.round((next - Date.now()) / 1000));
 			}, 1000);
