@@ -1,14 +1,17 @@
-import React, { FC, useContext } from 'react';
+import React, { FC, useContext, useState } from 'react';
 import { View, StyleSheet, Dimensions, ListRenderItem } from 'react-native';
-import { Avatar, Icon, Text } from 'react-native-elements';
+import { Avatar, Icon, Text, Theme, useTheme } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Carousel from 'react-native-snap-carousel';
 import { BASE_URL } from '@app/api/client';
 import { ProfileContext } from '@app/context';
-import { IntroMode, Mode } from '@app/models';
-import { IntroCard } from '@app/components';
+import { CurrentUser, IntroMode, Mode } from '@app/models';
+import { IntroCard, ProfileModal, SelectAvatarModal } from '@app/components';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@app/navigation';
+import { apiGetAvatars, apiUpdateUserProfile } from '@app/api/users';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { showToast } from '@app/hooks/ui';
 
 const modes: IntroMode[] = [
 	{
@@ -43,7 +46,52 @@ interface Props {
 }
 
 const HomeScreen: FC<Props> = ({ navigation }) => {
-	const { state: user } = useContext(ProfileContext);
+	const {
+		state: user,
+		actions: { updateProfile }
+	} = useContext(ProfileContext);
+	const styles = useStyles(useTheme().theme);
+	const queryClient = useQueryClient();
+
+	const [avatarModal, setAvatarModal] = useState(false);
+	const [profileModal, setProfileModal] = useState(false);
+
+	const { data: avatars, isLoading: isLoadingAvatars } = useQuery<string[]>(
+		'avatars',
+		apiGetAvatars,
+		{ staleTime: 120 * 60 * 1000 }
+	);
+
+	const { mutate } = useMutation<
+		unknown,
+		unknown,
+		{ username?: string; avatar?: string },
+		CurrentUser | undefined
+	>(params => apiUpdateUserProfile(params), {
+		onMutate: async params => {
+			await queryClient.cancelQueries('me');
+			updateProfile(params);
+
+			const prevProfile = queryClient.getQueryData<CurrentUser>('me');
+			queryClient.setQueryData('me', { ...prevProfile, ...params });
+
+			return prevProfile;
+		},
+		onSuccess: () => showToast('Profile updated!'),
+		onError: (_err, _params, context) => {
+			showToast('Could not update profile');
+			queryClient.setQueryData('me', context);
+		}
+	});
+
+	const toggleProfileModal = () => setProfileModal(!profileModal);
+	const toggleAvatarModal = () => setAvatarModal(!avatarModal);
+
+	const navigateToGame = (key: Mode) => {
+		if (key === '1v1') {
+			navigation.navigate('OneVsOne');
+		}
+	};
 
 	const renderIntroCard: ListRenderItem<IntroMode> = ({ item }) => (
 		<IntroCard
@@ -54,12 +102,6 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 		/>
 	);
 
-	const navigateToGame = (key: Mode) => {
-		if (key === '1v1') {
-			navigation.navigate('OneVsOne');
-		}
-	};
-
 	return (
 		<SafeAreaView style={styles.root}>
 			<View style={styles.header}>
@@ -68,6 +110,7 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 					source={{ uri: BASE_URL + user?.avatar }}
 					containerStyle={styles.avatar}
 					avatarStyle={styles.avatar}
+					onPress={toggleAvatarModal}
 				/>
 				<View style={styles.nameContainer}>
 					<Text style={styles.username}>{user?.username}</Text>
@@ -80,6 +123,12 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 					/>
 					<Text style={{ textAlign: 'right' }}>{user?.coins}</Text>
 				</View>
+				<Avatar
+					rounded
+					icon={{ type: 'ionicon', name: 'person' }}
+					containerStyle={styles.profileIcon}
+					onPress={toggleProfileModal}
+				/>
 			</View>
 			<View style={{ flex: 1 }}>
 				<Carousel
@@ -96,28 +145,49 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 				<Icon type='ionicon' name='heart' color='red' />
 				<Text style={{ fontSize: 18 }}> in India </Text>
 			</View>
+			<SelectAvatarModal
+				open={avatarModal}
+				data={avatars!}
+				defaultAvatar={user?.avatar}
+				onCancel={toggleAvatarModal}
+				onSuccess={avatar => {
+					mutate({ avatar });
+					toggleAvatarModal();
+				}}
+			/>
+			<ProfileModal
+				open={profileModal}
+				onClose={toggleProfileModal}
+				onBackdropPress={toggleProfileModal}
+			/>
 		</SafeAreaView>
 	);
 };
 
-const styles = StyleSheet.create({
-	root: { flex: 1, backgroundColor: 'blue' },
-	header: {
-		flexDirection: 'row',
-		backgroundColor: 'black',
-		borderRadius: 12,
-		marginHorizontal: 12
-	},
-	avatar: { borderRadius: 12 },
-	nameContainer: { justifyContent: 'center', flex: 1, marginStart: 8 },
-	username: { fontSize: 24, fontWeight: 'bold' },
-	level: { fontSize: 16 },
-	coinsContainer: { justifyContent: 'center', marginEnd: 16 },
-	footerContainer: {
-		flexDirection: 'row',
-		justifyContent: 'center',
-		alignItems: 'center'
-	}
-});
+const useStyles = ({ colors }: Theme) =>
+	StyleSheet.create({
+		root: { flex: 1, backgroundColor: 'blue' },
+		header: {
+			flexDirection: 'row',
+			backgroundColor: 'black',
+			borderRadius: 12,
+			marginHorizontal: 12,
+			alignItems: 'center'
+		},
+		avatar: { borderRadius: 12 },
+		nameContainer: { justifyContent: 'center', flex: 1, marginStart: 8 },
+		username: { fontSize: 24, fontWeight: 'bold' },
+		level: { fontSize: 16 },
+		coinsContainer: { justifyContent: 'center', marginEnd: 16 },
+		footerContainer: {
+			flexDirection: 'row',
+			justifyContent: 'center',
+			alignItems: 'center'
+		},
+		profileIcon: {
+			backgroundColor: colors?.primary,
+			marginHorizontal: 8
+		}
+	});
 
 export { HomeScreen };

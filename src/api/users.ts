@@ -6,19 +6,14 @@ type CreateProfileParams = {
 	username: string;
 	avatar?: string;
 };
+type UpdateProfileParams = {
+	username?: string;
+	avatar?: string;
+};
 
 // Create user profile in the database
-export const apiCreateUserProfile = ({
-	email,
-	username,
-	avatar
-}: CreateProfileParams) => {
-	return client.post('/users', {
-		email,
-		username,
-		avatar
-	});
-};
+export const apiCreateUserProfile = (params: CreateProfileParams) =>
+	client.post('/users', params);
 
 // Get current authenticated user
 export const apiCurrentUser = async () =>
@@ -27,3 +22,7 @@ export const apiCurrentUser = async () =>
 // Get all avatars
 export const apiGetAvatars = async () =>
 	(await client.get<string[]>('/avatars')).data;
+
+// Update user profile
+export const apiUpdateUserProfile = (params: UpdateProfileParams) =>
+	client.put('/users', params);

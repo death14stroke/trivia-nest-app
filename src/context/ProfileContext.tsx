@@ -1,14 +1,27 @@
-import React, { FC, useEffect, useReducer, createContext } from 'react';
+import React, {
+	FC,
+	useEffect,
+	useReducer,
+	createContext,
+	Dispatch
+} from 'react';
 import { QueryObserverResult, useQuery, useQueryClient } from 'react-query';
 import _ from 'lodash';
 import auth from '@react-native-firebase/auth';
 import { apiCurrentUser } from '@app/api/users';
 import { CurrentUser } from '@app/models';
+import { string } from 'yup/lib/locale';
+import { act } from 'react-test-renderer';
 
 interface Action {
-	type: 'fetch_profile';
+	type: 'fetch_profile' | 'update_profile';
 	payload?: any;
 }
+
+type UpdateProfileParams = {
+	username?: string;
+	avatar?: string;
+};
 
 export type ProfileState = CurrentUser | undefined;
 
@@ -17,8 +30,12 @@ const INITIAL_STATE: ProfileState = undefined;
 const profileReducer = (state: ProfileState, action: Action): ProfileState => {
 	switch (action.type) {
 		case 'fetch_profile':
-			const user = action.payload;
-			return user;
+			return action.payload;
+		case 'update_profile':
+			return {
+				...state,
+				...action.payload
+			};
 		default:
 			return state;
 	}
@@ -30,6 +47,7 @@ type ContextValue = {
 		refreshProfile: () => Promise<
 			QueryObserverResult<CurrentUser, unknown>
 		>;
+		updateProfile: (params: UpdateProfileParams) => void;
 	};
 };
 
@@ -66,8 +84,19 @@ const Provider: FC = ({ children }) => {
 		return refetch();
 	};
 
+	const updateProfile = (params: UpdateProfileParams) => {
+		dispatch({ type: 'update_profile', payload: params });
+	};
+
 	return (
-		<Context.Provider value={{ state, actions: { refreshProfile } }}>
+		<Context.Provider
+			value={{
+				state,
+				actions: {
+					refreshProfile,
+					updateProfile
+				}
+			}}>
 			{children}
 		</Context.Provider>
 	);
