@@ -33,10 +33,8 @@ const QuestionView: FC<Props> = ({
 	const [disabled, setDisabled] = useState(false);
 
 	useEffect(() => {
-		setTimeout(() => {
-			setDisabled(false);
-			setSelected(undefined);
-		}, 1000);
+		setDisabled(false);
+		setSelected(undefined);
 	}, [position]);
 
 	const renderOption: ListRenderItem<{ id: string; opt: string }> = ({

@@ -7,7 +7,7 @@ import React, {
 	useRef
 } from 'react';
 import { View, ImageBackground, StyleSheet } from 'react-native';
-import { Text, Avatar } from 'react-native-elements';
+import { Text, Avatar, useTheme } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Socket, io } from 'socket.io-client';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -56,6 +56,9 @@ const quizReducer = (state: State, action: Action): State => {
 const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 	const { state: currentUser } = useContext(ProfileContext);
 	const socket = useRef<Socket>();
+	const {
+		theme: { colors }
+	} = useTheme();
 
 	const [timer, setTimer] = useState(true);
 	const [loading, setLoading] = useState(false);
@@ -109,6 +112,16 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 		);
 
 		socket.current.on('question', ({ pos, question, next, prevAns }) => {
+			if (pos === 0) {
+				dispatch({
+					type: 'update_question',
+					payload: { question, position: pos }
+				});
+				setLoading(false);
+				setDuration(Math.round((next - Date.now()) / 1000));
+				return;
+			}
+
 			dispatch({
 				type: 'update_correct_answer',
 				payload: prevAns
@@ -124,8 +137,15 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 			}, 1000);
 		});
 
-		socket.current.on('results', results => {
-			navigation.replace('Results', results);
+		socket.current.on('results', ({ results, prevAns }) => {
+			dispatch({
+				type: 'update_correct_answer',
+				payload: prevAns
+			});
+
+			setTimeout(() => {
+				navigation.replace('Results', results);
+			}, 1000);
 		});
 	};
 
@@ -138,17 +158,21 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 		navigation.pop();
 	};
 
-	const renderPlayer = (player: Player) => (
-		<View>
+	const renderPlayer = ({ avatar, username, _id }: Player) => (
+		<View style={{ alignItems: 'center' }}>
 			<Avatar
 				size='large'
-				source={{ uri: BASE_URL + player.avatar }}
-				containerStyle={styles.avatar}
+				source={{ uri: BASE_URL + avatar }}
+				containerStyle={[
+					styles.avatar,
+					_id === currentUser?._id && {
+						borderWidth: 2,
+						borderColor: colors?.primary
+					}
+				]}
 				avatarStyle={styles.avatar}
 			/>
-			<Text style={{ marginTop: 4, fontSize: 16 }}>
-				{player.username}
-			</Text>
+			<Text style={{ marginTop: 4, fontSize: 16 }}>{username}</Text>
 		</View>
 	);
 
