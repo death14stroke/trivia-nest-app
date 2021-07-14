@@ -1,4 +1,4 @@
-import { CurrentUser } from '@app/models';
+import { Battle, CurrentUser } from '@app/models';
 import client from './client';
 
 type CreateProfileParams = {
@@ -26,3 +26,12 @@ export const apiGetAvatars = async () =>
 // Update user profile
 export const apiUpdateUserProfile = (params: UpdateProfileParams) =>
 	client.put('/users', params);
+
+// Get battle history
+export const apiBattleHistory = async (pageSize: number, pageParam?: Battle) =>
+	client.get<Battle[]>('/battles/me', {
+		params: {
+			pageSize,
+			...(pageParam && { prevKey: new Date(pageParam.startTime) })
+		}
+	});
