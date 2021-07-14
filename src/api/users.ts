@@ -1,4 +1,4 @@
-import { Battle, CurrentUser } from '@app/models';
+import { Battle, CurrentUser, Player } from '@app/models';
 import client from './client';
 
 type CreateProfileParams = {
@@ -35,3 +35,29 @@ export const apiBattleHistory = async (pageSize: number, pageParam?: Battle) =>
 			...(pageParam && { prevKey: new Date(pageParam.startTime) })
 		}
 	});
+
+// Search users
+export const apiSearchUsers = async (
+	query: string,
+	pageSize: number,
+	pageParam?: Player
+) =>
+	client.get<Player[]>('/users/search', {
+		params: {
+			query,
+			pageSize,
+			...(pageParam && { prevKey: new Date(pageParam.username) })
+		}
+	});
+
+// Send friend request
+export const apiSendRequest = (friendId: string) =>
+	client.post(`/friends/request/${friendId}`);
+
+// Accept friend request
+export const apiAcceptRequest = (friendId: string) =>
+	client.post(`/friends/accept/${friendId}`);
+
+// Unfriend user
+export const apiUnfriendUser = (friendId: string) =>
+	client.delete(`/friends/${friendId}`);

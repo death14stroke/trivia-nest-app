@@ -44,7 +44,7 @@ const ProfileModal: FC<Props> = ({ open, onBackdropPress, onClose }) => {
 					alignItems: 'center',
 					marginHorizontal: 12
 				}}>
-				<Text style={styles.header}>Select avatar</Text>
+				<Text style={styles.header}>Player Profile</Text>
 				<Icon
 					type='ionicon'
 					name='close'
