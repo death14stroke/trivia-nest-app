@@ -3,4 +3,5 @@ export interface Player {
 	username: string;
 	avatar: string;
 	level: string;
+	status?: number;
 }

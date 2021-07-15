@@ -46,7 +46,7 @@ export const apiSearchUsers = async (
 		params: {
 			query,
 			pageSize,
-			...(pageParam && { prevKey: new Date(pageParam.username) })
+			...(pageParam && { prevKey: pageParam.username })
 		}
 	});
 
@@ -61,3 +61,12 @@ export const apiAcceptRequest = (friendId: string) =>
 // Unfriend user
 export const apiUnfriendUser = (friendId: string) =>
 	client.delete(`/friends/${friendId}`);
+
+// Get friends
+export const apiGetFriends = (pageSize: number, pageParam?: Player) =>
+	client.get('/friends', {
+		params: {
+			pageSize,
+			...(pageParam && { prevKey: pageParam.username })
+		}
+	});

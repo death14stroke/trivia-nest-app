@@ -10,6 +10,11 @@ import _ from 'lodash';
 import auth from '@react-native-firebase/auth';
 import { apiCurrentUser } from '@app/api/users';
 import { CurrentUser } from '@app/models';
+import { BASE_URL } from '@app/api/client';
+import { io, Socket } from 'socket.io-client';
+import { useState } from 'react';
+import { Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 interface Action {
 	type:
@@ -136,7 +141,9 @@ const Context = createContext<ContextValue>(undefined!);
 
 const Provider: FC = ({ children }) => {
 	const [state, dispatch] = useReducer(profileReducer, INITIAL_STATE);
+	const [socket, setSocket] = useState<Socket>();
 	const queryClient = useQueryClient();
+	const navigation = useNavigation();
 
 	const { refetch } = useQuery<CurrentUser>('me', apiCurrentUser, {
 		onSuccess: user => {
@@ -155,11 +162,48 @@ const Provider: FC = ({ children }) => {
 				dispatch({ type: 'fetch_profile', payload: null });
 			} else {
 				await refetch();
+				const token = await user.getIdToken();
+				if (token) {
+					if (socket) {
+						socket.disconnect();
+					}
+					setSocket(io(BASE_URL, { auth: { token } }));
+				}
 			}
 		});
 
-		return unsubscribe;
+		return () => {
+			unsubscribe();
+			socket?.disconnect();
+		};
 	}, []);
+
+	useEffect(() => {
+		socket?.on('inviteRoom', ({ roomId, ownerId }) => {
+			console.log();
+			Alert.alert('Room invite', `${ownerId} invited to his room`, [
+				{
+					text: 'Cancel',
+					onPress: () => console.log('Cancel Pressed'),
+					style: 'cancel'
+				},
+				{
+					text: 'Join',
+					onPress: () => joinRoom(roomId),
+					style: 'default'
+				}
+			]);
+		});
+
+		//TODO: find a way to navigate
+		socket?.on('joinRoom', roomId => {
+			navigation.navigate('Multiplayer', roomId);
+		});
+	}, [socket]);
+
+	const joinRoom = (roomId: string) => {
+		socket?.emit('joinRoom', roomId);
+	};
 
 	const refreshProfile = () => {
 		return refetch();
