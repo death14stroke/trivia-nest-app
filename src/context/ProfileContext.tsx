@@ -48,8 +48,6 @@ const profileReducer = (state: ProfileState, action: Action): ProfileState => {
 				rel => rel.status
 			);
 
-			console.log(user, invite, request, accepted);
-
 			return (
 				user && {
 					...user,

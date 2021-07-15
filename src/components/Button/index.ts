@@ -1,7 +1,9 @@
+import { RaisedButton } from './RaisedButton';
 import { SolidButton } from './SolidButton';
 import { TextButton } from './TextButton';
 
 export const Button = {
 	Solid: SolidButton,
-	Text: TextButton
+	Text: TextButton,
+	Raised: RaisedButton
 };

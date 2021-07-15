@@ -22,7 +22,7 @@ const IntroCard: FC<Props> = ({
 
 	return (
 		<View style={[styles.card, containerStyle]}>
-			<View style={{ flex: 1 }}>
+			<View style={{ height: '50%' }}>
 				<Image source={image} style={styles.image} />
 			</View>
 			<View style={styles.textContainer}>
@@ -32,20 +32,20 @@ const IntroCard: FC<Props> = ({
 				<Text h4 style={styles.description}>
 					{description}
 				</Text>
-				<Button.Solid
-					title={cost === 0 ? 'Free' : cost.toString()}
-					titleStyle={styles.buttonTitle}
+			</View>
+			<View style={styles.button}>
+				<Button.Raised
 					onPress={onModeSelected}
-					disabled={currentCoins < cost}
-					iconPosition='right'
-					icon={
-						<Avatar
-							size='small'
-							source={require('@assets/coins.png')}
-							containerStyle={{ marginStart: 8 }}
-						/>
-					}
-				/>
+					disabled={currentCoins < cost}>
+					<Text style={styles.buttonTitle}>
+						{cost === 0 ? 'Free' : cost.toString()}
+					</Text>
+					<Avatar
+						size='small'
+						source={require('@assets/coins.png')}
+						containerStyle={{ marginStart: 8 }}
+					/>
+				</Button.Raised>
 			</View>
 		</View>
 	);
@@ -54,7 +54,6 @@ const IntroCard: FC<Props> = ({
 const styles = StyleSheet.create({
 	card: {
 		borderRadius: Dimens.borderRadius,
-		padding: 0,
 		backgroundColor: 'black',
 		shadowOffset: { width: 0, height: 2 },
 		shadowOpacity: 0.5,
@@ -82,6 +81,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'space-between'
 	},
+	button: { margin: 12 },
 	buttonTitle: { fontWeight: '600', fontSize: 24 }
 });
 

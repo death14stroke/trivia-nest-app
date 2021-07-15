@@ -1,5 +1,11 @@
 import React, { FC, useContext, useState } from 'react';
-import { View, StyleSheet, Dimensions, ListRenderItem } from 'react-native';
+import {
+	View,
+	StyleSheet,
+	Dimensions,
+	ListRenderItem,
+	ImageBackground
+} from 'react-native';
 import { Avatar, Icon, Text, Theme, useTheme } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Carousel from 'react-native-snap-carousel';
@@ -90,6 +96,8 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 	const navigateToGame = (key: Mode) => {
 		if (key === '1v1') {
 			navigation.navigate('OneVsOne');
+		} else if (key === 'multi') {
+			navigation.navigate('Multiplayer');
 		}
 	};
 
@@ -97,76 +105,82 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 		<IntroCard
 			mode={item}
 			currentCoins={user?.coins ?? 0}
-			containerStyle={{ minHeight: '60%' }}
+			containerStyle={{ minHeight: '70%' }}
 			onModeSelected={() => navigateToGame(item.key)}
 		/>
 	);
 
 	return (
-		<SafeAreaView style={styles.root}>
-			<View style={styles.header}>
-				<Avatar
-					size='large'
-					source={{ uri: BASE_URL + user?.avatar }}
-					containerStyle={styles.avatar}
-					avatarStyle={styles.avatar}
-					onPress={toggleAvatarModal}
-				/>
-				<View style={styles.nameContainer}>
-					<Text style={styles.username}>{user?.username}</Text>
-					<Text style={styles.level}>{user?.level}</Text>
-				</View>
-				<View style={styles.coinsContainer}>
+		<ImageBackground
+			source={require('@assets/background.jpg')}
+			style={{ flex: 1 }}>
+			<SafeAreaView style={styles.root}>
+				<View style={styles.header}>
 					<Avatar
-						source={require('@assets/coins.png')}
-						size='small'
+						size='large'
+						source={{ uri: BASE_URL + user?.avatar }}
+						containerStyle={styles.avatar}
+						avatarStyle={styles.avatar}
+						onPress={toggleAvatarModal}
 					/>
-					<Text style={{ textAlign: 'right' }}>{user?.coins}</Text>
+					<View style={styles.nameContainer}>
+						<Text style={styles.username}>{user?.username}</Text>
+						<Text style={styles.level}>{user?.level}</Text>
+					</View>
+					<View style={styles.coinsContainer}>
+						<Avatar
+							source={require('@assets/coins.png')}
+							size='small'
+						/>
+						<Text style={{ textAlign: 'right' }}>
+							{user?.coins}
+						</Text>
+					</View>
+					<Avatar
+						rounded
+						icon={{ type: 'ionicon', name: 'person' }}
+						containerStyle={styles.profileIcon}
+						onPress={toggleProfileModal}
+					/>
 				</View>
-				<Avatar
-					rounded
-					icon={{ type: 'ionicon', name: 'person' }}
-					containerStyle={styles.profileIcon}
-					onPress={toggleProfileModal}
+				<View style={{ flex: 1 }}>
+					<Carousel
+						data={modes}
+						renderItem={renderIntroCard}
+						sliderWidth={SCREEN_WIDTH}
+						itemWidth={SCREEN_WIDTH * 0.7}
+						activeSlideAlignment='center'
+						slideStyle={{ justifyContent: 'center' }}
+					/>
+				</View>
+				<View style={styles.footerContainer}>
+					<Text style={{ fontSize: 18 }}>Made with </Text>
+					<Icon type='ionicon' name='heart' color='red' />
+					<Text style={{ fontSize: 18 }}> in India </Text>
+				</View>
+				<SelectAvatarModal
+					open={avatarModal}
+					data={avatars!}
+					defaultAvatar={user?.avatar}
+					onCancel={toggleAvatarModal}
+					onSuccess={avatar => {
+						mutate({ avatar });
+						toggleAvatarModal();
+					}}
 				/>
-			</View>
-			<View style={{ flex: 1 }}>
-				<Carousel
-					data={modes}
-					renderItem={renderIntroCard}
-					sliderWidth={SCREEN_WIDTH}
-					itemWidth={SCREEN_WIDTH * 0.7}
-					activeSlideAlignment='center'
-					slideStyle={{ justifyContent: 'center' }}
+				<ProfileModal
+					open={profileModal}
+					onClose={toggleProfileModal}
+					onBackdropPress={toggleProfileModal}
 				/>
-			</View>
-			<View style={styles.footerContainer}>
-				<Text style={{ fontSize: 18 }}>Made with </Text>
-				<Icon type='ionicon' name='heart' color='red' />
-				<Text style={{ fontSize: 18 }}> in India </Text>
-			</View>
-			<SelectAvatarModal
-				open={avatarModal}
-				data={avatars!}
-				defaultAvatar={user?.avatar}
-				onCancel={toggleAvatarModal}
-				onSuccess={avatar => {
-					mutate({ avatar });
-					toggleAvatarModal();
-				}}
-			/>
-			<ProfileModal
-				open={profileModal}
-				onClose={toggleProfileModal}
-				onBackdropPress={toggleProfileModal}
-			/>
-		</SafeAreaView>
+			</SafeAreaView>
+		</ImageBackground>
 	);
 };
 
 const useStyles = ({ colors }: Theme) =>
 	StyleSheet.create({
-		root: { flex: 1, backgroundColor: 'blue' },
+		root: { flex: 1 },
 		header: {
 			flexDirection: 'row',
 			backgroundColor: 'black',

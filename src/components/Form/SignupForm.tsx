@@ -60,7 +60,6 @@ const SignupForm: FC = () => {
 	});
 
 	const _onSubmit = (values: Values) => {
-		console.log(values);
 		mutate(values);
 	};
 

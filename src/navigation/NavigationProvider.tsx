@@ -1,5 +1,6 @@
 import {
 	HomeScreen,
+	MultiplayerRoomScreen,
 	OneVsOneScreen,
 	ResultsScreen,
 	SignupScreen
@@ -36,6 +37,11 @@ const stackScreens = (initialRoute: keyof RootStackParamList) => {
 			<Stack.Screen
 				name='Results'
 				component={ResultsScreen}
+				options={{ headerShown: false }}
+			/>
+			<Stack.Screen
+				name='Multiplayer'
+				component={MultiplayerRoomScreen}
 				options={{ headerShown: false }}
 			/>
 		</Stack.Navigator>

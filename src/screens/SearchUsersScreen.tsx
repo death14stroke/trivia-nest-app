@@ -12,7 +12,7 @@ import _ from 'lodash';
 import React, { FC, useState } from 'react';
 import { useContext } from 'react';
 import { FlatList, ListRenderItem, View } from 'react-native';
-import { Avatar, Text, Icon, useTheme } from 'react-native-elements';
+import { Avatar, Text, useTheme } from 'react-native-elements';
 import { Button } from 'react-native-elements/dist/buttons/Button';
 import { useInfiniteQuery, useMutation } from 'react-query';
 import { useDebounce } from 'use-debounce/lib';
@@ -46,6 +46,7 @@ const SearchUsersScreen: FC = () => {
 			return data;
 		},
 		{
+			enabled: query.length > 0,
 			staleTime: 5 * 60 * 1000,
 			getNextPageParam: lastPage =>
 				lastPage.length === PAGE_SIZE

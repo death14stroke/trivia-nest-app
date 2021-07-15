@@ -30,12 +30,9 @@ const WaitingTimer: FC<Props> = ({ onCancel }) => {
 			<Text h1 h1Style={styles.timer}>
 				{time}
 			</Text>
-			<Button.Solid
-				title='Cancel'
-				raised
-				titleStyle={{ fontSize: 24 }}
-				onPress={onCancel}
-			/>
+			<Button.Raised onPress={onCancel}>
+				<Text style={{ fontSize: 24 }}>Cancel</Text>
+			</Button.Raised>
 		</ImageBackground>
 	);
 };
