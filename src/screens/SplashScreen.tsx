@@ -1,4 +1,5 @@
 import { SocketContext } from '@app/context';
+import { SocketEvent } from '@app/models';
 import { useNavigation } from '@react-navigation/core';
 import React, { FC } from 'react';
 import { useEffect } from 'react';
@@ -10,31 +11,32 @@ const SplashScreen: FC = ({ children }) => {
 	const socket = useContext(SocketContext);
 
 	useEffect(() => {
-		socket?.on('inviteRoom', ({ roomId, ownerId }) => {
-			console.log('invite received');
-			Alert.alert('Room invite', `${ownerId} invited to his room`, [
-				{
-					text: 'Cancel',
-					onPress: () => console.log('Cancel Pressed'),
-					style: 'cancel'
-				},
-				{
-					text: 'Join',
-					onPress: () => joinRoom(roomId),
-					style: 'default'
-				}
-			]);
-		});
+		socket?.on(
+			SocketEvent.INVITE_MULTIPLAYER_ROOM,
+			({ roomId, ownerId }) => {
+				Alert.alert('Room invite', `${ownerId} invited to his room`, [
+					{
+						text: 'Cancel',
+						onPress: () => console.log('Cancel Pressed'),
+						style: 'cancel'
+					},
+					{
+						text: 'Join',
+						onPress: () => joinRoom(roomId),
+						style: 'default'
+					}
+				]);
+			}
+		);
 
-		//TODO: find a way to navigate
-		socket?.on('joinRoom', roomId => {
+		socket?.on(SocketEvent.JOIN_MULTIPLAYER_ROOM, roomId => {
 			console.log('joined room from invite');
 			navigation.navigate('Multiplayer', roomId);
 		});
 	}, [socket]);
 
 	const joinRoom = (roomId: string) => {
-		socket?.emit('joinRoom', roomId);
+		socket?.emit(SocketEvent.JOIN_MULTIPLAYER_ROOM, roomId);
 	};
 
 	return <>{children}</>;

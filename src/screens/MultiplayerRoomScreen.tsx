@@ -1,16 +1,4 @@
-import { BASE_URL } from '@app/api/client';
-import { apiGetFriends } from '@app/api/users';
-import { Button, WaitingTimer } from '@app/components';
-import { SocketContext } from '@app/context';
-import { useCurrentUser } from '@app/hooks/firebase';
-import { showToast } from '@app/hooks/ui';
-import { Player } from '@app/models';
-import { RootStackParamList } from '@app/navigation';
-import { StackNavigationProp } from '@react-navigation/stack';
-import _ from 'lodash';
-import React, { FC, useEffect, useRef } from 'react';
-import { useContext } from 'react';
-import { useState } from 'react';
+import React, { FC, useState, useEffect, useContext } from 'react';
 import {
 	FlatList,
 	ImageBackground,
@@ -19,13 +7,25 @@ import {
 	View,
 	ViewStyle
 } from 'react-native';
-import { Text, Theme, useTheme } from 'react-native-elements';
-import { Avatar } from 'react-native-elements/dist/avatar/Avatar';
-import { Badge } from 'react-native-elements/dist/badge/Badge';
-import { Icon } from 'react-native-elements/dist/icons/Icon';
+import {
+	Text,
+	Avatar,
+	Badge,
+	Icon,
+	Theme,
+	useTheme
+} from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { useInfiniteQuery } from 'react-query';
-import { io, Socket } from 'socket.io-client';
+import _ from 'lodash';
+import { RootStackParamList } from '@app/navigation';
+import { SocketContext } from '@app/context';
+import { Player, SocketEvent, UserStatus } from '@app/models';
+import { BASE_URL } from '@app/api/client';
+import { apiGetFriends } from '@app/api/users';
+import { showToast } from '@app/hooks/ui';
+import { Button, WaitingTimer } from '@app/components';
 
 const PAGE_SIZE = 10;
 
@@ -33,6 +33,7 @@ interface Props {
 	navigation: StackNavigationProp<RootStackParamList, 'Multiplayer'>;
 }
 
+// TODO: update friend online status real time
 const MultiplayerRoomScreen: FC<Props> = ({ navigation }) => {
 	const socket = useContext(SocketContext);
 	const { theme } = useTheme();
@@ -63,38 +64,33 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation }) => {
 	}, []);
 
 	const init = async () => {
-		const token = await useCurrentUser()?.getIdToken();
-		if (!token) {
-			showToast('Could not connect to game server!');
-			navigation.pop();
-			return;
-		}
+		socket?.emit(SocketEvent.CREATE_MULTIPLAYER_ROOM);
 
-		socket?.emit('createRoom');
-
-		socket?.on('createRoom', roomId => {
+		socket?.on(SocketEvent.CREATE_MULTIPLAYER_ROOM, roomId => {
 			console.log('room created:', roomId);
 			setRoomId(roomId);
 			setTimer(false);
 		});
 
-		socket?.on('joinRoomAlert', friendId => {
+		socket?.on(SocketEvent.JOIN_MULTIPLAYER_ROOM_ALERT, friendId => {
 			showToast(`${friendId} has joined the room!`);
 		});
 	};
 
 	const leaveRoom = () => {
-		socket?.emit('leaveRoom', roomId);
+		socket?.emit(SocketEvent.LEAVE_MULTIPLAYER_ROOM, roomId);
 	};
 
 	const renderFriendCard: ListRenderItem<Player> = ({ item }) => {
 		const { _id, username, avatar, status } = item;
 
-		let badgeStyle: ViewStyle = styles.badgeOffline;
-		if (status === 2) {
+		let badgeStyle: ViewStyle;
+		if (status === UserStatus.ONLINE) {
 			badgeStyle = styles.badgeOnline;
-		} else {
+		} else if (status === UserStatus.BUSY) {
 			badgeStyle = styles.badgeBusy;
+		} else {
+			badgeStyle = styles.badgeOffline;
 		}
 
 		return (
@@ -131,7 +127,7 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation }) => {
 						name='add-circle-outline'
 						color='white'
 						onPress={() => {
-							socket?.emit('inviteRoom', {
+							socket?.emit(SocketEvent.INVITE_MULTIPLAYER_ROOM, {
 								roomId,
 								friendId: _id
 							});
@@ -202,7 +198,8 @@ const useStyles = ({ colors }: Theme) =>
 		},
 		badgeOffline: {
 			borderColor: colors?.disabled,
-			borderWidth: 1
+			backgroundColor: colors?.grey5,
+			borderWidth: 0.5
 		}
 	});
 
