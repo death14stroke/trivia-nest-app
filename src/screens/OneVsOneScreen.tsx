@@ -5,11 +5,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@app/navigation';
 import { ProfileContext, SocketContext } from '@app/context';
-import { Player, Question } from '@app/models';
+import { Player, Question, SocketEvent } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { showToast } from '@app/hooks/ui';
 import { QuestionView, WaitingTimer } from '@app/components';
-import { SocketEvent } from 'src/models/SocketEvent';
 
 interface Props {
 	navigation: StackNavigationProp<RootStackParamList, 'OneVsOne'>;
@@ -45,13 +44,12 @@ const quizReducer = (state: State, action: Action): State => {
 	}
 };
 
-// FIXME: leave waiting room and leave battle. Interface with socket events
 const OneVsOneScreen: FC<Props> = ({ navigation }) => {
-	const { state: currentUser } = useContext(ProfileContext);
-	const socket = useContext(SocketContext);
 	const {
 		theme: { colors }
 	} = useTheme();
+	const { state: currentUser } = useContext(ProfileContext);
+	const socket = useContext(SocketContext);
 
 	const [timer, setTimer] = useState(true);
 	const [loading, setLoading] = useState(false);
@@ -60,11 +58,10 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 
 	const { battleId, opponent, question, correctAnswer, position } = state;
 
-	//TODO: remove dependency on timer by extracting timer to new screen
 	useEffect(() => {
 		init();
 		return leaveRoom;
-	}, [timer]);
+	}, []);
 
 	const init = async () => {
 		socket?.emit(SocketEvent.JOIN_WAITING_ROOM);
@@ -124,6 +121,7 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 		});
 
 		socket?.on(SocketEvent.RESULTS, ({ results, prevAns }) => {
+			socket.off(SocketEvent.LEAVE_1V1_BATTLE);
 			dispatch({
 				type: 'update_correct_answer',
 				payload: prevAns
@@ -140,17 +138,11 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 	};
 
 	const leaveRoom = () => {
-		console.log('cleanup');
-		if (timer) {
-			socket?.emit(SocketEvent.LEAVE_WAITING_ROOM);
-		} else {
-			console.log('leaving ', battleId);
-			socket?.emit(SocketEvent.LEAVE_1V1_BATTLE, battleId);
-		}
+		socket?.emit(SocketEvent.LEAVE_WAITING_ROOM);
+		socket?.emit(SocketEvent.LEAVE_1V1_BATTLE);
 	};
 
 	const onCancel = () => {
-		leaveRoom();
 		navigation.pop();
 	};
 
