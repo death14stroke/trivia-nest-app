@@ -1,21 +1,23 @@
 import { ProfileContext, SocketContext } from '@app/context';
-import { Player, SocketEvent } from '@app/models';
+import { Relation, SocketEvent } from '@app/models';
 import { useNavigation } from '@react-navigation/core';
 import React, { FC } from 'react';
 import { useEffect } from 'react';
 import { useContext } from 'react';
 import { Alert } from 'react-native';
-import { InfiniteData, useQueryClient } from 'react-query';
 
 const SplashScreen: FC = ({ children }) => {
 	const navigation = useNavigation();
-	const queryClient = useQueryClient();
 	const socket = useContext(SocketContext);
 	const {
-		actions: { updateUserStatus }
+		actions: { updateUserStatus, updateFriends }
 	} = useContext(ProfileContext);
 
 	useEffect(() => {
+		socket?.on(SocketEvent.RELATIONS, (relations: Relation[]) => {
+			updateFriends(relations);
+		});
+
 		socket?.on(
 			SocketEvent.INVITE_MULTIPLAYER_ROOM,
 			({ roomId, ownerId }) => {

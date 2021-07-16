@@ -6,19 +6,15 @@ import React, {
 	Dispatch
 } from 'react';
 import { QueryObserverResult, useQuery, useQueryClient } from 'react-query';
-import _ from 'lodash';
 import auth from '@react-native-firebase/auth';
+import _ from 'lodash';
 import { apiCurrentUser } from '@app/api/users';
-import { CurrentUser, UserStatus } from '@app/models';
-import { BASE_URL } from '@app/api/client';
-import { io, Socket } from 'socket.io-client';
-import { useState } from 'react';
-import { Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { CurrentUser, Relation, UserStatus } from '@app/models';
 
 interface Action {
 	type:
 		| 'fetch_profile'
+		| 'fetch_friends'
 		| 'update_profile'
 		| 'add_request'
 		| 'accept_invite'
@@ -35,32 +31,31 @@ type UpdateProfileParams = {
 	avatar?: string;
 };
 
-export type ProfileState = Omit<CurrentUser, 'results'> & {
-	friends: Map<string, UserStatus>;
+export type ProfileState = Partial<CurrentUser> & {
+	friends: Map<string, UserStatus | undefined>;
 	invites: Set<string>;
 	requests: Set<string>;
 };
 
+// TODO: update user status for those friends who came online before current user
 const profileReducer = (state: ProfileState, action: Action): ProfileState => {
 	switch (action.type) {
 		case 'fetch_profile':
-			const user = action.payload;
+			return { ...state, ...action.payload };
+		case 'fetch_friends':
 			const { invite, request, accepted } = _.groupBy(
-				user?.relations,
+				action.payload,
 				rel => rel.status
 			);
+			const map = new Map<string, UserStatus | undefined>();
+			accepted.forEach(id => map.set(id, state?.friends.get(id)));
 
-			const map = new Map<string, UserStatus>();
-			accepted.forEach(id => map.set(id, UserStatus.OFFLINE));
-
-			return (
-				user && {
-					...user,
-					friends: map,
-					invites: new Set(invite?.map(rel => rel.uid2)),
-					requests: new Set(request?.map(rel => rel.uid2))
-				}
-			);
+			return {
+				...state,
+				friends: map,
+				invites: new Set(invite?.map(rel => rel.uid2)),
+				requests: new Set(request?.map(rel => rel.uid2))
+			};
 		case 'update_profile':
 			return {
 				...state,
@@ -68,32 +63,37 @@ const profileReducer = (state: ProfileState, action: Action): ProfileState => {
 			};
 		case 'add_request':
 			state?.requests.add(action.payload);
-			return state && { ...state };
+			return { ...state };
 		case 'undo_add_request':
 			state?.requests.delete(action.payload);
-			return state && { ...state };
+			return { ...state };
 		case 'accept_invite':
 			state?.invites.delete(action.payload);
 			state?.friends.set(action.payload, UserStatus.OFFLINE);
-			return state && { ...state };
+			return { ...state };
 		case 'undo_accept_invite':
 			state?.invites.add(action.payload);
 			state?.friends.delete(action.payload);
-			return state && { ...state };
+			return { ...state };
 		case 'unfriend':
 			state?.friends.delete(action.payload);
-			return state && { ...state };
+			return { ...state };
 		case 'undo_unfriend':
 			state?.friends.set(action.payload, UserStatus.OFFLINE);
-			return state && { ...state };
+			return { ...state };
 		case 'update_status':
 			const { friendId, status } = action.payload;
 			state?.friends.set(friendId, status);
-			return state && { ...state };
+			return { ...state };
 		default:
 			return state;
 	}
 };
+
+const updateFriends =
+	(dispatch: Dispatch<Action>) => (relations: Relation[]) => {
+		dispatch({ type: 'fetch_friends', payload: relations });
+	};
 
 const updateProfile =
 	(dispatch: Dispatch<Action>) => (params: UpdateProfileParams) => {
@@ -136,6 +136,7 @@ type ContextValue = {
 		refreshProfile: () => Promise<
 			QueryObserverResult<CurrentUser, unknown>
 		>;
+		updateFriends: ReturnType<typeof updateFriends>;
 		updateProfile: ReturnType<typeof updateProfile>;
 		addFriendRequest: ReturnType<typeof addFriendRequest>;
 		undoAddFriendRequest: ReturnType<typeof undoAddFriendRequest>;
@@ -147,10 +148,16 @@ type ContextValue = {
 	};
 };
 
+const INITIAL_VALUE: ProfileState = {
+	friends: new Map(),
+	invites: new Set(),
+	requests: new Set()
+};
+
 const Context = createContext<ContextValue>(undefined!);
 
 const Provider: FC = ({ children }) => {
-	const [state, dispatch] = useReducer(profileReducer, undefined!);
+	const [state, dispatch] = useReducer(profileReducer, INITIAL_VALUE);
 	const queryClient = useQueryClient();
 
 	const { refetch } = useQuery<CurrentUser>('me', apiCurrentUser, {
@@ -188,6 +195,7 @@ const Provider: FC = ({ children }) => {
 				state,
 				actions: {
 					refreshProfile,
+					updateFriends: updateFriends(dispatch),
 					updateProfile: updateProfile(dispatch),
 					addFriendRequest: addFriendRequest(dispatch),
 					undoAddFriendRequest: undoAddFriendRequest(dispatch),

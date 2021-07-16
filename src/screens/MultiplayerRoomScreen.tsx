@@ -85,8 +85,8 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation }) => {
 	};
 
 	const renderFriendCard: ListRenderItem<Player> = ({ item }) => {
-		const { _id, username, avatar } = item;
-		const status = friends.get(_id);
+		const { _id, username, avatar, status: playerStatus } = item;
+		const status = friends.get(_id) ?? playerStatus;
 
 		let badgeStyle: ViewStyle;
 		if (status === UserStatus.ONLINE) {
