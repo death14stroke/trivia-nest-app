@@ -9,7 +9,7 @@ import { QueryObserverResult, useQuery, useQueryClient } from 'react-query';
 import _ from 'lodash';
 import auth from '@react-native-firebase/auth';
 import { apiCurrentUser } from '@app/api/users';
-import { CurrentUser } from '@app/models';
+import { CurrentUser, UserStatus } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { io, Socket } from 'socket.io-client';
 import { useState } from 'react';
@@ -25,7 +25,8 @@ interface Action {
 		| 'unfriend'
 		| 'undo_add_request'
 		| 'undo_accept_invite'
-		| 'undo_unfriend';
+		| 'undo_unfriend'
+		| 'update_status';
 	payload?: any;
 }
 
@@ -35,7 +36,7 @@ type UpdateProfileParams = {
 };
 
 export type ProfileState = Omit<CurrentUser, 'results'> & {
-	friends: Set<string>;
+	friends: Map<string, UserStatus>;
 	invites: Set<string>;
 	requests: Set<string>;
 };
@@ -49,10 +50,13 @@ const profileReducer = (state: ProfileState, action: Action): ProfileState => {
 				rel => rel.status
 			);
 
+			const map = new Map<string, UserStatus>();
+			accepted.forEach(id => map.set(id, UserStatus.OFFLINE));
+
 			return (
 				user && {
 					...user,
-					friends: new Set(accepted?.map(rel => rel.uid2)),
+					friends: map,
 					invites: new Set(invite?.map(rel => rel.uid2)),
 					requests: new Set(request?.map(rel => rel.uid2))
 				}
@@ -70,7 +74,7 @@ const profileReducer = (state: ProfileState, action: Action): ProfileState => {
 			return state && { ...state };
 		case 'accept_invite':
 			state?.invites.delete(action.payload);
-			state?.friends.add(action.payload);
+			state?.friends.set(action.payload, UserStatus.OFFLINE);
 			return state && { ...state };
 		case 'undo_accept_invite':
 			state?.invites.add(action.payload);
@@ -80,7 +84,11 @@ const profileReducer = (state: ProfileState, action: Action): ProfileState => {
 			state?.friends.delete(action.payload);
 			return state && { ...state };
 		case 'undo_unfriend':
-			state?.friends.add(action.payload);
+			state?.friends.set(action.payload, UserStatus.OFFLINE);
+			return state && { ...state };
+		case 'update_status':
+			const { friendId, status } = action.payload;
+			state?.friends.set(friendId, status);
 			return state && { ...state };
 		default:
 			return state;
@@ -117,6 +125,11 @@ const undoUnfriend = (dispatch: Dispatch<Action>) => (friendId: string) => {
 	dispatch({ type: 'undo_unfriend', payload: friendId });
 };
 
+const updateUserStatus =
+	(dispatch: Dispatch<Action>) => (friendId: string, status: UserStatus) => {
+		dispatch({ type: 'update_status', payload: { friendId, status } });
+	};
+
 type ContextValue = {
 	state: ProfileState;
 	actions: {
@@ -130,6 +143,7 @@ type ContextValue = {
 		undoAcceptInvite: ReturnType<typeof undoAcceptInvite>;
 		unfriend: ReturnType<typeof unfriend>;
 		undoUnfriend: ReturnType<typeof undoUnfriend>;
+		updateUserStatus: ReturnType<typeof updateUserStatus>;
 	};
 };
 
@@ -180,7 +194,8 @@ const Provider: FC = ({ children }) => {
 					acceptInvite: acceptInvite(dispatch),
 					undoAcceptInvite: undoAcceptInvite(dispatch),
 					unfriend: unfriend(dispatch),
-					undoUnfriend: undoUnfriend(dispatch)
+					undoUnfriend: undoUnfriend(dispatch),
+					updateUserStatus: updateUserStatus(dispatch)
 				}
 			}}>
 			{children}

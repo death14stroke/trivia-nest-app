@@ -1,14 +1,19 @@
-import { SocketContext } from '@app/context';
-import { SocketEvent } from '@app/models';
+import { ProfileContext, SocketContext } from '@app/context';
+import { Player, SocketEvent } from '@app/models';
 import { useNavigation } from '@react-navigation/core';
 import React, { FC } from 'react';
 import { useEffect } from 'react';
 import { useContext } from 'react';
 import { Alert } from 'react-native';
+import { InfiniteData, useQueryClient } from 'react-query';
 
 const SplashScreen: FC = ({ children }) => {
 	const navigation = useNavigation();
+	const queryClient = useQueryClient();
 	const socket = useContext(SocketContext);
+	const {
+		actions: { updateUserStatus }
+	} = useContext(ProfileContext);
 
 	useEffect(() => {
 		socket?.on(
@@ -32,6 +37,11 @@ const SplashScreen: FC = ({ children }) => {
 		socket?.on(SocketEvent.JOIN_MULTIPLAYER_ROOM, roomId => {
 			console.log('joined room from invite');
 			navigation.navigate('Multiplayer', roomId);
+		});
+
+		socket?.on(SocketEvent.USER_UPDATE, ({ uid, status }) => {
+			console.log(`${uid} status changed to ${status}`);
+			updateUserStatus(uid, status);
 		});
 	}, [socket]);
 

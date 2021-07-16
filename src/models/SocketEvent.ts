@@ -11,5 +11,6 @@ export const SocketEvent = {
 	START: 'start',
 	ANSWER: 'answer',
 	QUESTION: 'question',
-	RESULTS: 'results'
+	RESULTS: 'results',
+	USER_UPDATE: 'user_update'
 };

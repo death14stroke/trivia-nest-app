@@ -20,7 +20,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { useInfiniteQuery } from 'react-query';
 import _ from 'lodash';
 import { RootStackParamList } from '@app/navigation';
-import { SocketContext } from '@app/context';
+import { ProfileContext, SocketContext } from '@app/context';
 import { Player, SocketEvent, UserStatus } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { apiGetFriends } from '@app/api/users';
@@ -35,6 +35,9 @@ interface Props {
 
 // TODO: update friend online status real time
 const MultiplayerRoomScreen: FC<Props> = ({ navigation }) => {
+	const {
+		state: { friends }
+	} = useContext(ProfileContext);
 	const socket = useContext(SocketContext);
 	const { theme } = useTheme();
 	const styles = useStyles(theme);
@@ -82,7 +85,8 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation }) => {
 	};
 
 	const renderFriendCard: ListRenderItem<Player> = ({ item }) => {
-		const { _id, username, avatar, status } = item;
+		const { _id, username, avatar } = item;
+		const status = friends.get(_id);
 
 		let badgeStyle: ViewStyle;
 		if (status === UserStatus.ONLINE) {
@@ -142,7 +146,7 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation }) => {
 		return <WaitingTimer />;
 	}
 
-	const friends = _.flatten(data?.pages);
+	const friendsList = _.flatten(data?.pages);
 
 	return (
 		<ImageBackground
@@ -154,7 +158,7 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation }) => {
 						Challenge Friends
 					</Text>
 					<FlatList
-						data={friends}
+						data={friendsList}
 						keyExtractor={friend => friend._id}
 						renderItem={renderFriendCard}
 						horizontal
