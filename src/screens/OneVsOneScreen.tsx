@@ -1,23 +1,15 @@
-import React, {
-	FC,
-	useState,
-	useReducer,
-	useContext,
-	useEffect,
-	useRef
-} from 'react';
+import React, { FC, useState, useReducer, useContext, useEffect } from 'react';
 import { View, ImageBackground, StyleSheet } from 'react-native';
 import { Text, Avatar, useTheme } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Socket, io } from 'socket.io-client';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@app/navigation';
-import { ProfileContext } from '@app/context';
+import { ProfileContext, SocketContext } from '@app/context';
 import { Player, Question } from '@app/models';
 import { BASE_URL } from '@app/api/client';
-import { useCurrentUser } from '@app/hooks/firebase';
 import { showToast } from '@app/hooks/ui';
 import { QuestionView, WaitingTimer } from '@app/components';
+import { SocketEvent } from 'src/models/SocketEvent';
 
 interface Props {
 	navigation: StackNavigationProp<RootStackParamList, 'OneVsOne'>;
@@ -53,9 +45,10 @@ const quizReducer = (state: State, action: Action): State => {
 	}
 };
 
+// FIXME: leave waiting room and leave battle. Interface with socket events
 const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 	const { state: currentUser } = useContext(ProfileContext);
-	const socket = useRef<Socket>();
+	const socket = useContext(SocketContext);
 	const {
 		theme: { colors }
 	} = useTheme();
@@ -67,29 +60,22 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 
 	const { battleId, opponent, question, correctAnswer, position } = state;
 
+	//TODO: remove dependency on timer by extracting timer to new screen
 	useEffect(() => {
 		init();
 		return leaveRoom;
-	}, []);
+	}, [timer]);
 
 	const init = async () => {
-		const token = await useCurrentUser()?.getIdToken();
-		if (!token) {
-			showToast('Could not connect to game server!');
-			navigation.pop();
-			return;
-		}
+		socket?.emit(SocketEvent.JOIN_WAITING_ROOM);
 
-		socket.current = io(BASE_URL, { auth: { token } });
-		socket.current.emit('joinWaitingRoom');
-
-		socket.current.on('error', ({ message }) => {
+		socket?.on('error', ({ message }) => {
 			showToast(message);
 			navigation.pop();
 		});
 
-		socket.current.once(
-			'start',
+		socket?.once(
+			SocketEvent.START,
 			({
 				battleId,
 				players
@@ -111,7 +97,7 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 			}
 		);
 
-		socket.current.on('question', ({ pos, question, next, prevAns }) => {
+		socket?.on(SocketEvent.QUESTION, ({ pos, question, next, prevAns }) => {
 			if (pos === 0) {
 				dispatch({
 					type: 'update_question',
@@ -137,7 +123,7 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 			}, 1000);
 		});
 
-		socket.current.on('results', ({ results, prevAns }) => {
+		socket?.on(SocketEvent.RESULTS, ({ results, prevAns }) => {
 			dispatch({
 				type: 'update_correct_answer',
 				payload: prevAns
@@ -147,10 +133,20 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 				navigation.replace('Results', results);
 			}, 1000);
 		});
+
+		socket?.on(SocketEvent.LEAVE_1V1_BATTLE, uid => {
+			showToast(`${uid} has left the battle`);
+		});
 	};
 
 	const leaveRoom = () => {
-		socket.current?.disconnect();
+		console.log('cleanup');
+		if (timer) {
+			socket?.emit(SocketEvent.LEAVE_WAITING_ROOM);
+		} else {
+			console.log('leaving ', battleId);
+			socket?.emit(SocketEvent.LEAVE_1V1_BATTLE, battleId);
+		}
 	};
 
 	const onCancel = () => {
@@ -199,7 +195,7 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 					duration={duration}
 					correctAnswer={correctAnswer}
 					onOptionSelected={id => {
-						socket.current?.emit('answer', {
+						socket?.emit(SocketEvent.ANSWER, {
 							battleId,
 							questionId: question?._id,
 							answer: id

@@ -1,7 +1,7 @@
-import { NavigationProvider } from '@app/navigation';
 import React, { FC } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { NavigationProvider } from '@app/navigation';
 import { ProfileProvider } from '@app/context';
 
 // Android: Setting a timer for multiple minutes warning for firebase

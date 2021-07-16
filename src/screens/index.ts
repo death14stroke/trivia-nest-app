@@ -6,3 +6,4 @@ export * from './OneVsOneScreen';
 export * from './ResultsScreen';
 export * from './SearchUsersScreen';
 export * from './SignupScreen';
+export * from './SplashScreen';

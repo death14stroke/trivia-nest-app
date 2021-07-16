@@ -34,15 +34,11 @@ type UpdateProfileParams = {
 	avatar?: string;
 };
 
-export type ProfileState =
-	| (Omit<CurrentUser, 'results'> & {
-			friends: Set<string>;
-			invites: Set<string>;
-			requests: Set<string>;
-	  })
-	| undefined;
-
-const INITIAL_STATE: ProfileState = undefined;
+export type ProfileState = Omit<CurrentUser, 'results'> & {
+	friends: Set<string>;
+	invites: Set<string>;
+	requests: Set<string>;
+};
 
 const profileReducer = (state: ProfileState, action: Action): ProfileState => {
 	switch (action.type) {
@@ -140,10 +136,8 @@ type ContextValue = {
 const Context = createContext<ContextValue>(undefined!);
 
 const Provider: FC = ({ children }) => {
-	const [state, dispatch] = useReducer(profileReducer, INITIAL_STATE);
-	const [socket, setSocket] = useState<Socket>();
+	const [state, dispatch] = useReducer(profileReducer, undefined!);
 	const queryClient = useQueryClient();
-	const navigation = useNavigation();
 
 	const { refetch } = useQuery<CurrentUser>('me', apiCurrentUser, {
 		onSuccess: user => {
@@ -162,48 +156,13 @@ const Provider: FC = ({ children }) => {
 				dispatch({ type: 'fetch_profile', payload: null });
 			} else {
 				await refetch();
-				const token = await user.getIdToken();
-				if (token) {
-					if (socket) {
-						socket.disconnect();
-					}
-					setSocket(io(BASE_URL, { auth: { token } }));
-				}
 			}
 		});
 
 		return () => {
 			unsubscribe();
-			socket?.disconnect();
 		};
 	}, []);
-
-	useEffect(() => {
-		socket?.on('inviteRoom', ({ roomId, ownerId }) => {
-			console.log();
-			Alert.alert('Room invite', `${ownerId} invited to his room`, [
-				{
-					text: 'Cancel',
-					onPress: () => console.log('Cancel Pressed'),
-					style: 'cancel'
-				},
-				{
-					text: 'Join',
-					onPress: () => joinRoom(roomId),
-					style: 'default'
-				}
-			]);
-		});
-
-		//TODO: find a way to navigate
-		socket?.on('joinRoom', roomId => {
-			navigation.navigate('Multiplayer', roomId);
-		});
-	}, [socket]);
-
-	const joinRoom = (roomId: string) => {
-		socket?.emit('joinRoom', roomId);
-	};
 
 	const refreshProfile = () => {
 		return refetch();

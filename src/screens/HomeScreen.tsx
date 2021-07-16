@@ -62,11 +62,11 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 	const [avatarModal, setAvatarModal] = useState(false);
 	const [profileModal, setProfileModal] = useState(false);
 
-	const { data: avatars, isLoading: isLoadingAvatars } = useQuery<string[]>(
-		'avatars',
-		apiGetAvatars,
-		{ staleTime: 120 * 60 * 1000 }
-	);
+	// const { data: avatars, isLoading: isLoadingAvatars } = useQuery<string[]>(
+	// 	'avatars',
+	// 	apiGetAvatars,
+	// 	{ staleTime: 120 * 60 * 1000 }
+	// );
 
 	const { mutate } = useMutation<
 		unknown,
@@ -160,7 +160,7 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 				</View>
 				<SelectAvatarModal
 					open={avatarModal}
-					data={avatars!}
+					data={[]}
 					defaultAvatar={user?.avatar}
 					onCancel={toggleAvatarModal}
 					onSuccess={avatar => {

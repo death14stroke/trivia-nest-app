@@ -1,6 +1,7 @@
 import { BASE_URL } from '@app/api/client';
 import { apiGetFriends } from '@app/api/users';
 import { Button, WaitingTimer } from '@app/components';
+import { SocketContext } from '@app/context';
 import { useCurrentUser } from '@app/hooks/firebase';
 import { showToast } from '@app/hooks/ui';
 import { Player } from '@app/models';
@@ -8,6 +9,7 @@ import { RootStackParamList } from '@app/navigation';
 import { StackNavigationProp } from '@react-navigation/stack';
 import _ from 'lodash';
 import React, { FC, useEffect, useRef } from 'react';
+import { useContext } from 'react';
 import { useState } from 'react';
 import {
 	FlatList,
@@ -32,7 +34,7 @@ interface Props {
 }
 
 const MultiplayerRoomScreen: FC<Props> = ({ navigation }) => {
-	const socket = useRef<Socket>();
+	const socket = useContext(SocketContext);
 	const { theme } = useTheme();
 	const styles = useStyles(theme);
 	const { colors } = theme;
@@ -68,22 +70,21 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation }) => {
 			return;
 		}
 
-		socket.current = io(BASE_URL, { auth: { token } });
-		socket.current.emit('createRoom');
+		socket?.emit('createRoom');
 
-		socket.current.on('createRoom', roomId => {
+		socket?.on('createRoom', roomId => {
 			console.log('room created:', roomId);
 			setRoomId(roomId);
 			setTimer(false);
 		});
 
-		socket.current.on('joinRoomAlert', friendId => {
+		socket?.on('joinRoomAlert', friendId => {
 			showToast(`${friendId} has joined the room!`);
 		});
 	};
 
 	const leaveRoom = () => {
-		socket.current?.disconnect();
+		socket?.emit('leaveRoom', roomId);
 	};
 
 	const renderFriendCard: ListRenderItem<Player> = ({ item }) => {
@@ -130,7 +131,7 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation }) => {
 						name='add-circle-outline'
 						color='white'
 						onPress={() => {
-							socket.current?.emit('inviteRoom', {
+							socket?.emit('inviteRoom', {
 								roomId,
 								friendId: _id
 							});

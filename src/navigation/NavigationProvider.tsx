@@ -3,57 +3,73 @@ import {
 	MultiplayerRoomScreen,
 	OneVsOneScreen,
 	ResultsScreen,
-	SignupScreen
+	SignupScreen,
+	SplashScreen
 } from '@app/screens';
 import { AppNativeTheme, AppNavigationTheme } from '@app/theme';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import React, { FC, useContext } from 'react';
-import { StatusBar } from 'react-native';
+import React, { FC } from 'react';
+import { Alert, StatusBar } from 'react-native';
 import { ThemeProvider } from 'react-native-elements';
-import { ProfileContext } from '@app/context';
-import { RootStackParamList } from './paramsList';
+import { ProfileProvider, SocketProvider } from '@app/context';
+import { AppStackParamList, RootStackParamList } from './paramsList';
+import { useState } from 'react';
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import { useEffect } from 'react';
+import { io, Socket } from 'socket.io-client';
+import { useRef } from 'react';
+import { useCurrentUser } from '@app/hooks/firebase';
+import { BASE_URL } from '@app/api/client';
 
+const AppStack = createStackNavigator<AppStackParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
 
-const stackScreens = (initialRoute: keyof RootStackParamList) => {
+// TODO: socket id changing in different screens. Create socket context and move all socket code there. Expose functions for emit and on events
+const mainStackScreens: FC = () => {
 	return (
-		<Stack.Navigator initialRouteName={initialRoute}>
-			<Stack.Screen
-				name='Signup'
-				component={SignupScreen}
-				options={{ headerShown: false }}
-			/>
-			<Stack.Screen
-				name='Home'
-				component={HomeScreen}
-				options={{ headerShown: false }}
-			/>
-			<Stack.Screen
-				name='OneVsOne'
-				component={OneVsOneScreen}
-				options={{ headerShown: false }}
-			/>
-			<Stack.Screen
-				name='Results'
-				component={ResultsScreen}
-				options={{ headerShown: false }}
-			/>
-			<Stack.Screen
-				name='Multiplayer'
-				component={MultiplayerRoomScreen}
-				options={{ headerShown: false }}
-			/>
-		</Stack.Navigator>
+		<ProfileProvider>
+			<SocketProvider>
+				<SplashScreen>
+					<Stack.Navigator>
+						<Stack.Screen
+							name='Home'
+							component={HomeScreen}
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name='OneVsOne'
+							component={OneVsOneScreen}
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name='Results'
+							component={ResultsScreen}
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name='Multiplayer'
+							component={MultiplayerRoomScreen}
+							options={{ headerShown: false }}
+						/>
+					</Stack.Navigator>
+				</SplashScreen>
+			</SocketProvider>
+		</ProfileProvider>
 	);
 };
 
 const NavigationProvider: FC = () => {
-	const { state: user } = useContext(ProfileContext);
+	const [user, setUser] = useState<FirebaseAuthTypes.User | null>();
 
-	const getInitialRoute = (): keyof RootStackParamList => {
+	useEffect(() => {
+		const unsubscribe = auth().onAuthStateChanged(user => setUser(user));
+		return unsubscribe;
+	}, []);
+
+	const getInitialRoute = (): keyof AppStackParamList => {
 		if (user) {
-			return 'Home';
+			return 'mainFlow';
 		}
 		return 'Signup';
 	};
@@ -66,7 +82,15 @@ const NavigationProvider: FC = () => {
 		<ThemeProvider theme={AppNativeTheme} useDark>
 			<StatusBar barStyle='light-content' />
 			<NavigationContainer theme={AppNavigationTheme}>
-				{stackScreens(getInitialRoute())}
+				<AppStack.Navigator
+					initialRouteName={getInitialRoute()}
+					screenOptions={{ headerShown: false }}>
+					<AppStack.Screen name='Signup' component={SignupScreen} />
+					<AppStack.Screen
+						name='mainFlow'
+						component={mainStackScreens}
+					/>
+				</AppStack.Navigator>
 			</NavigationContainer>
 		</ThemeProvider>
 	);
