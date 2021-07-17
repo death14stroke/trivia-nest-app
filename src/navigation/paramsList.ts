@@ -11,4 +11,5 @@ export type RootStackParamList = {
 	Results: Result[];
 	Multiplayer: { roomId: string } | undefined;
 	Quiz: undefined;
+	MatchMaking: undefined;
 };

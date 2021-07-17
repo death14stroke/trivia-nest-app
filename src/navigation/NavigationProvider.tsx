@@ -1,5 +1,6 @@
 import {
 	HomeScreen,
+	MatchMakingScreen,
 	MultiplayerRoomScreen,
 	OneVsOneScreen,
 	QuizScreen,
@@ -49,6 +50,11 @@ const mainStackScreens: FC = () => {
 						<Stack.Screen
 							name='Quiz'
 							component={QuizScreen}
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name='MatchMaking'
+							component={MatchMakingScreen}
 							options={{ headerShown: false }}
 						/>
 					</Stack.Navigator>

@@ -90,6 +90,16 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 			setPlayers([...players, player]);
 		});
 
+		socket?.on(SocketEvent.LEAVE_MULTIPLAYER_ROOM_ALERT, player => {
+			showToast(`${player.username} has left the room!`);
+			setPlayers(players.filter(p => p._id !== player._id));
+		});
+
+		socket?.once(SocketEvent.STARTING, () => {
+			socket.off(SocketEvent.LEAVE_MULTIPLAYER_ROOM_ALERT);
+			navigation.navigate('Quiz');
+		});
+
 		return leaveRoom;
 	}, []);
 
@@ -110,11 +120,6 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 
 	const startGame = () => {
 		socket?.emit(SocketEvent.STARTING, roomId);
-
-		socket?.once(SocketEvent.STARTING, () => {
-			//TODO: navigate to multiplayer quiz screen
-			//navigation.navigate()
-		});
 	};
 
 	const renderFriendCard: ListRenderItem<Player> = ({ item }) => {

@@ -95,7 +95,7 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 
 	const navigateToGame = (key: Mode) => {
 		if (key === '1v1') {
-			navigation.navigate('OneVsOne');
+			navigation.navigate('MatchMaking');
 		} else if (key === 'multi') {
 			navigation.navigate('Multiplayer');
 		}
