@@ -26,25 +26,28 @@ import { BASE_URL } from '@app/api/client';
 import { apiGetFriends } from '@app/api/users';
 import { showToast } from '@app/hooks/ui';
 import { Button, WaitingTimer } from '@app/components';
+import { RouteProp } from '@react-navigation/native';
 
 const PAGE_SIZE = 10;
 
 interface Props {
 	navigation: StackNavigationProp<RootStackParamList, 'Multiplayer'>;
+	route: RouteProp<RootStackParamList, 'Multiplayer'>;
 }
 
-// TODO: update friend online status real time
-const MultiplayerRoomScreen: FC<Props> = ({ navigation }) => {
-	const {
-		state: { friends }
-	} = useContext(ProfileContext);
+const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
+	const { state: currentUser } = useContext(ProfileContext);
 	const socket = useContext(SocketContext);
 	const { theme } = useTheme();
 	const styles = useStyles(theme);
 	const { colors } = theme;
-
+	const params = route.params;
 	const [timer, setTimer] = useState(true);
 	const [roomId, setRoomId] = useState<string>();
+	const [ownerId, setOwnerId] = useState<string>();
+	const [players, setPlayers] = useState<Player[]>([]);
+	const [roomInvites, setRoomInvites] = useState<string[]>([]);
+	const { friends, _id } = currentUser;
 
 	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Player[]>(
 		'friends',
@@ -62,26 +65,47 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation }) => {
 	);
 
 	useEffect(() => {
-		init();
+		if (params?.roomId) {
+			socket?.emit(SocketEvent.ROOM_INFO, params.roomId);
+
+			socket?.on(SocketEvent.ROOM_INFO, ({ ownerId, players }) => {
+				setRoomId(roomId);
+				setOwnerId(ownerId);
+				setPlayers(players);
+				setTimer(false);
+			});
+		} else {
+			socket?.emit(SocketEvent.CREATE_MULTIPLAYER_ROOM);
+
+			socket?.on(SocketEvent.CREATE_MULTIPLAYER_ROOM, roomId => {
+				console.log('room created:', roomId);
+				setRoomId(roomId);
+				setOwnerId(_id);
+				setTimer(false);
+			});
+		}
+
+		socket?.on(SocketEvent.JOIN_MULTIPLAYER_ROOM_ALERT, player => {
+			showToast(`${player.username} has joined the room!`);
+			setPlayers([...players, player]);
+		});
+
 		return leaveRoom;
 	}, []);
 
-	const init = async () => {
-		socket?.emit(SocketEvent.CREATE_MULTIPLAYER_ROOM);
-
-		socket?.on(SocketEvent.CREATE_MULTIPLAYER_ROOM, roomId => {
-			console.log('room created:', roomId);
-			setRoomId(roomId);
-			setTimer(false);
-		});
-
-		socket?.on(SocketEvent.JOIN_MULTIPLAYER_ROOM_ALERT, friendId => {
-			showToast(`${friendId} has joined the room!`);
-		});
+	const leaveRoom = () => {
+		socket?.emit(SocketEvent.LEAVE_MULTIPLAYER_ROOM);
 	};
 
-	const leaveRoom = () => {
-		socket?.emit(SocketEvent.LEAVE_MULTIPLAYER_ROOM, roomId);
+	const sendInvite = (friendId: string) => {
+		socket?.emit(SocketEvent.INVITE_MULTIPLAYER_ROOM, {
+			roomId,
+			friendId
+		});
+		setRoomInvites([...roomInvites, friendId]);
+		setTimeout(() => {
+			setRoomInvites(roomInvites.filter(id => id !== friendId));
+		}, 10000);
 	};
 
 	const renderFriendCard: ListRenderItem<Player> = ({ item }) => {
@@ -126,18 +150,48 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation }) => {
 						name='chevron-down-outline'
 						color='white'
 					/>
+					{status === UserStatus.ONLINE &&
+						(!roomInvites.includes(_id) ? (
+							<Icon
+								type='ionicon'
+								name='add-circle-outline'
+								color='white'
+								onPress={() => sendInvite(_id)}
+							/>
+						) : (
+							<Icon
+								type='ionicon'
+								name='timer-outline'
+								color='white'
+							/>
+						))}
+				</View>
+			</View>
+		);
+	};
+
+	const renderMember: ListRenderItem<Player> = ({
+		item: { avatar, username, _id }
+	}) => {
+		return (
+			<View style={{ flex: 1, alignItems: 'center' }}>
+				<Avatar
+					size='xlarge'
+					source={{ uri: BASE_URL + avatar }}
+					containerStyle={
+						_id === currentUser._id
+							? { borderColor: 'red', borderWidth: 2 }
+							: {}
+					}
+				/>
+				{ownerId === _id && (
 					<Icon
 						type='ionicon'
-						name='add-circle-outline'
-						color='white'
-						onPress={() => {
-							socket?.emit(SocketEvent.INVITE_MULTIPLAYER_ROOM, {
-								roomId,
-								friendId: _id
-							});
-						}}
+						name='alert-circle-outline'
+						color='gold'
 					/>
-				</View>
+				)}
+				<Text h4>{username}</Text>
 			</View>
 		);
 	};
@@ -147,6 +201,13 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation }) => {
 	}
 
 	const friendsList = _.flatten(data?.pages);
+	const playerUser: Player = {
+		_id: currentUser._id!,
+		avatar: currentUser.avatar!,
+		username: currentUser.username!,
+		level: currentUser.level!
+	};
+	const playersList = players.filter(p => p._id !== _id);
 
 	return (
 		<ImageBackground
@@ -170,13 +231,25 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation }) => {
 						style={{ flexGrow: 0 }}
 					/>
 				</View>
-				<View style={{ marginHorizontal: '25%' }}>
-					<Button.Raised>
-						<Text h4 h4Style={{ fontWeight: 'bold' }}>
-							Start
-						</Text>
-					</Button.Raised>
-				</View>
+				<FlatList
+					data={[playerUser, ...playersList]}
+					keyExtractor={player => player._id}
+					renderItem={renderMember}
+					numColumns={2}
+					style={{ flexGrow: 0 }}
+					contentContainerStyle={{
+						justifyContent: 'space-between'
+					}}
+				/>
+				{ownerId === currentUser._id && (
+					<View style={{ marginHorizontal: '25%' }}>
+						<Button.Raised>
+							<Text h4 h4Style={{ fontWeight: 'bold' }}>
+								Start
+							</Text>
+						</Button.Raised>
+					</View>
+				)}
 			</SafeAreaView>
 		</ImageBackground>
 	);

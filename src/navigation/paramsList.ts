@@ -9,5 +9,5 @@ export type RootStackParamList = {
 	Home: undefined;
 	OneVsOne: undefined;
 	Results: Result[];
-	Multiplayer: undefined;
+	Multiplayer: { roomId: string } | undefined;
 };

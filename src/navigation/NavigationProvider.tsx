@@ -7,25 +7,18 @@ import {
 	SplashScreen
 } from '@app/screens';
 import { AppNativeTheme, AppNavigationTheme } from '@app/theme';
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import React, { FC } from 'react';
-import { Alert, StatusBar } from 'react-native';
+import React, { FC, useState, useEffect } from 'react';
+import { StatusBar } from 'react-native';
 import { ThemeProvider } from 'react-native-elements';
 import { ProfileProvider, SocketProvider } from '@app/context';
 import { AppStackParamList, RootStackParamList } from './paramsList';
-import { useState } from 'react';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
-import { useEffect } from 'react';
-import { io, Socket } from 'socket.io-client';
-import { useRef } from 'react';
-import { useCurrentUser } from '@app/hooks/firebase';
-import { BASE_URL } from '@app/api/client';
 
 const AppStack = createStackNavigator<AppStackParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
 
-// TODO: socket id changing in different screens. Create socket context and move all socket code there. Expose functions for emit and on events
 const mainStackScreens: FC = () => {
 	return (
 		<ProfileProvider>

@@ -1,5 +1,5 @@
 import { ProfileContext, SocketContext } from '@app/context';
-import { Relation, SocketEvent } from '@app/models';
+import { SocketEvent } from '@app/models';
 import { useNavigation } from '@react-navigation/core';
 import React, { FC } from 'react';
 import { useEffect } from 'react';
@@ -10,17 +10,18 @@ const SplashScreen: FC = ({ children }) => {
 	const navigation = useNavigation();
 	const socket = useContext(SocketContext);
 	const {
-		actions: { updateUserStatus, updateFriends }
+		actions: { updateUserStatus }
 	} = useContext(ProfileContext);
 
 	useEffect(() => {
-		socket?.on(SocketEvent.RELATIONS, (relations: Relation[]) => {
-			updateFriends(relations);
+		socket?.on(SocketEvent.USER_UPDATE, ({ uid, status }) => {
+			updateUserStatus(uid, status);
 		});
 
 		socket?.on(
 			SocketEvent.INVITE_MULTIPLAYER_ROOM,
 			({ roomId, ownerId }) => {
+				console.log('on room invite');
 				Alert.alert('Room invite', `${ownerId} invited to his room`, [
 					{
 						text: 'Cancel',
@@ -38,12 +39,7 @@ const SplashScreen: FC = ({ children }) => {
 
 		socket?.on(SocketEvent.JOIN_MULTIPLAYER_ROOM, roomId => {
 			console.log('joined room from invite');
-			navigation.navigate('Multiplayer', roomId);
-		});
-
-		socket?.on(SocketEvent.USER_UPDATE, ({ uid, status }) => {
-			console.log(`${uid} status changed to ${status}`);
-			updateUserStatus(uid, status);
+			navigation.navigate('Multiplayer', { roomId });
 		});
 	}, [socket]);
 

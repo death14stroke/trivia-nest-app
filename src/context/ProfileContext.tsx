@@ -43,12 +43,13 @@ const profileReducer = (state: ProfileState, action: Action): ProfileState => {
 		case 'fetch_profile':
 			return { ...state, ...action.payload };
 		case 'fetch_friends':
+			console.log('fetch_friends:', action.payload);
 			const { invite, request, accepted } = _.groupBy(
 				action.payload,
 				rel => rel.status
 			);
 			const map = new Map<string, UserStatus | undefined>();
-			accepted.forEach(id => map.set(id, state?.friends.get(id)));
+			accepted?.forEach(id => map.set(id, state?.friends.get(id)));
 
 			return {
 				...state,
