@@ -10,4 +10,5 @@ export type RootStackParamList = {
 	OneVsOne: undefined;
 	Results: Result[];
 	Multiplayer: { roomId: string } | undefined;
+	Quiz: undefined;
 };

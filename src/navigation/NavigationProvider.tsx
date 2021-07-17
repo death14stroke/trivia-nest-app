@@ -2,6 +2,7 @@ import {
 	HomeScreen,
 	MultiplayerRoomScreen,
 	OneVsOneScreen,
+	QuizScreen,
 	ResultsScreen,
 	SignupScreen,
 	SplashScreen
@@ -43,6 +44,11 @@ const mainStackScreens: FC = () => {
 						<Stack.Screen
 							name='Multiplayer'
 							component={MultiplayerRoomScreen}
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name='Quiz'
+							component={QuizScreen}
 							options={{ headerShown: false }}
 						/>
 					</Stack.Navigator>

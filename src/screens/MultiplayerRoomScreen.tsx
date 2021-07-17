@@ -108,6 +108,15 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 		}, 10000);
 	};
 
+	const startGame = () => {
+		socket?.emit(SocketEvent.STARTING, roomId);
+
+		socket?.once(SocketEvent.STARTING, () => {
+			//TODO: navigate to multiplayer quiz screen
+			//navigation.navigate()
+		});
+	};
+
 	const renderFriendCard: ListRenderItem<Player> = ({ item }) => {
 		const { _id, username, avatar, status: playerStatus } = item;
 		const status = friends.get(_id) ?? playerStatus;
@@ -243,7 +252,7 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 				/>
 				{ownerId === currentUser._id && (
 					<View style={{ marginHorizontal: '25%' }}>
-						<Button.Raised>
+						<Button.Raised onPress={startGame}>
 							<Text h4 h4Style={{ fontWeight: 'bold' }}>
 								Start
 							</Text>

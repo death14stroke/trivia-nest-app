@@ -178,7 +178,9 @@ const OneVsOneScreen: FC<Props> = ({ navigation }) => {
 			source={require('@assets/background.jpg')}>
 			<SafeAreaView style={styles.safeArea}>
 				<View style={styles.playersContainer}>
-					{renderPlayer(currentUser!)}
+					{renderPlayer(currentUser)}
+					{renderPlayer(opponent!)}
+					{renderPlayer(opponent!)}
 					{renderPlayer(opponent!)}
 				</View>
 				<QuestionView
