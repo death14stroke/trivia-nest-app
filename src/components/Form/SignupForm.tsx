@@ -1,12 +1,12 @@
 import React, { FC, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Avatar } from 'react-native-elements';
+import { Avatar, Text } from 'react-native-elements';
 import { useMutation, useQuery } from 'react-query';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { RootStackParamList } from '@app/navigation';
+import { AppStackParamList } from '@app/navigation';
 import { BASE_URL } from '@app/api/client';
 import { apiGetAvatars } from '@app/api/users';
 import { signupWithEmailPassword } from '@app/hooks/auth';
@@ -40,7 +40,7 @@ const formSchema = Yup.object().shape({
 
 const SignupForm: FC = () => {
 	const navigation =
-		useNavigation<StackNavigationProp<RootStackParamList, 'Signup'>>();
+		useNavigation<StackNavigationProp<AppStackParamList, 'Signup'>>();
 	const [open, setOpen] = useState(false);
 
 	const { data: avatars, isLoading: isLoadingAvatars } = useQuery<string[]>(
@@ -55,7 +55,7 @@ const SignupForm: FC = () => {
 		Values
 	>(signupWithEmailPassword, {
 		onSuccess: async () =>
-			navigation.reset({ index: 0, routes: [{ name: 'Home' }] }),
+			navigation.reset({ index: 0, routes: [{ name: 'mainFlow' }] }),
 		onError: err => showToast(err.message)
 	});
 
@@ -123,12 +123,11 @@ const SignupForm: FC = () => {
 							onBlur={handleBlur('password')}
 							containerStyle={{ marginVertical: 4 }}
 						/>
-						<Button.Solid
-							title='Continue'
-							raised
-							onPress={handleSubmit}
+						<Button.Raised
 							loading={isLoadingSignup}
-						/>
+							onPress={handleSubmit}>
+							<Text h4>Continue</Text>
+						</Button.Raised>
 					</View>
 					<SelectAvatarModal
 						open={open}

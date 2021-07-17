@@ -35,6 +35,7 @@ interface Props {
 	route: RouteProp<RootStackParamList, 'Multiplayer'>;
 }
 
+//TODO: navigate here on 'STARTING' event. Send 'READY' event in useeffect and wait for 'START' from server. On server set a timeout if all players ready in time like 5 sec
 const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 	const { state: currentUser } = useContext(ProfileContext);
 	const socket = useContext(SocketContext);

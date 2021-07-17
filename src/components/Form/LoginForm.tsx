@@ -1,11 +1,12 @@
 import React, { FC } from 'react';
 import { View, StyleSheet } from 'react-native';
+import { Text } from 'react-native-elements';
 import { useMutation } from 'react-query';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { RootStackParamList } from '@app/navigation';
+import { AppStackParamList } from '@app/navigation';
 import { loginWithEmailPassword } from '@app/hooks/auth';
 import { showToast } from '@app/hooks/ui';
 import { Input } from '../Input';
@@ -32,7 +33,7 @@ const formSchema = Yup.object().shape({
 
 const LoginForm: FC = () => {
 	const navigation =
-		useNavigation<StackNavigationProp<RootStackParamList, 'Signup'>>();
+		useNavigation<StackNavigationProp<AppStackParamList, 'Signup'>>();
 
 	const { mutate, isLoading } = useMutation<
 		unknown,
@@ -40,7 +41,7 @@ const LoginForm: FC = () => {
 		Values
 	>(loginWithEmailPassword, {
 		onSuccess: async () =>
-			navigation.reset({ index: 0, routes: [{ name: 'Home' }] }),
+			navigation.reset({ index: 0, routes: [{ name: 'mainFlow' }] }),
 		onError: err => showToast(err.message)
 	});
 
@@ -51,10 +52,7 @@ const LoginForm: FC = () => {
 	return (
 		<Formik
 			validationSchema={formSchema}
-			initialValues={{
-				email: '',
-				password: ''
-			}}
+			initialValues={{ email: '', password: '' }}
 			onSubmit={_onSubmit}>
 			{({
 				values,
@@ -82,12 +80,11 @@ const LoginForm: FC = () => {
 							onBlur={handleBlur('password')}
 							containerStyle={{ marginVertical: 4 }}
 						/>
-						<Button.Solid
-							title='Continue'
-							raised
-							onPress={handleSubmit}
+						<Button.Raised
 							loading={isLoading}
-						/>
+							onPress={handleSubmit}>
+							<Text h4>Continue</Text>
+						</Button.Raised>
 					</View>
 				</>
 			)}

@@ -7,9 +7,16 @@ interface Props {
 	onPress?: () => void;
 	disabled?: boolean;
 	style?: ViewStyle;
+	loading?: boolean;
 }
 
-const RaisedButton: FC<Props> = ({ onPress, disabled, children, style }) => {
+const RaisedButton: FC<Props> = ({
+	onPress,
+	disabled = false,
+	loading = false,
+	children,
+	style
+}) => {
 	const {
 		theme: { colors }
 	} = useTheme();
@@ -17,6 +24,7 @@ const RaisedButton: FC<Props> = ({ onPress, disabled, children, style }) => {
 	return (
 		<AwesomeButton
 			stretch
+			progress={loading}
 			backgroundShadow='#800000'
 			backgroundColor={colors?.primary}
 			backgroundDarker='#960018'
