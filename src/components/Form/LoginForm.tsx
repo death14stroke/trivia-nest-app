@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Text } from 'react-native-elements';
+import { Text, Theme, useTheme } from 'react-native-elements';
 import { useMutation } from 'react-query';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -34,6 +34,7 @@ const formSchema = Yup.object().shape({
 const LoginForm: FC = () => {
 	const navigation =
 		useNavigation<StackNavigationProp<AppStackParamList, 'Signup'>>();
+	const styles = useStyles(useTheme().theme);
 
 	const { mutate, isLoading } = useMutation<
 		unknown,
@@ -92,14 +93,20 @@ const LoginForm: FC = () => {
 	);
 };
 
-const styles = StyleSheet.create({
-	form: {
-		backgroundColor: 'white',
-		borderRadius: 24,
-		alignSelf: 'stretch',
-		marginTop: 38,
-		padding: 12
-	}
-});
+const useStyles = ({ colors }: Theme) =>
+	StyleSheet.create({
+		form: {
+			backgroundColor: 'white',
+			borderRadius: 24,
+			alignSelf: 'stretch',
+			marginTop: 38,
+			padding: 12,
+			elevation: 12,
+			shadowColor: colors?.grey3,
+			shadowOffset: { width: 0, height: 8 },
+			shadowOpacity: 0.8,
+			shadowRadius: 28
+		}
+	});
 
 export { LoginForm };

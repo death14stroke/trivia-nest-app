@@ -1,15 +1,16 @@
 import React, { FC, useState } from 'react';
-import { StyleSheet } from 'react-native';
 import {
 	FlatList,
 	View,
 	Image,
 	ListRenderItem,
-	TouchableOpacity
+	TouchableOpacity,
+	StyleSheet
 } from 'react-native';
 import { Divider, Overlay, Text, Theme, useTheme } from 'react-native-elements';
+import { FontFamily } from '@app/theme';
 import { BASE_URL } from '@app/api/client';
-import { Button } from './Button';
+import { Button } from '../Button';
 
 interface Props {
 	open: boolean;
@@ -44,12 +45,15 @@ const SelectAvatarModal: FC<Props> = ({
 			/>
 		</TouchableOpacity>
 	);
+
 	return (
 		<Overlay
 			isVisible={open}
 			onBackdropPress={onBackdropPress}
 			overlayStyle={styles.overlay}>
-			<Text style={styles.header}>Select avatar</Text>
+			<View style={styles.header}>
+				<Text style={styles.headerText}>Select avatar</Text>
+			</View>
 			<Divider orientation='horizontal' style={{ marginBottom: 8 }} />
 			<FlatList
 				data={data}
@@ -66,7 +70,7 @@ const SelectAvatarModal: FC<Props> = ({
 					containerStyle={{ flex: 1 }}
 					onPress={onCancel}
 				/>
-				<Divider orientation='vertical' />
+				<Divider orientation='vertical' width={1} />
 				<Button.Text
 					title='OK'
 					titleStyle={{ fontWeight: 'bold' }}
@@ -86,21 +90,34 @@ const useStyles = ({ colors }: Theme) =>
 			margin: 4,
 			borderRadius: 8
 		},
-		avatarSelected: {
-			borderWidth: 4,
-			borderColor: colors?.primary
-		},
+		avatarSelected: { borderWidth: 4, borderColor: colors?.primary },
 		header: {
-			fontSize: 20,
-			color: 'black',
-			padding: 8,
-			textAlign: 'center',
-			fontWeight: 'bold'
+			overflow: 'hidden',
+			backgroundColor: colors?.grey0,
+			borderTopLeftRadius: 16,
+			borderTopRightRadius: 16
 		},
-		overlay: { padding: 0, borderRadius: 8 },
+		headerText: {
+			fontSize: 20,
+			padding: 8,
+			color: 'black',
+			textAlign: 'center',
+			fontFamily: FontFamily.SemiBold
+		},
+		overlay: {
+			padding: 0,
+			borderRadius: 16,
+			elevation: 8,
+			shadowColor: colors?.grey1,
+			shadowOffset: { width: 0, height: 4 },
+			shadowOpacity: 0.8,
+			shadowRadius: 12
+		},
 		buttonContainer: {
 			flexDirection: 'row',
-			borderRadius: 8
+			backgroundColor: colors?.grey0,
+			borderBottomLeftRadius: 16,
+			borderBottomRightRadius: 16
 		}
 	});
 

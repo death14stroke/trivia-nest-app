@@ -6,6 +6,6 @@ export { default as IntroCard } from './IntroCard';
 export * from './LottieOverlay';
 export * from './ProfileModal';
 export * from './QuestionView';
-export * from './SelectAvatarModal';
+export * from './Overlay';
 export * from './WaitingTimer';
 export * from './SearchBar';

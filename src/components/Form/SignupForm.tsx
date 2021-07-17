@@ -1,6 +1,6 @@
 import React, { FC, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Avatar, Text } from 'react-native-elements';
+import { Avatar, colors, Text, Theme, useTheme } from 'react-native-elements';
 import { useMutation, useQuery } from 'react-query';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -11,7 +11,7 @@ import { BASE_URL } from '@app/api/client';
 import { apiGetAvatars } from '@app/api/users';
 import { signupWithEmailPassword } from '@app/hooks/auth';
 import { showToast } from '@app/hooks/ui';
-import { SelectAvatarModal } from '../SelectAvatarModal';
+import { SelectAvatarModal } from '../Overlay';
 import { Input } from '../Input';
 import { Button } from '../Button';
 
@@ -41,6 +41,7 @@ const formSchema = Yup.object().shape({
 const SignupForm: FC = () => {
 	const navigation =
 		useNavigation<StackNavigationProp<AppStackParamList, 'Signup'>>();
+	const styles = useStyles(useTheme().theme);
 	const [open, setOpen] = useState(false);
 
 	const { data: avatars, isLoading: isLoadingAvatars } = useQuery<string[]>(
@@ -145,20 +146,28 @@ const SignupForm: FC = () => {
 	);
 };
 
-const styles = StyleSheet.create({
-	form: {
-		backgroundColor: 'white',
-		borderRadius: 24,
-		alignSelf: 'stretch',
-		marginTop: 38,
-		paddingHorizontal: 12,
-		paddingBottom: 12
-	},
-	avatar: {
-		marginTop: -38,
-		marginBottom: 8,
-		alignSelf: 'center'
-	}
-});
+const useStyles = ({ colors }: Theme) =>
+	StyleSheet.create({
+		form: {
+			backgroundColor: 'white',
+			borderRadius: 24,
+			alignSelf: 'stretch',
+			marginTop: 38,
+			paddingHorizontal: 12,
+			paddingBottom: 12,
+			elevation: 12,
+			shadowColor: colors?.grey3,
+			shadowOffset: { width: 0, height: 8 },
+			shadowOpacity: 0.8,
+			shadowRadius: 28
+		},
+		avatar: {
+			marginTop: -38,
+			marginBottom: 8,
+			alignSelf: 'center',
+			borderWidth: 1,
+			borderColor: 'white'
+		}
+	});
 
 export { SignupForm };
