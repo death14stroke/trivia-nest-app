@@ -1,4 +1,15 @@
+import React, { FC, useState, useEffect } from 'react';
+import { StatusBar } from 'react-native';
+import { ThemeProvider } from 'react-native-elements';
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { ProfileProvider, SocketProvider } from '@app/context';
+import { AppNativeTheme, AppNavigationTheme } from '@app/theme';
 import {
+	FriendsScreen,
+	HistoryScreen,
 	HomeScreen,
 	MatchMakingScreen,
 	MultiplayerRoomScreen,
@@ -8,18 +19,17 @@ import {
 	SignupScreen,
 	SplashScreen
 } from '@app/screens';
-import { AppNativeTheme, AppNavigationTheme } from '@app/theme';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import React, { FC, useState, useEffect } from 'react';
-import { StatusBar } from 'react-native';
-import { ThemeProvider } from 'react-native-elements';
-import { ProfileProvider, SocketProvider } from '@app/context';
-import { AppStackParamList, RootStackParamList } from './paramsList';
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import { BottomTabBar } from '@app/components';
+import {
+	AppStackParamList,
+	BottomTabParamList,
+	RootStackParamList
+} from './paramsList';
+import { Avatar } from 'react-native-elements/dist/avatar/Avatar';
 
 const AppStack = createStackNavigator<AppStackParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 const mainStackScreens: FC = () => {
 	return (
@@ -28,8 +38,8 @@ const mainStackScreens: FC = () => {
 				<SplashScreen>
 					<Stack.Navigator>
 						<Stack.Screen
-							name='Home'
-							component={HomeScreen}
+							name='Main'
+							component={bottomTabs}
 							options={{ headerShown: false }}
 						/>
 						<Stack.Screen
@@ -61,6 +71,54 @@ const mainStackScreens: FC = () => {
 				</SplashScreen>
 			</SocketProvider>
 		</ProfileProvider>
+	);
+};
+
+const bottomTabs = () => {
+	return (
+		<Tab.Navigator
+			initialRouteName='Home'
+			tabBar={props => <BottomTabBar {...props} />}>
+			<Tab.Screen
+				name='History'
+				component={HistoryScreen}
+				options={{
+					tabBarLabel: 'Activity',
+					tabBarIcon: () => (
+						<Avatar
+							size='medium'
+							source={require('@assets/history.png')}
+						/>
+					)
+				}}
+			/>
+			<Tab.Screen
+				name='Home'
+				component={HomeScreen}
+				options={{
+					tabBarLabel: 'Battle',
+					tabBarIcon: () => (
+						<Avatar
+							size='medium'
+							source={require('@assets/battle.png')}
+						/>
+					)
+				}}
+			/>
+			<Tab.Screen
+				name='Friends'
+				component={FriendsScreen}
+				options={{
+					tabBarLabel: 'Friends',
+					tabBarIcon: () => (
+						<Avatar
+							size='medium'
+							source={require('@assets/friends.png')}
+						/>
+					)
+				}}
+			/>
+		</Tab.Navigator>
 	);
 };
 

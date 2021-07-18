@@ -6,7 +6,7 @@ export type AppStackParamList = {
 };
 
 export type RootStackParamList = {
-	Home: undefined;
+	Main: undefined;
 	OneVsOne: undefined;
 	Results: Result[];
 	Multiplayer: { roomId: string } | undefined;
