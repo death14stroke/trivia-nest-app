@@ -13,3 +13,9 @@ export type RootStackParamList = {
 	Quiz: undefined;
 	MatchMaking: undefined;
 };
+
+export type BottomTabParamList = {
+	Home: undefined;
+	History: undefined;
+	Friends: undefined;
+};

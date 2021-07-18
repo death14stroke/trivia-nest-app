@@ -1,6 +1,6 @@
 import React, { FC, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Avatar, colors, Text, Theme, useTheme } from 'react-native-elements';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { Avatar, Text, Theme, useTheme } from 'react-native-elements';
 import { useMutation, useQuery } from 'react-query';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -125,9 +125,13 @@ const SignupForm: FC = () => {
 							containerStyle={{ marginVertical: 4 }}
 						/>
 						<Button.Raised
-							loading={isLoadingSignup}
-							onPress={handleSubmit}>
-							<Text h4>Continue</Text>
+							onPress={handleSubmit}
+							disabled={isLoadingSignup}>
+							{!isLoadingSignup ? (
+								<Text h4>Continue</Text>
+							) : (
+								<ActivityIndicator size='large' color='white' />
+							)}
 						</Button.Raised>
 					</View>
 					<SelectAvatarModal
@@ -157,9 +161,9 @@ const useStyles = ({ colors }: Theme) =>
 			paddingBottom: 12,
 			elevation: 12,
 			shadowColor: colors?.grey3,
-			shadowOffset: { width: 0, height: 8 },
+			shadowOffset: { width: 0, height: 0 },
 			shadowOpacity: 0.8,
-			shadowRadius: 28
+			shadowRadius: 36
 		},
 		avatar: {
 			marginTop: -38,

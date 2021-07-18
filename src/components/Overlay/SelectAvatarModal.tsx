@@ -5,7 +5,9 @@ import {
 	Image,
 	ListRenderItem,
 	TouchableOpacity,
-	StyleSheet
+	StyleSheet,
+	PlatformColor,
+	Platform
 } from 'react-native';
 import { Divider, Overlay, Text, Theme, useTheme } from 'react-native-elements';
 import { FontFamily } from '@app/theme';
@@ -50,6 +52,7 @@ const SelectAvatarModal: FC<Props> = ({
 		<Overlay
 			isVisible={open}
 			onBackdropPress={onBackdropPress}
+			transparent
 			overlayStyle={styles.overlay}>
 			<View style={styles.header}>
 				<Text style={styles.headerText}>Select avatar</Text>
@@ -70,7 +73,7 @@ const SelectAvatarModal: FC<Props> = ({
 					containerStyle={{ flex: 1 }}
 					onPress={onCancel}
 				/>
-				<Divider orientation='vertical' width={1} />
+				<Divider orientation='vertical' />
 				<Button.Text
 					title='OK'
 					titleStyle={{ fontWeight: 'bold' }}
@@ -93,7 +96,6 @@ const useStyles = ({ colors }: Theme) =>
 		avatarSelected: { borderWidth: 4, borderColor: colors?.primary },
 		header: {
 			overflow: 'hidden',
-			backgroundColor: colors?.grey0,
 			borderTopLeftRadius: 16,
 			borderTopRightRadius: 16
 		},
@@ -111,11 +113,14 @@ const useStyles = ({ colors }: Theme) =>
 			shadowColor: colors?.grey1,
 			shadowOffset: { width: 0, height: 4 },
 			shadowOpacity: 0.8,
-			shadowRadius: 12
+			shadowRadius: 12,
+			...Platform.select({
+				ios: { backgroundColor: PlatformColor('systemGray6') },
+				android: { backgroundColor: 'rgb(242, 242, 247' }
+			})
 		},
 		buttonContainer: {
 			flexDirection: 'row',
-			backgroundColor: colors?.grey0,
 			borderBottomLeftRadius: 16,
 			borderBottomRightRadius: 16
 		}

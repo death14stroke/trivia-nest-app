@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { Text, Theme, useTheme } from 'react-native-elements';
 import { useMutation } from 'react-query';
 import { useNavigation } from '@react-navigation/native';
@@ -82,9 +82,13 @@ const LoginForm: FC = () => {
 							containerStyle={{ marginVertical: 4 }}
 						/>
 						<Button.Raised
-							loading={isLoading}
-							onPress={handleSubmit}>
-							<Text h4>Continue</Text>
+							onPress={handleSubmit}
+							disabled={isLoading}>
+							{!isLoading ? (
+								<Text h4>Continue</Text>
+							) : (
+								<ActivityIndicator size='large' color='white' />
+							)}
 						</Button.Raised>
 					</View>
 				</>
@@ -103,9 +107,9 @@ const useStyles = ({ colors }: Theme) =>
 			padding: 12,
 			elevation: 12,
 			shadowColor: colors?.grey3,
-			shadowOffset: { width: 0, height: 8 },
+			shadowOffset: { width: 0, height: 0 },
 			shadowOpacity: 0.8,
-			shadowRadius: 28
+			shadowRadius: 36
 		}
 	});
 
