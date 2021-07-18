@@ -1,42 +1,42 @@
-import React, { FC, useRef } from 'react';
-import {
-	View,
-	StyleSheet,
-	TouchableOpacity,
-	Animated,
-	Dimensions
-} from 'react-native';
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import BottomMenuItem from './BottomMenuItem';
-import { Colors } from '@app/theme';
+import React, { FC } from 'react';
+import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import Animated, {
+	useAnimatedStyle,
+	useSharedValue,
+	withSpring
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { Colors } from '@app/theme';
+import BottomMenuItem from './BottomMenuItem';
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
 const BottomTabBar: FC<BottomTabBarProps> = ({
 	state,
 	descriptors,
-	navigation,
-	activeTintColor = Colors.carnation,
-	inactiveTintColor = Colors.purpleHeart
+	navigation
 }) => {
 	const focusedOptions = descriptors[state.routes[state.index].key].options;
 	if (focusedOptions.tabBarVisible === false) {
 		return null;
 	}
 
-	const totalWidth = Dimensions.get('window').width;
-	const tabWidth = totalWidth / state.routes.length;
-	const translateValue = useRef(new Animated.Value(0)).current;
+	const tabWidth = SCREEN_WIDTH / state.routes.length;
+	const translateValue = useSharedValue(tabWidth);
 	const { bottom } = useSafeAreaInsets();
+
+	const animatedSliderStyle = useAnimatedStyle(() => ({
+		transform: [{ translateX: translateValue.value }]
+	}));
 
 	return (
 		<View style={styles.tabContainer}>
 			<Animated.View
 				style={[
 					styles.slider,
-					{
-						transform: [{ translateX: translateValue }],
-						width: tabWidth
-					}
+					{ width: tabWidth },
+					animatedSliderStyle
 				]}
 			/>
 			{state.routes.map((route, index) => {
@@ -56,12 +56,7 @@ const BottomTabBar: FC<BottomTabBarProps> = ({
 						target: route.key,
 						canPreventDefault: true
 					});
-					Animated.spring(translateValue, {
-						toValue: index * tabWidth,
-						velocity: 10,
-						useNativeDriver: true
-					}).start();
-
+					translateValue.value = withSpring(index * tabWidth);
 					if (!isFocused && !event.defaultPrevented) {
 						navigation.navigate(route.name);
 					}
@@ -88,17 +83,15 @@ const BottomTabBar: FC<BottomTabBarProps> = ({
 						style={{
 							flex: 1,
 							marginBottom: bottom,
-							paddingTop: 4
+							paddingTop: 4,
+							justifyContent: 'center'
 						}}>
 						<BottomMenuItem
 							icon={tabBarIcon?.({
+								color: 'white',
 								focused: isFocused,
-								color: isFocused
-									? activeTintColor
-									: inactiveTintColor,
 								size: 24
 							})}
-							color={isFocused ? 'white' : inactiveTintColor}
 							title={label.toString()}
 							isFocused={isFocused}
 						/>

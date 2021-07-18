@@ -86,7 +86,7 @@ const bottomTabs = () => {
 					tabBarLabel: 'Activity',
 					tabBarIcon: () => (
 						<Avatar
-							size='medium'
+							size='small'
 							source={require('@assets/history.png')}
 						/>
 					)
@@ -99,7 +99,7 @@ const bottomTabs = () => {
 					tabBarLabel: 'Battle',
 					tabBarIcon: () => (
 						<Avatar
-							size='medium'
+							size='small'
 							source={require('@assets/battle.png')}
 						/>
 					)
@@ -112,7 +112,7 @@ const bottomTabs = () => {
 					tabBarLabel: 'Friends',
 					tabBarIcon: () => (
 						<Avatar
-							size='medium'
+							size='small'
 							source={require('@assets/friends.png')}
 						/>
 					)
