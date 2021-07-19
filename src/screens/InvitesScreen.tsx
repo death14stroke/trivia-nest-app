@@ -25,7 +25,7 @@ const InvitesScreen: FC = () => {
 		}
 	} = useContext(ProfileContext);
 
-	const { data } = useInfiniteQuery<Invite[]>(
+	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Invite[]>(
 		'invites',
 		async ({ pageParam }) => {
 			const { data } = await apiGetInvites(PAGE_SIZE, pageParam);
@@ -83,6 +83,11 @@ const InvitesScreen: FC = () => {
 				data={invites}
 				keyExtractor={invite => invite.info._id}
 				renderItem={renderInviteCard}
+				onEndReached={() => {
+					if (!isLoading) {
+						fetchNextPage();
+					}
+				}}
 			/>
 		</ImageBackground>
 	);

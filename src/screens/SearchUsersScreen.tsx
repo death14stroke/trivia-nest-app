@@ -76,8 +76,6 @@ const SearchUsersScreen: FC = () => {
 		}
 	);
 
-	console.log(friends, invites, requests);
-
 	const renderPlayerCard: ListRenderItem<Player> = ({ item }) => {
 		const { _id } = item;
 
@@ -97,7 +95,7 @@ const SearchUsersScreen: FC = () => {
 				onUnfriendUser={() => unfriendUser(_id)}
 				onAcceptRequest={() => acceptFriendRequest(_id)}
 				onSendFriendRequest={() => sendFriendRequest(_id)}
-				containerStyle={{ marginVertical: 4 }}
+				containerStyle={{ marginVertical: 8 }}
 			/>
 		);
 	};

@@ -32,6 +32,7 @@ const FriendsCard: FC<Props> = ({
 				<Icon
 					type='feather'
 					name='user-minus'
+					color='red'
 					onPress={onUnfriendUser}
 				/>
 			);
@@ -53,6 +54,7 @@ const FriendsCard: FC<Props> = ({
 				<Icon
 					type='feather'
 					name='user-plus'
+					color={Colors.purpleHeart}
 					onPress={onSendFriendRequest}
 				/>
 			);
