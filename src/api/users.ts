@@ -70,3 +70,15 @@ export const apiGetFriends = (pageSize: number, pageParam?: Player) =>
 			...(pageParam && { prevKey: pageParam.username })
 		}
 	});
+
+// Get invites
+export const apiGetInvites = (
+	pageSize: number,
+	pageParam?: { time: string; info: Player }
+) =>
+	client.get('/invites', {
+		params: {
+			pageSize,
+			...(pageParam && { prevKey: new Date(pageParam.time) })
+		}
+	});

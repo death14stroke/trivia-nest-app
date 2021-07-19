@@ -10,3 +10,4 @@ export * from './Overlay';
 export * from './WaitingTimer';
 export * from './SearchBar';
 export * from './Tab';
+export * from './InviteCard';

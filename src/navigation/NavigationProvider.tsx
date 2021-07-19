@@ -1,5 +1,5 @@
 import React, { FC, useState, useEffect } from 'react';
-import { StatusBar } from 'react-native';
+import { ImageBackground, StatusBar } from 'react-native';
 import { ThemeProvider } from 'react-native-elements';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { NavigationContainer } from '@react-navigation/native';
@@ -11,11 +11,13 @@ import {
 	FriendsScreen,
 	HistoryScreen,
 	HomeScreen,
+	InvitesScreen,
 	MatchMakingScreen,
 	MultiplayerRoomScreen,
 	OneVsOneScreen,
 	QuizScreen,
 	ResultsScreen,
+	SearchUsersScreen,
 	SignupScreen,
 	SplashScreen
 } from '@app/screens';
@@ -23,13 +25,20 @@ import { BottomTabBar } from '@app/components';
 import {
 	AppStackParamList,
 	BottomTabParamList,
-	RootStackParamList
+	RootStackParamList,
+	TopTabParamList
 } from './paramsList';
 import { Avatar } from 'react-native-elements/dist/avatar/Avatar';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import {
+	SafeAreaView,
+	useSafeAreaInsets
+} from 'react-native-safe-area-context';
 
 const AppStack = createStackNavigator<AppStackParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
+const TopTab = createMaterialTopTabNavigator<TopTabParamList>();
 
 const mainStackScreens: FC = () => {
 	return (
@@ -106,8 +115,8 @@ const bottomTabs = () => {
 				}}
 			/>
 			<Tab.Screen
-				name='Friends'
-				component={FriendsScreen}
+				name='People'
+				component={topTabs}
 				options={{
 					tabBarLabel: 'Friends',
 					tabBarIcon: () => (
@@ -119,6 +128,22 @@ const bottomTabs = () => {
 				}}
 			/>
 		</Tab.Navigator>
+	);
+};
+
+const topTabs = () => {
+	const { top } = useSafeAreaInsets();
+
+	return (
+		<ImageBackground
+			source={require('@assets/background.jpg')}
+			style={{ flex: 1 }}>
+			<TopTab.Navigator style={{ marginTop: top }}>
+				<TopTab.Screen name='Invites' component={InvitesScreen} />
+				<TopTab.Screen name='Friends' component={FriendsScreen} />
+				<TopTab.Screen name='Players' component={SearchUsersScreen} />
+			</TopTab.Navigator>
+		</ImageBackground>
 	);
 };
 

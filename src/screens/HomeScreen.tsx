@@ -165,7 +165,7 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 				</View>
 				<SelectAvatarModal
 					open={avatarModal}
-					data={avatars!}
+					data={avatars ?? []}
 					defaultAvatar={user?.avatar}
 					onCancel={toggleAvatarModal}
 					onSuccess={avatar => {

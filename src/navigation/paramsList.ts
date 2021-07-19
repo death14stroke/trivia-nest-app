@@ -17,5 +17,11 @@ export type RootStackParamList = {
 export type BottomTabParamList = {
 	Home: undefined;
 	History: undefined;
+	People: undefined;
+};
+
+export type TopTabParamList = {
+	Invites: undefined;
 	Friends: undefined;
+	Players: undefined;
 };

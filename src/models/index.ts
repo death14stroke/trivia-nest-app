@@ -1,6 +1,7 @@
 export * from './Battle';
 export * from './CurrentUser';
 export * from './IntroMode';
+export * from './Invite';
 export * from './Player';
 export * from './Question';
 export * from './Relation';
