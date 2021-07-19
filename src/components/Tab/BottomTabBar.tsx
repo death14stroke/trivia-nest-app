@@ -105,10 +105,6 @@ const BottomTabBar: FC<BottomTabBarProps> = ({
 const styles = StyleSheet.create({
 	tabContainer: {
 		flexDirection: 'row',
-		position: 'absolute',
-		bottom: 0,
-		left: 0,
-		right: 0,
 		backgroundColor: Colors.daisyBush
 	},
 	slider: {

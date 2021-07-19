@@ -1,7 +1,7 @@
 import React, { FC, memo } from 'react';
 import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { Avatar, Image, Text } from 'react-native-elements';
-import { Dimens } from '@app/theme';
+import { Dimens, FontFamily } from '@app/theme';
 import { IntroMode } from '@app/models';
 import { Button } from './Button';
 
@@ -26,12 +26,10 @@ const IntroCard: FC<Props> = ({
 				<Image source={image} style={styles.image} />
 			</View>
 			<View style={styles.textContainer}>
-				<Text h3 style={styles.title}>
+				<Text h3 h3Style={styles.title}>
 					{title}
 				</Text>
-				<Text h4 style={styles.description}>
-					{description}
-				</Text>
+				<Text style={styles.description}>{description}</Text>
 			</View>
 			<View style={styles.button}>
 				<Button.Raised
@@ -67,14 +65,14 @@ const styles = StyleSheet.create({
 		overflow: 'hidden'
 	},
 	title: {
-		color: 'white',
 		textAlign: 'center',
-		fontWeight: 'bold'
+		fontFamily: FontFamily.Bold
 	},
 	description: {
-		color: 'white',
 		textAlign: 'center',
-		marginVertical: 12
+		marginVertical: 12,
+		fontFamily: FontFamily.ExtraLight,
+		fontSize: 20
 	},
 	textContainer: {
 		padding: 12,
@@ -82,7 +80,7 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between'
 	},
 	button: { margin: 12 },
-	buttonTitle: { fontWeight: '600', fontSize: 24 }
+	buttonTitle: { fontFamily: FontFamily.Bold, fontSize: 24 }
 });
 
 export default memo(IntroCard);

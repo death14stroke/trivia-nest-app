@@ -69,14 +69,14 @@ const SelectAvatarModal: FC<Props> = ({
 			<View style={styles.buttonContainer}>
 				<Button.Text
 					title='Cancel'
-					titleStyle={{ fontWeight: 'bold' }}
+					titleStyle={styles.buttonTitle}
 					containerStyle={{ flex: 1 }}
 					onPress={onCancel}
 				/>
 				<Divider orientation='vertical' />
 				<Button.Text
 					title='OK'
-					titleStyle={{ fontWeight: 'bold' }}
+					titleStyle={styles.buttonTitle}
 					containerStyle={{ flex: 1 }}
 					onPress={() => onSuccess?.(selected)}
 				/>
@@ -123,7 +123,8 @@ const useStyles = ({ colors }: Theme) =>
 			flexDirection: 'row',
 			borderBottomLeftRadius: 16,
 			borderBottomRightRadius: 16
-		}
+		},
+		buttonTitle: { fontFamily: FontFamily.Bold }
 	});
 
 export { SelectAvatarModal };

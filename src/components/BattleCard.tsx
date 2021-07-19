@@ -1,9 +1,10 @@
-import { BASE_URL } from '@app/api/client';
-import { formatDistance } from 'date-fns';
 import React, { FC } from 'react';
-import { StyleProp, ViewStyle } from 'react-native';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { Text, Avatar, Theme, useTheme } from 'react-native-elements';
+import { LinearGradient } from 'expo-linear-gradient';
+import { formatDistance } from 'date-fns';
+import { FontFamily } from '@app/theme';
+import { BASE_URL } from '@app/api/client';
 
 type PlayerInfo = {
 	_id: string;
@@ -23,7 +24,7 @@ interface Props {
 	opponentInfo: PlayerInfo;
 	userScore: Score;
 	opponentScore: Score;
-	type: string;
+	type: '1v1' | 'multi';
 	containerStyle?: StyleProp<ViewStyle>;
 	time: Date;
 }
@@ -41,21 +42,13 @@ const BattleCard: FC<Props> = ({
 	const styles = useStyles(theme);
 	const { colors } = theme;
 
-	let header = {
-		title: 'Tie',
-		color: colors?.grey0
-	};
-
+	let header;
 	if (userScore.score > opponentScore.score) {
-		header = {
-			title: 'Victory',
-			color: 'cyan'
-		};
+		header = { title: 'Victory', color: '#90CAF9' };
 	} else if (userScore.score < opponentScore.score) {
-		header = {
-			title: 'Defeat',
-			color: 'red'
-		};
+		header = { title: 'Defeat', color: '#EF9A9A' };
+	} else {
+		header = { title: 'Tie', color: colors?.grey0 };
 	}
 
 	return (
@@ -68,8 +61,10 @@ const BattleCard: FC<Props> = ({
 					{userScore?.score} - {opponentScore.score}
 				</Text>
 			</View>
-			<View style={{ flexDirection: 'row', margin: 8 }}>
-				<View style={styles.playerContainer}>
+			<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+				<LinearGradient
+					colors={[colors!.grey0!, '#BBDEFB']}
+					style={styles.playerContainer}>
 					<Avatar
 						size='small'
 						rounded
@@ -81,11 +76,9 @@ const BattleCard: FC<Props> = ({
 						</Text>
 						<Text style={styles.level}>{userInfo.level}</Text>
 					</View>
-				</View>
-				<View style={styles.typeContainer}>
-					<Text style={{ color: 'black' }}>{type}</Text>
-				</View>
-				<View
+				</LinearGradient>
+				<LinearGradient
+					colors={[colors!.grey0!, '#FFCDD2']}
 					style={[
 						styles.playerContainer,
 						{ justifyContent: 'flex-end' }
@@ -101,16 +94,19 @@ const BattleCard: FC<Props> = ({
 						rounded
 						source={{ uri: BASE_URL + opponentInfo?.avatar }}
 					/>
+				</LinearGradient>
+				<View style={styles.typeContainer}>
+					<Avatar
+						size='small'
+						source={
+							type === '1v1'
+								? require('@assets/battle.png')
+								: require('@assets/friends.png')
+						}
+					/>
 				</View>
 			</View>
-			<View
-				style={{
-					backgroundColor: 'white',
-					padding: 8,
-					flexDirection: 'row',
-					justifyContent: 'space-between',
-					alignItems: 'center'
-				}}>
+			<View style={styles.bottomContainer}>
 				<Text style={{ color: 'black' }}>
 					{formatDistance(new Date(), time)} ago
 				</Text>
@@ -134,18 +130,23 @@ const useStyles = ({ colors }: Theme) =>
 		container: {
 			backgroundColor: colors?.grey0,
 			borderRadius: 12,
-			borderWidth: 2,
-			overflow: 'hidden'
+			elevation: 4,
+			shadowColor: colors?.grey5,
+			shadowOffset: { width: 0, height: 4 },
+			shadowOpacity: 0.7,
+			shadowRadius: 4
 		},
 		headerContainer: {
 			flexDirection: 'row',
-			backgroundColor: colors?.grey4,
+			backgroundColor: colors?.grey5,
 			alignItems: 'center',
-			padding: 8
+			padding: 8,
+			borderTopStartRadius: 12,
+			borderTopEndRadius: 12
 		},
 		battleResult: {
 			fontSize: 18,
-			fontWeight: 'bold'
+			fontFamily: FontFamily.Bold
 		},
 		score: {
 			textAlign: 'center',
@@ -153,32 +154,43 @@ const useStyles = ({ colors }: Theme) =>
 			left: 0,
 			right: 0,
 			fontSize: 18,
-			fontWeight: 'bold'
+			fontFamily: FontFamily.Black
 		},
 		playerContainer: {
 			flexDirection: 'row',
 			flex: 1,
-			alignItems: 'center'
+			alignItems: 'center',
+			padding: 8
 		},
 		playerName: {
 			color: 'blue',
-			fontWeight: 'bold'
+			fontFamily: FontFamily.Bold
 		},
 		level: {
-			color: 'grey',
-			fontWeight: 'bold',
-			fontSize: 10
+			color: colors?.grey5,
+			fontFamily: FontFamily.Light,
+			fontSize: 12
 		},
 		typeContainer: {
-			alignItems: 'center',
-			justifyContent: 'center'
+			...StyleSheet.absoluteFillObject,
+			justifyContent: 'center',
+			alignItems: 'center'
 		},
-		opponentName: { color: 'red', fontWeight: 'bold' },
+		opponentName: { color: 'red', fontFamily: FontFamily.Bold },
 		coins: {
 			color: 'black',
 			marginEnd: 4,
 			fontSize: 16,
-			fontWeight: 'bold'
+			fontFamily: FontFamily.SemiBold
+		},
+		bottomContainer: {
+			backgroundColor: 'white',
+			padding: 8,
+			flexDirection: 'row',
+			justifyContent: 'space-between',
+			alignItems: 'center',
+			borderBottomStartRadius: 12,
+			borderBottomEndRadius: 12
 		}
 	});
 
