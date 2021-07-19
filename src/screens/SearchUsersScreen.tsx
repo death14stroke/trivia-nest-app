@@ -112,7 +112,7 @@ const SearchUsersScreen: FC = () => {
 				onChangeText={setRawQuery}
 				autoCapitalize='none'
 				autoCompleteType='off'
-				containerStyle={{ marginTop: 16 }}
+				containerStyle={{ marginTop: 8 }}
 			/>
 			<FlatList
 				data={players}

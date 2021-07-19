@@ -3,7 +3,7 @@ import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { Avatar, Image, Text } from 'react-native-elements';
 import { Dimens, FontFamily } from '@app/theme';
 import { IntroMode } from '@app/models';
-import { Button } from './Button';
+import { Button } from '../Button';
 
 interface Props {
 	mode: IntroMode;

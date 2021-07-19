@@ -6,7 +6,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ProfileProvider, SocketProvider } from '@app/context';
-import { AppNativeTheme, AppNavigationTheme } from '@app/theme';
+import { AppNativeTheme, AppNavigationTheme, FontFamily } from '@app/theme';
 import {
 	FriendsScreen,
 	HistoryScreen,
@@ -138,7 +138,16 @@ const topTabs = () => {
 		<ImageBackground
 			source={require('@assets/background.jpg')}
 			style={{ flex: 1 }}>
-			<TopTab.Navigator style={{ marginTop: top }}>
+			<TopTab.Navigator
+				style={{ marginTop: top }}
+				tabBarOptions={{
+					style: { backgroundColor: 'transparent' },
+					labelStyle: {
+						fontFamily: FontFamily.SemiBold,
+						fontSize: 18,
+						textTransform: 'none'
+					}
+				}}>
 				<TopTab.Screen name='Invites' component={InvitesScreen} />
 				<TopTab.Screen name='Friends' component={FriendsScreen} />
 				<TopTab.Screen name='Players' component={SearchUsersScreen} />
