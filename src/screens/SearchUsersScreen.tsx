@@ -1,28 +1,21 @@
-import { BASE_URL } from '@app/api/client';
+import React, { FC, useState, useContext } from 'react';
+import { FlatList, ImageBackground, ListRenderItem } from 'react-native';
+import { useInfiniteQuery, useMutation } from 'react-query';
+import { useDebounce } from 'use-debounce/lib';
+import _ from 'lodash';
+import { ProfileContext } from '@app/context';
+import { Player } from '@app/models';
 import {
 	apiAcceptRequest,
 	apiSearchUsers,
 	apiSendRequest,
 	apiUnfriendUser
 } from '@app/api/users';
-import { SearchBar } from '@app/components';
-import { ProfileContext } from '@app/context';
-import { Player } from '@app/models';
-import _ from 'lodash';
-import React, { FC, useState } from 'react';
-import { useContext } from 'react';
-import { FlatList, ListRenderItem, View } from 'react-native';
-import { Avatar, Text, useTheme } from 'react-native-elements';
-import { Button } from 'react-native-elements/dist/buttons/Button';
-import { useInfiniteQuery, useMutation } from 'react-query';
-import { useDebounce } from 'use-debounce/lib';
+import { FriendsCard, SearchBar } from '@app/components';
 
 const PAGE_SIZE = 10;
 
 const SearchUsersScreen: FC = () => {
-	const {
-		theme: { colors }
-	} = useTheme();
 	const {
 		state,
 		actions: {
@@ -83,79 +76,38 @@ const SearchUsersScreen: FC = () => {
 		}
 	);
 
-	const renderPlayerCard: ListRenderItem<Player> = ({ item }) => {
-		const { username, avatar, level, _id } = item;
+	console.log(friends, invites, requests);
 
-		const friendsIcon = () => {
-			if (friends.has(_id)) {
-				return (
-					<Button
-						type='outline'
-						title='Unfriend'
-						onPress={() => unfriendUser(_id)}
-					/>
-				);
-			} else if (invites.has(_id)) {
-				return (
-					<Button
-						type='outline'
-						title='Accept'
-						onPress={() => acceptFriendRequest(_id)}
-					/>
-				);
-			} else if (requests.has(_id)) {
-				return <Button type='outline' title='Sent' disabled />;
-			} else {
-				return (
-					<Button
-						type='outline'
-						title='Send request'
-						onPress={() => sendFriendRequest(_id)}
-					/>
-				);
-			}
-		};
+	const renderPlayerCard: ListRenderItem<Player> = ({ item }) => {
+		const { _id } = item;
+
+		let iconType: 'unfriend' | 'invite' | 'accept' | undefined = undefined;
+		if (friends.has(_id)) {
+			iconType = 'unfriend';
+		} else if (invites.has(_id)) {
+			iconType = 'accept';
+		} else if (requests.has(_id)) {
+			iconType = 'invite';
+		}
 
 		return (
-			<View
-				style={{
-					flexDirection: 'row',
-					backgroundColor: colors?.grey0,
-					padding: 8,
-					borderRadius: 12,
-					borderWidth: 0.5,
-					overflow: 'hidden',
-					marginHorizontal: 4,
-					marginVertical: 4,
-					alignItems: 'center',
-					flex: 1
-				}}>
-				<Avatar
-					size='small'
-					rounded
-					source={{ uri: BASE_URL + avatar }}
-				/>
-				<View style={{ marginStart: 4, flex: 1 }}>
-					<Text
-						style={{
-							fontWeight: 'bold',
-							color: colors?.secondary
-						}}>
-						{username}
-					</Text>
-					<Text style={{ fontSize: 10, color: colors?.grey3 }}>
-						{level}
-					</Text>
-				</View>
-				{friendsIcon()}
-			</View>
+			<FriendsCard
+				player={item}
+				iconType={iconType}
+				onUnfriendUser={() => unfriendUser(_id)}
+				onAcceptRequest={() => acceptFriendRequest(_id)}
+				onSendFriendRequest={() => sendFriendRequest(_id)}
+				containerStyle={{ marginVertical: 4 }}
+			/>
 		);
 	};
 
 	const players = _.flatten(data?.pages);
 
 	return (
-		<View style={{ flex: 1 }}>
+		<ImageBackground
+			source={require('@assets/background.jpg')}
+			style={{ flex: 1 }}>
 			<SearchBar
 				placeholder='Search ShareNotes'
 				value={rawQuery}
@@ -169,13 +121,14 @@ const SearchUsersScreen: FC = () => {
 				keyExtractor={player => player._id}
 				renderItem={renderPlayerCard}
 				style={{ flex: 1 }}
+				contentContainerStyle={{ marginHorizontal: 8 }}
 				onEndReached={() => {
 					if (!isLoading) {
 						fetchNextPage();
 					}
 				}}
 			/>
-		</View>
+		</ImageBackground>
 	);
 };
 

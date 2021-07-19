@@ -18,9 +18,11 @@ interface Action {
 		| 'update_profile'
 		| 'add_request'
 		| 'accept_invite'
+		| 'reject_invite'
 		| 'unfriend'
 		| 'undo_add_request'
 		| 'undo_accept_invite'
+		| 'undo_reject_invite'
 		| 'undo_unfriend'
 		| 'update_status';
 	payload?: any;
@@ -82,6 +84,12 @@ const profileReducer = (state: ProfileState, action: Action): ProfileState => {
 		case 'undo_unfriend':
 			state?.friends.set(action.payload, UserStatus.OFFLINE);
 			return { ...state };
+		case 'reject_invite':
+			state?.invites.delete(action.payload);
+			return { ...state };
+		case 'undo_reject_invite':
+			state?.invites.add(action.payload);
+			return { ...state };
 		case 'update_status':
 			const { friendId, status } = action.payload;
 			state?.friends.set(friendId, status);
@@ -126,6 +134,14 @@ const undoUnfriend = (dispatch: Dispatch<Action>) => (friendId: string) => {
 	dispatch({ type: 'undo_unfriend', payload: friendId });
 };
 
+const rejectInvite = (dispatch: Dispatch<Action>) => (friendId: string) => {
+	dispatch({ type: 'reject_invite', payload: friendId });
+};
+
+const undoRejectInvite = (dispatch: Dispatch<Action>) => (friendId: string) => {
+	dispatch({ type: 'undo_reject_invite', payload: friendId });
+};
+
 const updateUserStatus =
 	(dispatch: Dispatch<Action>) => (friendId: string, status: UserStatus) => {
 		dispatch({ type: 'update_status', payload: { friendId, status } });
@@ -146,6 +162,8 @@ type ContextValue = {
 		unfriend: ReturnType<typeof unfriend>;
 		undoUnfriend: ReturnType<typeof undoUnfriend>;
 		updateUserStatus: ReturnType<typeof updateUserStatus>;
+		rejectInvite: ReturnType<typeof rejectInvite>;
+		undoRejectInvite: ReturnType<typeof undoRejectInvite>;
 	};
 };
 
@@ -204,7 +222,9 @@ const Provider: FC = ({ children }) => {
 					undoAcceptInvite: undoAcceptInvite(dispatch),
 					unfriend: unfriend(dispatch),
 					undoUnfriend: undoUnfriend(dispatch),
-					updateUserStatus: updateUserStatus(dispatch)
+					updateUserStatus: updateUserStatus(dispatch),
+					rejectInvite: rejectInvite(dispatch),
+					undoRejectInvite: undoRejectInvite(dispatch)
 				}
 			}}>
 			{children}

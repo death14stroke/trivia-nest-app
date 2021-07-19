@@ -1,15 +1,30 @@
 import React, { FC } from 'react';
 import { FlatList, ImageBackground, ListRenderItem } from 'react-native';
-import { useInfiniteQuery } from 'react-query';
+import { useInfiniteQuery, useMutation } from 'react-query';
 import _ from 'lodash';
 import { Invite } from '@app/models';
-import { apiGetInvites } from '@app/api/users';
+import {
+	apiAcceptRequest,
+	apiGetInvites,
+	apiRejectRequest
+} from '@app/api/users';
 import { InviteCard } from '@app/components';
+import { useContext } from 'react';
+import { ProfileContext } from '@app/context';
 
 const PAGE_SIZE = 20;
 
 //TODO: accept/reject friend request via socket
 const InvitesScreen: FC = () => {
+	const {
+		actions: {
+			acceptInvite,
+			undoAcceptInvite,
+			rejectInvite,
+			undoRejectInvite
+		}
+	} = useContext(ProfileContext);
+
 	const { data } = useInfiniteQuery<Invite[]>(
 		'invites',
 		async ({ pageParam }) => {
@@ -25,9 +40,38 @@ const InvitesScreen: FC = () => {
 		}
 	);
 
-	const renderInviteCard: ListRenderItem<Invite> = ({ item }) => (
-		<InviteCard invite={item} containerStyle={{ marginVertical: 8 }} />
-	);
+	const { mutate: acceptFriendRequest } = useMutation<
+		unknown,
+		unknown,
+		string
+	>(apiAcceptRequest, {
+		onMutate: acceptInvite,
+		onError: (_err, friendId) => undoAcceptInvite(friendId)
+	});
+
+	const { mutate: rejectFriendRequest } = useMutation<
+		unknown,
+		unknown,
+		string
+	>(apiRejectRequest, {
+		onMutate: rejectInvite,
+		onError: (_err, friendId) => undoRejectInvite(friendId)
+	});
+
+	const renderInviteCard: ListRenderItem<Invite> = ({ item }) => {
+		const {
+			info: { _id }
+		} = item;
+
+		return (
+			<InviteCard
+				invite={item}
+				containerStyle={{ marginVertical: 8 }}
+				onAcceptRequest={() => acceptFriendRequest(_id)}
+				onRejectRequest={() => rejectFriendRequest(_id)}
+			/>
+		);
+	};
 
 	const invites = _.flatten(data?.pages);
 

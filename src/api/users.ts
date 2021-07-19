@@ -56,7 +56,13 @@ export const apiSendRequest = (friendId: string) =>
 
 // Accept friend request
 export const apiAcceptRequest = (friendId: string) =>
-	client.post(`/friends/accept/${friendId}`);
+	client.post(`/invites/${friendId}`);
+
+// Accept friend request
+export const apiRejectRequest = (friendId: string) => {
+	console.log('delete req friendId:', friendId);
+	return client.delete(`/invites/${friendId}`);
+};
 
 // Unfriend user
 export const apiUnfriendUser = (friendId: string) =>
