@@ -17,7 +17,7 @@ import { CurrentUser, IntroMode, Mode } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { apiGetAvatars, apiUpdateUserProfile } from '@app/api/users';
 import { showToast } from '@app/hooks/ui';
-import { IntroCard, ProfileModal, SelectAvatarModal } from '@app/components';
+import { IntroCard, SelectAvatarModal } from '@app/components';
 import { CompositeNavigationProp } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { FontFamily } from '@app/theme';
@@ -66,7 +66,6 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 	} = useContext(ProfileContext);
 
 	const [avatarModal, setAvatarModal] = useState(false);
-	const [profileModal, setProfileModal] = useState(false);
 
 	const { data: avatars } = useQuery<string[]>('avatars', apiGetAvatars, {
 		staleTime: 120 * 60 * 1000
@@ -94,7 +93,6 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 		}
 	});
 
-	const toggleProfileModal = () => setProfileModal(!profileModal);
 	const toggleAvatarModal = () => setAvatarModal(!avatarModal);
 
 	const navigateToGame = (key: Mode) => {
@@ -145,7 +143,6 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 						rounded
 						icon={{ type: 'ionicon', name: 'person' }}
 						containerStyle={styles.profileIcon}
-						onPress={toggleProfileModal}
 					/>
 				</View>
 				<View style={{ flex: 1 }}>
@@ -173,11 +170,6 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 						toggleAvatarModal();
 					}}
 				/>
-				<ProfileModal
-					open={profileModal}
-					onClose={toggleProfileModal}
-					onBackdropPress={toggleProfileModal}
-				/>
 			</SafeAreaView>
 		</ImageBackground>
 	);
@@ -195,7 +187,7 @@ const useStyles = ({ colors }: Theme) =>
 		},
 		avatar: { borderRadius: 12 },
 		nameContainer: { justifyContent: 'center', flex: 1, marginStart: 8 },
-		username: { fontSize: 24, fontWeight: 'bold' },
+		username: { fontSize: 24, fontFamily: FontFamily.SemiBold },
 		level: { fontSize: 16 },
 		coinsContainer: { justifyContent: 'center', marginEnd: 16 },
 		footerContainer: {

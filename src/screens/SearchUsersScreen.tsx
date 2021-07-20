@@ -107,7 +107,7 @@ const SearchUsersScreen: FC = () => {
 			source={require('@assets/background.jpg')}
 			style={{ flex: 1 }}>
 			<SearchBar
-				placeholder='Search ShareNotes'
+				placeholder='Search users'
 				value={rawQuery}
 				onChangeText={setRawQuery}
 				autoCapitalize='none'

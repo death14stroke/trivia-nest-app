@@ -1,11 +1,12 @@
-import React, { FC, useState, useEffect, useContext } from 'react';
+import React, { FC, useState, useEffect, useContext, useReducer } from 'react';
 import { ImageBackground, StyleSheet, View } from 'react-native';
 import { Text, Theme, useTheme } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import _ from 'lodash';
 import { RootStackParamList } from '@app/navigation';
+import { FontFamily } from '@app/theme';
 import { ProfileContext, SocketContext } from '@app/context';
 import { Player, SocketEvent } from '@app/models';
 import { showToast } from '@app/hooks/ui';
@@ -21,8 +22,52 @@ interface Props {
 	route: RouteProp<RootStackParamList, 'Multiplayer'>;
 }
 
-//TODO: navigate here on 'STARTING' event. Send 'READY' event in useeffect and wait for 'START' from server. On server set a timeout if all players ready in time like 5 sec
-//TODO: player joined popup coming twice
+type State = {
+	roomId?: string;
+	ownerId?: string;
+	players: Player[];
+	roomInvites: Set<string>;
+};
+
+type Action = {
+	type:
+		| 'fetch_room'
+		| 'add_player'
+		| 'remove_player'
+		| 'add_invite'
+		| 'remove_invite';
+	payload?: any;
+};
+
+const INITIAL_STATE: State = { players: [], roomInvites: new Set() };
+
+const roomReducer = (state: State, action: Action): State => {
+	switch (action.type) {
+		case 'fetch_room':
+			const { roomId, ownerId, players } = action.payload;
+			return { ...state, roomId, ownerId, players };
+		case 'add_player':
+			return {
+				...state,
+				players: _.uniqBy([...state.players, action.payload], '_id')
+			};
+		case 'remove_player':
+			return {
+				...state,
+				players: state.players.filter(p => p._id !== action.payload)
+			};
+		case 'add_invite':
+			state.roomInvites.add(action.payload);
+			return { ...state };
+		case 'remove_invite':
+			state.roomInvites.delete(action.payload);
+			return { ...state };
+		default:
+			return state;
+	}
+};
+
+//TODO: cleanup all socket events on destroy
 const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 	const { state: currentUser } = useContext(ProfileContext);
 	const socket = useContext(SocketContext);
@@ -30,11 +75,11 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 	const { params } = route;
 
 	const [loading, setLoading] = useState(true);
-	const [roomId, setRoomId] = useState<string>();
-	const [ownerId, setOwnerId] = useState<string>();
-	const [players, setPlayers] = useState<Player[]>([]);
-	const [roomInvites, setRoomInvites] = useState<Set<string>>(new Set());
 	const [open, setOpen] = useState(false);
+
+	//TODO: use reducer for these 4 fields
+	const [state, dispatch] = useReducer(roomReducer, INITIAL_STATE);
+	const { roomId, ownerId, players, roomInvites } = state;
 
 	const toggleOpen = () => setOpen(!open);
 
@@ -43,30 +88,35 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 			socket?.emit(SocketEvent.ROOM_INFO, params.roomId);
 
 			socket?.on(SocketEvent.ROOM_INFO, ({ ownerId, players }) => {
-				setRoomId(roomId);
-				setOwnerId(ownerId);
-				setPlayers(players);
+				dispatch({
+					type: 'fetch_room',
+					payload: { roomId, ownerId, players }
+				});
 				setLoading(false);
 			});
 		} else {
 			socket?.emit(SocketEvent.CREATE_MULTIPLAYER_ROOM);
 
 			socket?.on(SocketEvent.CREATE_MULTIPLAYER_ROOM, roomId => {
-				console.log('room created:', roomId);
-				setRoomId(roomId);
-				setOwnerId(currentUser._id);
+				dispatch({
+					type: 'fetch_room',
+					payload: { roomId, ownerId: currentUser._id, players: [] }
+				});
 				setLoading(false);
 			});
 		}
 
 		socket?.on(SocketEvent.JOIN_MULTIPLAYER_ROOM_ALERT, player => {
+			console.log(
+				`${player.username} joined the room: currentUser: ${currentUser.username}`
+			);
 			showToast(`${player.username} has joined the room!`);
-			setPlayers([...players, player]);
+			dispatch({ type: 'add_player', payload: player });
 		});
 
 		socket?.on(SocketEvent.LEAVE_MULTIPLAYER_ROOM_ALERT, player => {
 			showToast(`${player.username} has left the room!`);
-			setPlayers(players.filter(p => p._id !== player._id));
+			dispatch({ type: 'remove_player', payload: player._id });
 		});
 
 		socket?.once(SocketEvent.STARTING, () => {
@@ -86,16 +136,16 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 			roomId,
 			friendId
 		});
-		roomInvites.add(friendId);
-		setRoomInvites(new Set(roomInvites));
+		dispatch({ type: 'add_invite', payload: friendId });
+
 		setTimeout(() => {
-			roomInvites.delete(friendId);
-			setRoomInvites(new Set(roomInvites));
+			dispatch({ type: 'remove_invite', payload: friendId });
 		}, 10000);
 	};
 
 	const startGame = () => {
 		socket?.emit(SocketEvent.STARTING, roomId);
+		navigation.replace('Quiz');
 	};
 
 	const renderMember = (player: Player | undefined) => (
@@ -142,7 +192,7 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 				{ownerId === currentUser._id && playersList.length > 0 && (
 					<View style={styles.buttonContainer}>
 						<Button.Raised onPress={startGame}>
-							<Text h4 h4Style={{ fontWeight: 'bold' }}>
+							<Text h4 h4Style={{ fontFamily: FontFamily.Bold }}>
 								Start
 							</Text>
 						</Button.Raised>
@@ -151,6 +201,7 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 				<InviteFriendsModal
 					open={open}
 					roomInvites={roomInvites}
+					roomMembers={playersList.map(p => p._id)}
 					onBackdropPress={toggleOpen}
 					onInviteFriend={friendId => {
 						toggleOpen();
@@ -174,12 +225,8 @@ const useStyles = ({ colors }: Theme) =>
 			borderColor: 'gold',
 			borderWidth: 0.3
 		},
-		badgeOnline: {
-			backgroundColor: colors?.success
-		},
-		badgeBusy: {
-			backgroundColor: 'orange'
-		},
+		badgeOnline: { backgroundColor: colors?.success },
+		badgeBusy: { backgroundColor: 'orange' },
 		badgeOffline: {
 			borderColor: colors?.disabled,
 			backgroundColor: colors?.grey5,

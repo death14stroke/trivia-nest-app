@@ -1,11 +1,3 @@
-import { BASE_URL } from '@app/api/client';
-import { QuestionView } from '@app/components';
-import { ProfileContext, SocketContext } from '@app/context';
-import { showToast } from '@app/hooks/ui';
-import { Player, Question, SocketEvent } from '@app/models';
-import { RootStackParamList } from '@app/navigation';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { id } from 'date-fns/locale';
 import React, { FC, useContext, useEffect, useReducer, useState } from 'react';
 import {
 	ImageBackground,
@@ -16,6 +8,14 @@ import {
 } from 'react-native';
 import { Avatar, Text, useTheme } from 'react-native-elements';
 import { FlatList } from 'react-native-gesture-handler';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '@app/navigation';
+import { Colors } from '@app/theme';
+import { ProfileContext, SocketContext } from '@app/context';
+import { Player, Question, SocketEvent } from '@app/models';
+import { BASE_URL } from '@app/api/client';
+import { showToast } from '@app/hooks/ui';
+import { QuestionView } from '@app/components';
 
 type State = {
 	battleId?: string;
@@ -51,7 +51,7 @@ interface Props {
 	navigation: StackNavigationProp<RootStackParamList, 'Quiz'>;
 }
 
-// TODO: common screen for 1v1 and multiplayer
+//TODO: navigate here on 'STARTING' event. Send 'READY' event in useeffect and wait for 'START' from server. On server set a timeout if all players ready in time like 5 sec
 const QuizScreen: FC<Props> = ({ navigation }) => {
 	const {
 		theme: { colors }
@@ -67,6 +67,8 @@ const QuizScreen: FC<Props> = ({ navigation }) => {
 	});
 
 	useEffect(() => {
+		socket?.emit(SocketEvent.READY);
+
 		socket?.once(
 			SocketEvent.START,
 			({
@@ -127,7 +129,8 @@ const QuizScreen: FC<Props> = ({ navigation }) => {
 		});
 
 		socket?.on(SocketEvent.LEAVE_1V1_BATTLE, uid => {
-			showToast(`${uid} has left the battle`);
+			const player = opponents.find(({ _id }) => _id === uid);
+			showToast(`${player?.username} has left the battle`);
 		});
 
 		return leaveRoom;
@@ -138,13 +141,11 @@ const QuizScreen: FC<Props> = ({ navigation }) => {
 	};
 
 	const selectOption = (optionId: string) => {
-		{
-			socket?.emit(SocketEvent.ANSWER, {
-				battleId,
-				questionId: question?._id,
-				answer: optionId
-			});
-		}
+		socket?.emit(SocketEvent.ANSWER, {
+			battleId,
+			questionId: question?._id,
+			answer: optionId
+		});
 	};
 
 	const renderPlayer: ListRenderItem<Player> = ({
@@ -154,23 +155,12 @@ const QuizScreen: FC<Props> = ({ navigation }) => {
 			<Avatar
 				size='large'
 				source={{ uri: BASE_URL + avatar }}
-				containerStyle={[
-					styles.avatar,
-					_id === currentUser?._id && {
-						borderWidth: 2,
-						borderColor: colors?.primary
-					}
-				]}
-				avatarStyle={styles.avatar}
+				avatarStyle={{
+					...styles.avatar,
+					...(_id === currentUser._id && styles.currentUser)
+				}}
 			/>
-			<Text
-				style={{
-					marginTop: 4,
-					fontSize: 12,
-					flexWrap: 'wrap'
-				}}>
-				{username}
-			</Text>
+			<Text style={styles.username}>{username}</Text>
 		</View>
 	);
 
@@ -197,11 +187,7 @@ const QuizScreen: FC<Props> = ({ navigation }) => {
 					keyExtractor={player => player._id}
 					horizontal
 					style={{ flexGrow: 0 }}
-					contentContainerStyle={{
-						justifyContent: 'space-between',
-						width: '100%',
-						paddingHorizontal: 12
-					}}
+					contentContainerStyle={styles.contentContainer}
 					renderItem={renderPlayer}
 				/>
 				<QuestionView
@@ -219,7 +205,21 @@ const QuizScreen: FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
 	safeArea: { flex: 1, padding: 12, justifyContent: 'space-between' },
 	avatar: { borderRadius: 12 },
-	playersContainer: { flexDirection: 'row', justifyContent: 'space-between' }
+	playersContainer: { flexDirection: 'row', justifyContent: 'space-between' },
+	contentContainer: {
+		justifyContent: 'space-between',
+		width: '100%',
+		paddingHorizontal: 12
+	},
+	username: {
+		marginTop: 4,
+		fontSize: 12,
+		flexWrap: 'wrap'
+	},
+	currentUser: {
+		borderWidth: 2,
+		borderColor: Colors.curiousBlue
+	}
 });
 
 export { QuizScreen };

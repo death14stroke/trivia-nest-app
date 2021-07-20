@@ -1,10 +1,8 @@
+import React, { FC, useEffect, useContext } from 'react';
+import { Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/core';
 import { ProfileContext, SocketContext } from '@app/context';
 import { SocketEvent } from '@app/models';
-import { useNavigation } from '@react-navigation/core';
-import React, { FC } from 'react';
-import { useEffect } from 'react';
-import { useContext } from 'react';
-import { Alert } from 'react-native';
 
 const SplashScreen: FC = ({ children }) => {
 	const navigation = useNavigation();
@@ -18,11 +16,11 @@ const SplashScreen: FC = ({ children }) => {
 			updateUserStatus(uid, status);
 		});
 
-		socket?.on(
-			SocketEvent.INVITE_MULTIPLAYER_ROOM,
-			({ roomId, ownerId }) => {
-				console.log('on room invite');
-				Alert.alert('Room invite', `${ownerId} invited to his room`, [
+		socket?.on(SocketEvent.INVITE_MULTIPLAYER_ROOM, ({ roomId, owner }) => {
+			Alert.alert(
+				'Room invite',
+				`${owner.username} invited to his room`,
+				[
 					{
 						text: 'Cancel',
 						onPress: () => console.log('Cancel Pressed'),
@@ -33,12 +31,11 @@ const SplashScreen: FC = ({ children }) => {
 						onPress: () => joinRoom(roomId),
 						style: 'default'
 					}
-				]);
-			}
-		);
+				]
+			);
+		});
 
 		socket?.on(SocketEvent.JOIN_MULTIPLAYER_ROOM, roomId => {
-			console.log('joined room from invite');
 			navigation.navigate('Multiplayer', { roomId });
 		});
 	}, [socket]);

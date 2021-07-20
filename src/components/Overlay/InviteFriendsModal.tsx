@@ -21,6 +21,7 @@ const PAGE_SIZE = 10;
 interface Props {
 	open?: boolean;
 	roomInvites: Set<string>;
+	roomMembers: string[];
 	onBackdropPress?: () => void;
 	onInviteFriend?: (friendId: string) => void;
 }
@@ -28,6 +29,7 @@ interface Props {
 const InviteFriendsModal: FC<Props> = ({
 	open = false,
 	roomInvites,
+	roomMembers,
 	onBackdropPress,
 	onInviteFriend
 }) => {
@@ -63,7 +65,10 @@ const InviteFriendsModal: FC<Props> = ({
 
 	const friendsList = _.chain(data?.pages)
 		.flatten()
-		.filter(({ status }) => status !== UserStatus.OFFLINE)
+		.filter(
+			({ _id, status }) =>
+				status !== UserStatus.OFFLINE && !roomMembers.includes(_id)
+		)
 		.value();
 
 	return (

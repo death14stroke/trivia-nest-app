@@ -14,7 +14,6 @@ import {
 	InvitesScreen,
 	MatchMakingScreen,
 	MultiplayerRoomScreen,
-	OneVsOneScreen,
 	QuizScreen,
 	ResultsScreen,
 	SearchUsersScreen,
@@ -49,11 +48,6 @@ const mainStackScreens: FC = () => {
 						<Stack.Screen
 							name='Main'
 							component={bottomTabs}
-							options={{ headerShown: false }}
-						/>
-						<Stack.Screen
-							name='OneVsOne'
-							component={OneVsOneScreen}
 							options={{ headerShown: false }}
 						/>
 						<Stack.Screen

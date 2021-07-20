@@ -4,7 +4,6 @@ export * from './HomeScreen';
 export * from './InvitesScreen';
 export * from './MatchMakingScreen';
 export * from './MultiplayerRoomScreen';
-export * from './OneVsOneScreen';
 export * from './QuizScreen';
 export * from './ResultsScreen';
 export * from './SearchUsersScreen';
