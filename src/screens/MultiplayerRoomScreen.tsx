@@ -1,34 +1,20 @@
 import React, { FC, useState, useEffect, useContext } from 'react';
-import {
-	FlatList,
-	ImageBackground,
-	ListRenderItem,
-	StyleSheet,
-	View,
-	ViewStyle
-} from 'react-native';
-import {
-	Text,
-	Avatar,
-	Badge,
-	Icon,
-	Theme,
-	useTheme
-} from 'react-native-elements';
+import { ImageBackground, StyleSheet, View } from 'react-native';
+import { Text, Theme, useTheme } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { useInfiniteQuery } from 'react-query';
+import { RouteProp } from '@react-navigation/native';
 import _ from 'lodash';
 import { RootStackParamList } from '@app/navigation';
 import { ProfileContext, SocketContext } from '@app/context';
-import { Player, SocketEvent, UserStatus } from '@app/models';
-import { BASE_URL } from '@app/api/client';
-import { apiGetFriends } from '@app/api/users';
+import { Player, SocketEvent } from '@app/models';
 import { showToast } from '@app/hooks/ui';
-import { Button, WaitingTimer } from '@app/components';
-import { RouteProp } from '@react-navigation/native';
-
-const PAGE_SIZE = 10;
+import {
+	Button,
+	InviteFriendsModal,
+	Loading,
+	RoomMember
+} from '@app/components';
 
 interface Props {
 	navigation: StackNavigationProp<RootStackParamList, 'Multiplayer'>;
@@ -36,34 +22,21 @@ interface Props {
 }
 
 //TODO: navigate here on 'STARTING' event. Send 'READY' event in useeffect and wait for 'START' from server. On server set a timeout if all players ready in time like 5 sec
+//TODO: player joined popup coming twice
 const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 	const { state: currentUser } = useContext(ProfileContext);
 	const socket = useContext(SocketContext);
-	const { theme } = useTheme();
-	const styles = useStyles(theme);
-	const { colors } = theme;
-	const params = route.params;
-	const [timer, setTimer] = useState(true);
+	const styles = useStyles(useTheme().theme);
+	const { params } = route;
+
+	const [loading, setLoading] = useState(true);
 	const [roomId, setRoomId] = useState<string>();
 	const [ownerId, setOwnerId] = useState<string>();
 	const [players, setPlayers] = useState<Player[]>([]);
-	const [roomInvites, setRoomInvites] = useState<string[]>([]);
-	const { friends, _id } = currentUser;
+	const [roomInvites, setRoomInvites] = useState<Set<string>>(new Set());
+	const [open, setOpen] = useState(false);
 
-	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Player[]>(
-		'friends',
-		async ({ pageParam }) => {
-			const { data } = await apiGetFriends(PAGE_SIZE, pageParam);
-			return data;
-		},
-		{
-			staleTime: 5 * 60 * 1000,
-			getNextPageParam: lastPage =>
-				lastPage.length === PAGE_SIZE
-					? lastPage[lastPage.length - 1]
-					: undefined
-		}
-	);
+	const toggleOpen = () => setOpen(!open);
 
 	useEffect(() => {
 		if (params?.roomId) {
@@ -73,7 +46,7 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 				setRoomId(roomId);
 				setOwnerId(ownerId);
 				setPlayers(players);
-				setTimer(false);
+				setLoading(false);
 			});
 		} else {
 			socket?.emit(SocketEvent.CREATE_MULTIPLAYER_ROOM);
@@ -81,8 +54,8 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 			socket?.on(SocketEvent.CREATE_MULTIPLAYER_ROOM, roomId => {
 				console.log('room created:', roomId);
 				setRoomId(roomId);
-				setOwnerId(_id);
-				setTimer(false);
+				setOwnerId(currentUser._id);
+				setLoading(false);
 			});
 		}
 
@@ -113,9 +86,11 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 			roomId,
 			friendId
 		});
-		setRoomInvites([...roomInvites, friendId]);
+		roomInvites.add(friendId);
+		setRoomInvites(new Set(roomInvites));
 		setTimeout(() => {
-			setRoomInvites(roomInvites.filter(id => id !== friendId));
+			roomInvites.delete(friendId);
+			setRoomInvites(new Set(roomInvites));
 		}, 10000);
 	};
 
@@ -123,141 +98,49 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 		socket?.emit(SocketEvent.STARTING, roomId);
 	};
 
-	const renderFriendCard: ListRenderItem<Player> = ({ item }) => {
-		const { _id, username, avatar, status: playerStatus } = item;
-		const status = friends.get(_id) ?? playerStatus;
+	const renderMember = (player: Player | undefined) => (
+		<RoomMember
+			player={player}
+			currentUserId={currentUser._id!}
+			ownerId={ownerId}
+			onInvitePress={toggleOpen}
+		/>
+	);
 
-		let badgeStyle: ViewStyle;
-		if (status === UserStatus.ONLINE) {
-			badgeStyle = styles.badgeOnline;
-		} else if (status === UserStatus.BUSY) {
-			badgeStyle = styles.badgeBusy;
-		} else {
-			badgeStyle = styles.badgeOffline;
-		}
-
-		return (
-			<View
-				style={{
-					alignItems: 'center',
-					backgroundColor: colors?.grey3,
-					marginHorizontal: 4,
-					padding: 4,
-					borderRadius: 12,
-					borderWidth: 1,
-					borderColor: 'gold'
-				}}>
-				<View>
-					<Avatar
-						size='medium'
-						rounded
-						source={{ uri: BASE_URL + avatar }}
-					/>
-					<Badge badgeStyle={[styles.badge, badgeStyle]} />
-				</View>
-				<View
-					style={{
-						flexDirection: 'row',
-						justifyContent: 'space-between'
-					}}>
-					<Icon
-						type='ionicon'
-						name='chevron-down-outline'
-						color='white'
-					/>
-					{status === UserStatus.ONLINE &&
-						(!roomInvites.includes(_id) ? (
-							<Icon
-								type='ionicon'
-								name='add-circle-outline'
-								color='white'
-								onPress={() => sendInvite(_id)}
-							/>
-						) : (
-							<Icon
-								type='ionicon'
-								name='timer-outline'
-								color='white'
-							/>
-						))}
-				</View>
-			</View>
-		);
-	};
-
-	const renderMember: ListRenderItem<Player> = ({
-		item: { avatar, username, _id }
-	}) => {
-		return (
-			<View style={{ flex: 1, alignItems: 'center' }}>
-				<Avatar
-					size='xlarge'
-					source={{ uri: BASE_URL + avatar }}
-					containerStyle={
-						_id === currentUser._id
-							? { borderColor: 'red', borderWidth: 2 }
-							: {}
-					}
-				/>
-				{ownerId === _id && (
-					<Icon
-						type='ionicon'
-						name='alert-circle-outline'
-						color='gold'
-					/>
-				)}
-				<Text h4>{username}</Text>
-			</View>
-		);
-	};
-
-	if (timer) {
-		return <WaitingTimer />;
+	if (loading) {
+		return <Loading message='Creating room...' />;
 	}
 
-	const friendsList = _.flatten(data?.pages);
 	const playerUser: Player = {
 		_id: currentUser._id!,
 		avatar: currentUser.avatar!,
 		username: currentUser.username!,
 		level: currentUser.level!
 	};
-	const playersList = players.filter(p => p._id !== _id);
+	const playersList = players.filter(p => p._id !== currentUser._id);
 
 	return (
 		<ImageBackground
 			source={require('@assets/background.jpg')}
 			style={{ flex: 1 }}>
-			<SafeAreaView style={{ flex: 1, justifyContent: 'space-between' }}>
-				<View>
-					<Text style={{ textAlign: 'center', marginVertical: 4 }}>
-						Challenge Friends
+			<SafeAreaView style={{ flex: 1 }}>
+				<View style={{ flex: 0.2, justifyContent: 'center' }}>
+					<Text h3 h3Style={{ textAlign: 'center' }}>
+						Challenge your friends!
 					</Text>
-					<FlatList
-						data={friendsList}
-						keyExtractor={friend => friend._id}
-						renderItem={renderFriendCard}
-						horizontal
-						onEndReached={() => {
-							if (!isLoading) {
-								fetchNextPage();
-							}
-						}}
-						style={{ flexGrow: 0 }}
-					/>
 				</View>
-				<FlatList
-					data={[playerUser, ...playersList]}
-					keyExtractor={player => player._id}
-					renderItem={renderMember}
-					numColumns={2}
-					style={{ flexGrow: 0 }}
-					contentContainerStyle={{
-						justifyContent: 'space-between'
-					}}
-				/>
-				{ownerId === currentUser._id && (
-					<View style={{ marginHorizontal: '25%' }}>
+				<View style={{ flex: 0.6, justifyContent: 'center' }}>
+					<View style={{ flexDirection: 'row', marginBottom: 16 }}>
+						{renderMember(playerUser!)}
+						{renderMember(playersList[0])}
+					</View>
+					<View style={{ flexDirection: 'row' }}>
+						{renderMember(playersList[1])}
+						{renderMember(playersList[2])}
+					</View>
+				</View>
+				{ownerId === currentUser._id && playersList.length > 0 && (
+					<View style={styles.buttonContainer}>
 						<Button.Raised onPress={startGame}>
 							<Text h4 h4Style={{ fontWeight: 'bold' }}>
 								Start
@@ -265,6 +148,15 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 						</Button.Raised>
 					</View>
 				)}
+				<InviteFriendsModal
+					open={open}
+					roomInvites={roomInvites}
+					onBackdropPress={toggleOpen}
+					onInviteFriend={friendId => {
+						toggleOpen();
+						sendInvite(friendId);
+					}}
+				/>
 			</SafeAreaView>
 		</ImageBackground>
 	);
@@ -273,10 +165,10 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 const useStyles = ({ colors }: Theme) =>
 	StyleSheet.create({
 		badge: {
-			bottom: 2,
-			right: 0,
+			bottom: 4,
+			right: 2,
 			position: 'absolute',
-			height: 12,
+			height: 14,
 			aspectRatio: 1,
 			borderRadius: 100,
 			borderColor: 'gold',
@@ -292,6 +184,11 @@ const useStyles = ({ colors }: Theme) =>
 			borderColor: colors?.disabled,
 			backgroundColor: colors?.grey5,
 			borderWidth: 0.5
+		},
+		buttonContainer: {
+			flex: 0.2,
+			marginHorizontal: '25%',
+			justifyContent: 'center'
 		}
 	});
 

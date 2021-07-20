@@ -9,3 +9,5 @@ export * from './WaitingTimer';
 export * from './SearchBar';
 export * from './Tab';
 export * from './ListItem';
+export { default as Loading } from './Loading';
+export * from './RoomMember';
