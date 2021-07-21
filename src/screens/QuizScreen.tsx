@@ -6,7 +6,7 @@ import {
 	StyleSheet,
 	View
 } from 'react-native';
-import { Avatar, Text, useTheme } from 'react-native-elements';
+import { Avatar, Text } from 'react-native-elements';
 import { FlatList } from 'react-native-gesture-handler';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@app/navigation';
@@ -53,9 +53,6 @@ interface Props {
 
 //TODO: navigate here on 'STARTING' event. Send 'READY' event in useeffect and wait for 'START' from server. On server set a timeout if all players ready in time like 5 sec
 const QuizScreen: FC<Props> = ({ navigation }) => {
-	const {
-		theme: { colors }
-	} = useTheme();
 	const { state: currentUser } = useContext(ProfileContext);
 	const socket = useContext(SocketContext);
 
@@ -181,7 +178,7 @@ const QuizScreen: FC<Props> = ({ navigation }) => {
 		<ImageBackground
 			style={{ flex: 1 }}
 			source={require('@assets/background.jpg')}>
-			<SafeAreaView style={styles.safeArea}>
+			<SafeAreaView style={styles.root}>
 				<FlatList
 					data={[playerUser, ...opponents]}
 					keyExtractor={player => player._id}
@@ -194,6 +191,7 @@ const QuizScreen: FC<Props> = ({ navigation }) => {
 					question={question!}
 					position={position}
 					duration={duration}
+					totalQuestions={10}
 					correctAnswer={correctAnswer}
 					onOptionSelected={id => selectOption(id)}
 				/>
@@ -203,7 +201,7 @@ const QuizScreen: FC<Props> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-	safeArea: { flex: 1, padding: 12, justifyContent: 'space-between' },
+	root: { flex: 1, padding: 12, justifyContent: 'space-between' },
 	avatar: { borderRadius: 12 },
 	playersContainer: { flexDirection: 'row', justifyContent: 'space-between' },
 	contentContainer: {

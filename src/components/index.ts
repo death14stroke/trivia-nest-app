@@ -1,7 +1,6 @@
 export * from './Button';
 export * from './Form';
 export * from './Input';
-export * from './LottieOverlay';
 export * from './QuestionView';
 export * from './Overlay';
 export * from './SearchBar';

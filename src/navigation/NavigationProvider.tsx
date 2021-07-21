@@ -1,10 +1,12 @@
 import React, { FC, useState, useEffect } from 'react';
 import { ImageBackground, StatusBar } from 'react-native';
-import { ThemeProvider } from 'react-native-elements';
+import { ThemeProvider, Avatar } from 'react-native-elements';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { ProfileProvider, SocketProvider } from '@app/context';
 import { AppNativeTheme, AppNavigationTheme, FontFamily } from '@app/theme';
 import {
@@ -14,6 +16,7 @@ import {
 	InvitesScreen,
 	MatchMakingScreen,
 	MultiplayerRoomScreen,
+	PracticeScreen,
 	QuizScreen,
 	ResultsScreen,
 	SearchUsersScreen,
@@ -27,12 +30,6 @@ import {
 	RootStackParamList,
 	TopTabParamList
 } from './paramsList';
-import { Avatar } from 'react-native-elements/dist/avatar/Avatar';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import {
-	SafeAreaView,
-	useSafeAreaInsets
-} from 'react-native-safe-area-context';
 
 const AppStack = createStackNavigator<AppStackParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
@@ -44,31 +41,24 @@ const mainStackScreens: FC = () => {
 		<ProfileProvider>
 			<SocketProvider>
 				<SplashScreen>
-					<Stack.Navigator>
-						<Stack.Screen
-							name='Main'
-							component={bottomTabs}
-							options={{ headerShown: false }}
-						/>
+					<Stack.Navigator screenOptions={{ headerShown: false }}>
+						<Stack.Screen name='Main' component={bottomTabs} />
 						<Stack.Screen
 							name='Results'
 							component={ResultsScreen}
-							options={{ headerShown: false }}
 						/>
 						<Stack.Screen
 							name='Multiplayer'
 							component={MultiplayerRoomScreen}
-							options={{ headerShown: false }}
 						/>
-						<Stack.Screen
-							name='Quiz'
-							component={QuizScreen}
-							options={{ headerShown: false }}
-						/>
+						<Stack.Screen name='Quiz' component={QuizScreen} />
 						<Stack.Screen
 							name='MatchMaking'
 							component={MatchMakingScreen}
-							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name='Practice'
+							component={PracticeScreen}
 						/>
 					</Stack.Navigator>
 				</SplashScreen>

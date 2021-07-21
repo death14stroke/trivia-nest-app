@@ -1,7 +1,4 @@
-import { Question } from '@app/models';
-import { Dimens } from '@app/theme';
-import React, { FC, useState } from 'react';
-import { useEffect } from 'react';
+import React, { FC, useState, useEffect } from 'react';
 import {
 	Animated,
 	FlatList,
@@ -10,9 +7,11 @@ import {
 	TouchableOpacity,
 	View
 } from 'react-native';
-import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { Text, LinearProgress } from 'react-native-elements';
-import { LottieOverlay } from './LottieOverlay';
+import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
+import { Dimens } from '@app/theme';
+import { Question } from '@app/models';
+import { LottieOverlay } from './Overlay';
 
 interface Props {
 	question: Question;
@@ -20,6 +19,8 @@ interface Props {
 	duration: number;
 	correctAnswer?: string;
 	onOptionSelected?: (id: string) => void;
+	onTimeup?: () => void;
+	totalQuestions: number;
 }
 
 const QuestionView: FC<Props> = ({
@@ -27,7 +28,9 @@ const QuestionView: FC<Props> = ({
 	position,
 	duration,
 	correctAnswer,
-	onOptionSelected
+	onOptionSelected,
+	onTimeup,
+	totalQuestions
 }) => {
 	const [selected, setSelected] = useState<string>();
 	const [disabled, setDisabled] = useState(false);
@@ -66,13 +69,6 @@ const QuestionView: FC<Props> = ({
 		);
 	};
 
-	console.log(
-		'correct answer:',
-		correctAnswer,
-		selected,
-		correctAnswer === selected
-	);
-
 	return (
 		<View style={{ flex: 1 }}>
 			<View style={styles.progressContainer}>
@@ -90,6 +86,7 @@ const QuestionView: FC<Props> = ({
 						]}
 						onComplete={() => {
 							setDisabled(true);
+							onTimeup?.();
 						}}>
 						{({ remainingTime }) => (
 							<Animated.Text style={styles.timerText}>
@@ -100,10 +97,12 @@ const QuestionView: FC<Props> = ({
 				</View>
 				<View style={styles.questionContainer}>
 					<View style={{ flexDirection: 'row' }}>
-						<Text h4>Question {position + 1} of 10</Text>
+						<Text h4>
+							Question {position + 1} of {totalQuestions}
+						</Text>
 					</View>
 					<LinearProgress
-						value={(position + 1) / 10}
+						value={(position + 1) / totalQuestions}
 						color='red'
 						variant='determinate'
 						style={{ height: 10, marginVertical: 8 }}

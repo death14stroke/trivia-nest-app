@@ -100,6 +100,8 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 			navigation.navigate('MatchMaking');
 		} else if (key === 'multi') {
 			navigation.navigate('Multiplayer');
+		} else {
+			navigation.navigate('Practice');
 		}
 	};
 

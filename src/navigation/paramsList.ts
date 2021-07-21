@@ -11,6 +11,7 @@ export type RootStackParamList = {
 	Multiplayer: { roomId: string } | undefined;
 	Quiz: undefined;
 	MatchMaking: undefined;
+	Practice: undefined;
 };
 
 export type BottomTabParamList = {
