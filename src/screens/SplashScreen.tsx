@@ -3,9 +3,11 @@ import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/core';
 import { ProfileContext, SocketContext } from '@app/context';
 import { SocketEvent } from '@app/models';
+import { useQueryClient } from 'react-query';
 
 const SplashScreen: FC = ({ children }) => {
 	const navigation = useNavigation();
+	const queryClient = useQueryClient();
 	const socket = useContext(SocketContext);
 	const {
 		actions: { updateUserStatus }
@@ -37,6 +39,14 @@ const SplashScreen: FC = ({ children }) => {
 
 		socket?.on(SocketEvent.JOIN_MULTIPLAYER_ROOM, roomId => {
 			navigation.navigate('Multiplayer', { roomId });
+		});
+
+		socket?.on(SocketEvent.FRIEND_REQUEST, () => {
+			queryClient.invalidateQueries('invites');
+		});
+
+		socket?.on(SocketEvent.FRIEND_ADDED, () => {
+			queryClient.invalidateQueries('friends');
 		});
 	}, [socket]);
 

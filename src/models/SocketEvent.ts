@@ -22,5 +22,7 @@ export const SocketEvent = {
 	LEAVE_1V1_BATTLE: 'leave_1v1_battle',
 	// others
 	USER_UPDATE: 'user_update',
-	RELATIONS: 'relations'
+	RELATIONS: 'relations',
+	FRIEND_REQUEST: 'friend_request',
+	FRIEND_ADDED: 'friend_added'
 };

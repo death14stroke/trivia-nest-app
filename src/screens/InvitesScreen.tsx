@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { FlatList, ImageBackground, ListRenderItem } from 'react-native';
-import { useInfiniteQuery, useMutation } from 'react-query';
+import { useInfiniteQuery, useMutation, useQueryClient } from 'react-query';
 import _ from 'lodash';
 import { Invite } from '@app/models';
 import {
@@ -16,6 +16,7 @@ const PAGE_SIZE = 20;
 
 //TODO: accept/reject friend request via socket
 const InvitesScreen: FC = () => {
+	const queryClient = useQueryClient();
 	const {
 		actions: {
 			acceptInvite,
@@ -46,7 +47,11 @@ const InvitesScreen: FC = () => {
 		string
 	>(apiAcceptRequest, {
 		onMutate: acceptInvite,
-		onError: (_err, friendId) => undoAcceptInvite(friendId)
+		onError: (_err, friendId) => undoAcceptInvite(friendId),
+		onSuccess: () => {
+			queryClient.invalidateQueries('invites');
+			queryClient.invalidateQueries('friends');
+		}
 	});
 
 	const { mutate: rejectFriendRequest } = useMutation<
@@ -55,7 +60,8 @@ const InvitesScreen: FC = () => {
 		string
 	>(apiRejectRequest, {
 		onMutate: rejectInvite,
-		onError: (_err, friendId) => undoRejectInvite(friendId)
+		onError: (_err, friendId) => undoRejectInvite(friendId),
+		onSuccess: () => queryClient.invalidateQueries('invites')
 	});
 
 	const renderInviteCard: ListRenderItem<Invite> = ({ item }) => {

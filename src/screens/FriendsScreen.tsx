@@ -1,6 +1,6 @@
 import React, { FC, useContext } from 'react';
 import { FlatList, ImageBackground, ListRenderItem } from 'react-native';
-import { useInfiniteQuery, useMutation } from 'react-query';
+import { useInfiniteQuery, useMutation, useQueryClient } from 'react-query';
 import _ from 'lodash';
 import { ProfileContext } from '@app/context';
 import { Player } from '@app/models';
@@ -10,6 +10,7 @@ import { FriendsCard } from '@app/components';
 const PAGE_SIZE = 10;
 
 const FriendsScreen: FC = () => {
+	const queryClient = useQueryClient();
 	const {
 		actions: { unfriend, undoUnfriend }
 	} = useContext(ProfileContext);
@@ -33,7 +34,8 @@ const FriendsScreen: FC = () => {
 		apiUnfriendUser,
 		{
 			onMutate: unfriend,
-			onError: (_err, friendId) => undoUnfriend(friendId)
+			onError: (_err, friendId) => undoUnfriend(friendId),
+			onSuccess: () => queryClient.invalidateQueries('friends')
 		}
 	);
 
