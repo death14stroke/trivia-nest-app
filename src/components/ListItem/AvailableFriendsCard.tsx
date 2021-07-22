@@ -44,7 +44,7 @@ const AvailableFriendsCard: FC<Props> = ({
 				<Text style={styles.username}>{username}</Text>
 				<Text style={styles.level}>{level}</Text>
 			</View>
-			{!isInvited ? (
+			{!isInvited && status === UserStatus.ONLINE ? (
 				<Icon
 					type='ionicon'
 					name='add-circle-outline'

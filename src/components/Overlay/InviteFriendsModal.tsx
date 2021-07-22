@@ -15,6 +15,8 @@ import { Player, UserStatus } from '@app/models';
 import { apiGetFriends } from '@app/api/users';
 import { Button } from '../Button';
 import { AvailableFriendsCard } from '../ListItem';
+import { useContext } from 'react';
+import { ProfileContext } from '@app/context';
 
 const PAGE_SIZE = 10;
 
@@ -26,6 +28,7 @@ interface Props {
 	onInviteFriend?: (friendId: string) => void;
 }
 
+//TODO: status not updating...update status fetch from react query with socket events
 const InviteFriendsModal: FC<Props> = ({
 	open = false,
 	roomInvites,
@@ -34,6 +37,9 @@ const InviteFriendsModal: FC<Props> = ({
 	onInviteFriend
 }) => {
 	const styles = useStyles(useTheme().theme);
+	const {
+		state: { friends }
+	} = useContext(ProfileContext);
 
 	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Player[]>(
 		'friends',
@@ -52,6 +58,8 @@ const InviteFriendsModal: FC<Props> = ({
 
 	const renderFriendCard: ListRenderItem<Player> = ({ item }) => {
 		const { _id } = item;
+
+		item.status = friends.get(_id) ?? item.status;
 
 		return (
 			<AvailableFriendsCard
