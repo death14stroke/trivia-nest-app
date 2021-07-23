@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { Text, Image } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { FontFamily } from '@app/theme';
 import { Button, LoginForm, SignupForm } from '@app/components';
 
@@ -27,37 +28,37 @@ const SignupScreen: FC = () => {
 
 	return (
 		<SafeAreaView style={styles.root}>
-			<Image
-				source={require('@assets/welcome.jpg')}
-				style={styles.logo}
-			/>
-			<Text h3 h3Style={styles.header}>
-				{signup ? 'Join the battlefield!' : 'Welcome back soldier!'}
-			</Text>
-			<View style={styles.form}>
-				{signup ? <SignupForm /> : <LoginForm />}
-			</View>
-			<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-				<Text style={{ fontSize: 16 }}>
-					{signup ? 'Already a member?' : 'New to Trivia Nest?'}
-				</Text>
-				<Button.Text
-					title={signup ? 'Login' : 'Register'}
-					titleStyle={{ fontSize: 16 }}
-					onPress={toggleMode}
+			<KeyboardAwareScrollView
+				contentContainerStyle={styles.contentContainer}
+				bounces={false}>
+				<Image
+					source={require('@assets/welcome.jpg')}
+					style={styles.logo}
 				/>
-			</View>
+				<Text h3 h3Style={styles.header}>
+					{signup ? 'Join the battlefield!' : 'Welcome back soldier!'}
+				</Text>
+				<View style={styles.form}>
+					{signup ? <SignupForm /> : <LoginForm />}
+				</View>
+				<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+					<Text style={{ fontSize: 16 }}>
+						{signup ? 'Already a member?' : 'New to Trivia Nest?'}
+					</Text>
+					<Button.Text
+						title={signup ? 'Login' : 'Register'}
+						titleStyle={{ fontSize: 16 }}
+						onPress={toggleMode}
+					/>
+				</View>
+			</KeyboardAwareScrollView>
 		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
-	root: {
-		flex: 1,
-		backgroundColor: 'black',
-		alignItems: 'center',
-		justifyContent: 'space-evenly'
-	},
+	root: { flex: 1, backgroundColor: 'black' },
+	contentContainer: { alignItems: 'center', justifyContent: 'space-evenly' },
 	logo: { height: 200, aspectRatio: 1 },
 	form: { flex: 1, width: '100%', justifyContent: 'center' },
 	header: { fontFamily: FontFamily.Bold }

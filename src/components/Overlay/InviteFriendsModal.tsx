@@ -126,7 +126,7 @@ const useStyles = ({ colors }: Theme) =>
 			width: '90%',
 			...Platform.select({
 				ios: { backgroundColor: PlatformColor('systemGray6') },
-				android: { backgroundColor: 'rgb(242, 242, 247' }
+				android: { backgroundColor: 'rgb(242, 242, 247)' }
 			})
 		},
 		header: {

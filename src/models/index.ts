@@ -3,6 +3,7 @@ export * from './CurrentUser';
 export * from './IntroMode';
 export * from './Invite';
 export * from './Player';
+export * from './Query';
 export * from './Question';
 export * from './Relation';
 export * from './Result';

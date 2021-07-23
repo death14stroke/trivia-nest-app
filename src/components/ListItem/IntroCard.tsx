@@ -64,21 +64,14 @@ const styles = StyleSheet.create({
 		height: '100%',
 		overflow: 'hidden'
 	},
-	title: {
-		textAlign: 'center',
-		fontFamily: FontFamily.Bold
-	},
+	title: { textAlign: 'center', fontFamily: FontFamily.Bold },
 	description: {
 		textAlign: 'center',
 		marginVertical: 12,
 		fontFamily: FontFamily.ExtraLight,
 		fontSize: 20
 	},
-	textContainer: {
-		padding: 12,
-		flex: 1,
-		justifyContent: 'space-between'
-	},
+	textContainer: { padding: 12, flex: 1, justifyContent: 'space-between' },
 	button: { margin: 12 },
 	buttonTitle: { fontFamily: FontFamily.Bold, fontSize: 24 }
 });

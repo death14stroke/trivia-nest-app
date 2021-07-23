@@ -1,3 +1,4 @@
+// FIXME: Library issue - Carousel not sliding automatically to next position sometimes on Android
 import React, { FC, useContext, useState } from 'react';
 import {
 	View,
@@ -6,21 +7,21 @@ import {
 	ListRenderItem,
 	ImageBackground
 } from 'react-native';
-import { Avatar, Icon, Text, Theme, useTheme } from 'react-native-elements';
+import { Avatar, Icon, Text } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Carousel from 'react-native-snap-carousel';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { BottomTabParamList, RootStackParamList } from '@app/navigation';
+import { FontFamily } from '@app/theme';
 import { ProfileContext } from '@app/context';
 import { CurrentUser, IntroMode, Mode } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { apiGetAvatars, apiUpdateUserProfile } from '@app/api/users';
 import { showToast } from '@app/hooks/ui';
 import { IntroCard, SelectAvatarModal } from '@app/components';
-import { CompositeNavigationProp } from '@react-navigation/native';
-import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { FontFamily } from '@app/theme';
 
 const modes: IntroMode[] = [
 	{
@@ -58,7 +59,6 @@ interface Props {
 }
 
 const HomeScreen: FC<Props> = ({ navigation }) => {
-	const styles = useStyles(useTheme().theme);
 	const queryClient = useQueryClient();
 	const {
 		state: user,
@@ -140,23 +140,15 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 							{user?.coins}
 						</Text>
 					</View>
-					{/* TODO: toggle settings modal instead */}
-					<Avatar
-						rounded
-						icon={{ type: 'ionicon', name: 'person' }}
-						containerStyle={styles.profileIcon}
-					/>
 				</View>
-				<View style={{ flex: 1 }}>
-					<Carousel
-						data={modes}
-						renderItem={renderIntroCard}
-						sliderWidth={SCREEN_WIDTH}
-						itemWidth={SCREEN_WIDTH * 0.7}
-						activeSlideAlignment='center'
-						slideStyle={{ justifyContent: 'center' }}
-					/>
-				</View>
+				<Carousel
+					data={modes}
+					renderItem={renderIntroCard}
+					sliderWidth={SCREEN_WIDTH}
+					itemWidth={SCREEN_WIDTH * 0.7}
+					activeSlideAlignment='center'
+					slideStyle={{ justifyContent: 'center' }}
+				/>
 				<View style={styles.footerContainer}>
 					<Text style={styles.footer}>Made with </Text>
 					<Icon type='ionicon' name='heart' color='red' />
@@ -177,31 +169,26 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 	);
 };
 
-const useStyles = ({ colors }: Theme) =>
-	StyleSheet.create({
-		root: { flex: 1 },
-		header: {
-			flexDirection: 'row',
-			backgroundColor: 'black',
-			borderRadius: 12,
-			marginHorizontal: 12,
-			alignItems: 'center'
-		},
-		avatar: { borderRadius: 12 },
-		nameContainer: { justifyContent: 'center', flex: 1, marginStart: 8 },
-		username: { fontSize: 24, fontFamily: FontFamily.SemiBold },
-		level: { fontSize: 16 },
-		coinsContainer: { justifyContent: 'center', marginEnd: 16 },
-		footerContainer: {
-			flexDirection: 'row',
-			justifyContent: 'center',
-			alignItems: 'center'
-		},
-		profileIcon: {
-			backgroundColor: colors?.primary,
-			marginHorizontal: 8
-		},
-		footer: { fontSize: 18, fontFamily: FontFamily.Bold }
-	});
+const styles = StyleSheet.create({
+	root: { flex: 1 },
+	header: {
+		flexDirection: 'row',
+		backgroundColor: 'black',
+		borderRadius: 12,
+		marginHorizontal: 12,
+		alignItems: 'center'
+	},
+	avatar: { borderRadius: 12 },
+	nameContainer: { justifyContent: 'center', flex: 1, marginStart: 8 },
+	username: { fontSize: 24, fontFamily: FontFamily.SemiBold },
+	level: { fontSize: 16 },
+	coinsContainer: { justifyContent: 'center', marginEnd: 16 },
+	footerContainer: {
+		flexDirection: 'row',
+		justifyContent: 'center',
+		alignItems: 'center'
+	},
+	footer: { fontSize: 18, fontFamily: FontFamily.Bold }
+});
 
 export { HomeScreen };

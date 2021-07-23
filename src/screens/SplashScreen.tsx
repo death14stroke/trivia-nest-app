@@ -1,9 +1,9 @@
 import React, { FC, useEffect, useContext } from 'react';
 import { Alert } from 'react-native';
+import { useQueryClient } from 'react-query';
 import { useNavigation } from '@react-navigation/core';
 import { ProfileContext, SocketContext } from '@app/context';
 import { SocketEvent } from '@app/models';
-import { useQueryClient } from 'react-query';
 
 const SplashScreen: FC = ({ children }) => {
 	const navigation = useNavigation();

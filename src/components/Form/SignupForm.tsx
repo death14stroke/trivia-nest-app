@@ -7,6 +7,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { AppStackParamList } from '@app/navigation';
+import { Query } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { apiGetAvatars } from '@app/api/users';
 import { signupWithEmailPassword } from '@app/hooks/auth';
@@ -45,9 +46,9 @@ const SignupForm: FC = () => {
 	const [open, setOpen] = useState(false);
 
 	const { data: avatars, isLoading: isLoadingAvatars } = useQuery<string[]>(
-		'avatars',
+		Query.AVATARS,
 		apiGetAvatars,
-		{ staleTime: 120 * 60 * 1000 }
+		{ staleTime: Infinity }
 	);
 
 	const { mutate, isLoading: isLoadingSignup } = useMutation<
@@ -60,9 +61,7 @@ const SignupForm: FC = () => {
 		onError: err => showToast(err.message)
 	});
 
-	const _onSubmit = (values: Values) => {
-		mutate(values);
-	};
+	const _onSubmit = (values: Values) => mutate(values);
 
 	const toggleModal = () => setOpen(!open);
 

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useCurrentUser } from '@app/hooks/firebase';
 
+//export const BASE_URL = 'https://trivia-nest-server.herokuapp.com';
 export const BASE_URL = 'http://localhost:3002';
 
 const client = axios.create({
