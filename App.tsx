@@ -1,7 +1,6 @@
 import React, { FC } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import AppLoading from 'expo-app-loading';
 import {
 	useFonts,
 	Nunito_200ExtraLight,
@@ -16,8 +15,10 @@ import { NavigationProvider } from '@app/navigation';
 import { ProfileProvider } from '@app/context';
 
 // Android: Setting a timer for multiple minutes warning for firebase
+// expo-constants warning
 import { LogBox } from 'react-native';
-LogBox.ignoreLogs(['Setting a timer']);
+import { Loading } from '@app/components';
+LogBox.ignoreLogs(['Setting a timer', 'Constants.']);
 
 const queryClient = new QueryClient();
 
@@ -33,7 +34,7 @@ const App: FC = () => {
 	});
 
 	if (!fontsLoaded) {
-		return <AppLoading />;
+		return <Loading message='Loading...' />;
 	}
 
 	return (

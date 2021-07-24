@@ -19,10 +19,7 @@ const TextButton: FC<Props> = ({ titleStyle, ...props }) => {
 
 const useStyles = ({ colors }: Theme) =>
 	StyleSheet.create({
-		title: {
-			fontFamily: FontFamily.SemiBold,
-			color: colors?.primary
-		}
+		title: { fontFamily: FontFamily.SemiBold, color: colors?.primary }
 	});
 
 export { TextButton };

@@ -12,6 +12,7 @@ interface Props {
 	onInvite?: () => void;
 }
 
+//TODO: 15 sec lottie timer animation small
 const AvailableFriendsCard: FC<Props> = ({
 	player,
 	containerStyle,

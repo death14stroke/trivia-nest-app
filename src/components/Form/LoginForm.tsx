@@ -46,9 +46,7 @@ const LoginForm: FC = () => {
 		onError: err => showToast(err.message)
 	});
 
-	const _onSubmit = (values: Values) => {
-		mutate(values);
-	};
+	const _onSubmit = (values: Values) => mutate(values);
 
 	return (
 		<Formik

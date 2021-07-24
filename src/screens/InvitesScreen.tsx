@@ -28,10 +28,7 @@ const InvitesScreen: FC = () => {
 
 	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Invite[]>(
 		'invites',
-		async ({ pageParam }) => {
-			const { data } = await apiGetInvites(PAGE_SIZE, pageParam);
-			return data;
-		},
+		async ({ pageParam }) => apiGetInvites(PAGE_SIZE, pageParam),
 		{
 			staleTime: 5 * 60 * 1000,
 			getNextPageParam: lastPage =>

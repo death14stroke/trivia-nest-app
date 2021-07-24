@@ -70,14 +70,16 @@ const SelectAvatarModal: FC<Props> = ({
 				<Button.Text
 					title='Cancel'
 					titleStyle={styles.buttonTitle}
-					containerStyle={{ flex: 1 }}
+					containerStyle={{ flex: 1, borderBottomStartRadius: 16 }}
+					buttonStyle={{ borderBottomStartRadius: 16 }}
 					onPress={onCancel}
 				/>
 				<Divider orientation='vertical' />
 				<Button.Text
 					title='OK'
 					titleStyle={styles.buttonTitle}
-					containerStyle={{ flex: 1 }}
+					containerStyle={{ flex: 1, borderBottomEndRadius: 16 }}
+					buttonStyle={{ borderBottomEndRadius: 16 }}
 					onPress={() => onSuccess?.(selected)}
 				/>
 			</View>

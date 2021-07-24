@@ -29,12 +29,14 @@ export const apiUpdateUserProfile = (params: UpdateProfileParams) =>
 
 // Get battle history
 export const apiBattleHistory = async (pageSize: number, pageParam?: Battle) =>
-	client.get<Battle[]>('/battles/me', {
-		params: {
-			pageSize,
-			...(pageParam && { prevKey: new Date(pageParam.startTime) })
-		}
-	});
+	(
+		await client.get<Battle[]>('/battles/me', {
+			params: {
+				pageSize,
+				...(pageParam && { prevKey: new Date(pageParam.startTime) })
+			}
+		})
+	).data;
 
 // Search users
 export const apiSearchUsers = async (
@@ -42,13 +44,15 @@ export const apiSearchUsers = async (
 	pageSize: number,
 	pageParam?: Player
 ) =>
-	client.get<Player[]>('/users/search', {
-		params: {
-			query,
-			pageSize,
-			...(pageParam && { prevKey: pageParam.username })
-		}
-	});
+	(
+		await client.get<Player[]>('/users/search', {
+			params: {
+				query,
+				pageSize,
+				...(pageParam && { prevKey: pageParam.username })
+			}
+		})
+	).data;
 
 // Send friend request
 export const apiSendRequest = (friendId: string) =>
@@ -58,33 +62,35 @@ export const apiSendRequest = (friendId: string) =>
 export const apiAcceptRequest = (friendId: string) =>
 	client.post(`/invites/${friendId}`);
 
-// Accept friend request
-export const apiRejectRequest = (friendId: string) => {
-	console.log('delete req friendId:', friendId);
-	return client.delete(`/invites/${friendId}`);
-};
+// Reject friend request
+export const apiRejectRequest = (friendId: string) =>
+	client.delete(`/invites/${friendId}`);
 
 // Unfriend user
 export const apiUnfriendUser = (friendId: string) =>
 	client.delete(`/friends/${friendId}`);
 
 // Get friends
-export const apiGetFriends = (pageSize: number, pageParam?: Player) =>
-	client.get('/friends', {
-		params: {
-			pageSize,
-			...(pageParam && { prevKey: pageParam.username })
-		}
-	});
+export const apiGetFriends = async (pageSize: number, pageParam?: Player) =>
+	(
+		await client.get('/friends', {
+			params: {
+				pageSize,
+				...(pageParam && { prevKey: pageParam.username })
+			}
+		})
+	).data;
 
 // Get invites
-export const apiGetInvites = (
+export const apiGetInvites = async (
 	pageSize: number,
 	pageParam?: { time: string; info: Player }
 ) =>
-	client.get('/invites', {
-		params: {
-			pageSize,
-			...(pageParam && { prevKey: new Date(pageParam.time) })
-		}
-	});
+	(
+		await client.get('/invites', {
+			params: {
+				pageSize,
+				...(pageParam && { prevKey: new Date(pageParam.time) })
+			}
+		})
+	).data;

@@ -34,10 +34,7 @@ const SearchUsersScreen: FC = () => {
 
 	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Player[]>(
 		['users', query],
-		async ({ pageParam }) => {
-			const { data } = await apiSearchUsers(query, PAGE_SIZE, pageParam);
-			return data;
-		},
+		async ({ pageParam }) => apiSearchUsers(query, PAGE_SIZE, pageParam),
 		{
 			enabled: query.length > 0,
 			staleTime: 5 * 60 * 1000,

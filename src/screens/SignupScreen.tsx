@@ -1,5 +1,6 @@
 import React, { FC, useState } from 'react';
 import {
+	KeyboardAvoidingView,
 	LayoutAnimation,
 	Platform,
 	StyleSheet,
@@ -8,7 +9,6 @@ import {
 } from 'react-native';
 import { Text, Image } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { FontFamily } from '@app/theme';
 import { Button, LoginForm, SignupForm } from '@app/components';
 
@@ -28,9 +28,10 @@ const SignupScreen: FC = () => {
 
 	return (
 		<SafeAreaView style={styles.root}>
-			<KeyboardAwareScrollView
+			<KeyboardAvoidingView
+				style={styles.contentContainer}
 				contentContainerStyle={styles.contentContainer}
-				bounces={false}>
+				behavior='position'>
 				<Image
 					source={require('@assets/welcome.jpg')}
 					style={styles.logo}
@@ -41,27 +42,37 @@ const SignupScreen: FC = () => {
 				<View style={styles.form}>
 					{signup ? <SignupForm /> : <LoginForm />}
 				</View>
-				<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-					<Text style={{ fontSize: 16 }}>
-						{signup ? 'Already a member?' : 'New to Trivia Nest?'}
-					</Text>
-					<Button.Text
-						title={signup ? 'Login' : 'Register'}
-						titleStyle={{ fontSize: 16 }}
-						onPress={toggleMode}
-					/>
-				</View>
-			</KeyboardAwareScrollView>
+			</KeyboardAvoidingView>
+			<View style={styles.footer}>
+				<Text style={{ fontSize: 16 }}>
+					{signup ? 'Already a member?' : 'New to Trivia Nest?'}
+				</Text>
+				<Button.Text
+					title={signup ? 'Login' : 'Register'}
+					titleStyle={{ fontSize: 16 }}
+					onPress={toggleMode}
+				/>
+			</View>
 		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
 	root: { flex: 1, backgroundColor: 'black' },
-	contentContainer: { alignItems: 'center', justifyContent: 'space-evenly' },
+	contentContainer: {
+		alignItems: 'center',
+		justifyContent: 'space-evenly',
+		flex: 1,
+		width: '100%'
+	},
 	logo: { height: 200, aspectRatio: 1 },
 	form: { flex: 1, width: '100%', justifyContent: 'center' },
-	header: { fontFamily: FontFamily.Bold }
+	header: { fontFamily: FontFamily.Bold },
+	footer: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'center'
+	}
 });
 
 export { SignupScreen };

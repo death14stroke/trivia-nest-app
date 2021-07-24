@@ -23,10 +23,7 @@ const HistoryScreen: FC = () => {
 
 	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Battle[]>(
 		'battles',
-		async ({ pageParam }) => {
-			const { data } = await apiBattleHistory(PAGE_SIZE, pageParam);
-			return data;
-		},
+		async ({ pageParam }) => apiBattleHistory(PAGE_SIZE, pageParam),
 		{
 			staleTime: 5 * 60 * 1000,
 			getNextPageParam: lastPage =>

@@ -43,10 +43,7 @@ const InviteFriendsModal: FC<Props> = ({
 
 	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Player[]>(
 		'friends',
-		async ({ pageParam }) => {
-			const { data } = await apiGetFriends(PAGE_SIZE, pageParam);
-			return data;
-		},
+		async ({ pageParam }) => apiGetFriends(PAGE_SIZE, pageParam),
 		{
 			staleTime: 5 * 60 * 1000,
 			getNextPageParam: lastPage =>
