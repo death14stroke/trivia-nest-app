@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect } from 'react';
+import React, { FC, useState, useEffect, useContext } from 'react';
 import { ImageBackground, StatusBar } from 'react-native';
 import { ThemeProvider, Avatar } from 'react-native-elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,8 +7,13 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { ProfileProvider, SocketProvider } from '@app/context';
-import { AppNativeTheme, AppNavigationTheme, FontFamily } from '@app/theme';
+import {
+	BadgeContext,
+	BadgeProvider,
+	ProfileProvider,
+	SocketProvider
+} from '@app/context';
+import { AppNativeTheme, AppNavigationTheme } from '@app/theme';
 import {
 	FriendsScreen,
 	HistoryScreen,
@@ -23,7 +28,7 @@ import {
 	SignupScreen,
 	SplashScreen
 } from '@app/screens';
-import { BottomTabBar } from '@app/components';
+import { BottomTabBar, TopTabBar } from '@app/components';
 import {
 	AppStackParamList,
 	BottomTabParamList,
@@ -40,34 +45,36 @@ const mainStackScreens: FC = () => {
 	return (
 		<ProfileProvider>
 			<SocketProvider>
-				<SplashScreen>
-					<Stack.Navigator screenOptions={{ headerShown: false }}>
-						<Stack.Screen name='Main' component={bottomTabs} />
-						<Stack.Screen
-							name='Results'
-							component={ResultsScreen}
-						/>
-						<Stack.Screen
-							name='Multiplayer'
-							component={MultiplayerRoomScreen}
-						/>
-						<Stack.Screen name='Quiz' component={QuizScreen} />
-						<Stack.Screen
-							name='MatchMaking'
-							component={MatchMakingScreen}
-						/>
-						<Stack.Screen
-							name='Practice'
-							component={PracticeScreen}
-						/>
-					</Stack.Navigator>
-				</SplashScreen>
+				<BadgeProvider>
+					<SplashScreen>
+						<Stack.Navigator screenOptions={{ headerShown: false }}>
+							<Stack.Screen name='Main' component={bottomTabs} />
+							<Stack.Screen
+								name='Results'
+								component={ResultsScreen}
+							/>
+							<Stack.Screen
+								name='Multiplayer'
+								component={MultiplayerRoomScreen}
+							/>
+							<Stack.Screen name='Quiz' component={QuizScreen} />
+							<Stack.Screen
+								name='MatchMaking'
+								component={MatchMakingScreen}
+							/>
+							<Stack.Screen
+								name='Practice'
+								component={PracticeScreen}
+							/>
+						</Stack.Navigator>
+					</SplashScreen>
+				</BadgeProvider>
 			</SocketProvider>
 		</ProfileProvider>
 	);
 };
 
-const bottomTabs = () => {
+const bottomTabs: FC = () => {
 	return (
 		<Tab.Navigator
 			initialRouteName='Home'
@@ -115,8 +122,11 @@ const bottomTabs = () => {
 	);
 };
 
-const topTabs = () => {
+const topTabs: FC = () => {
 	const { top } = useSafeAreaInsets();
+	const {
+		state: { invites, friends }
+	} = useContext(BadgeContext);
 
 	return (
 		<ImageBackground
@@ -124,16 +134,17 @@ const topTabs = () => {
 			style={{ flex: 1 }}>
 			<TopTab.Navigator
 				style={{ marginTop: top }}
-				tabBarOptions={{
-					style: { backgroundColor: 'transparent' },
-					labelStyle: {
-						fontFamily: FontFamily.SemiBold,
-						fontSize: 18,
-						textTransform: 'none'
-					}
-				}}>
-				<TopTab.Screen name='Invites' component={InvitesScreen} />
-				<TopTab.Screen name='Friends' component={FriendsScreen} />
+				tabBar={props => <TopTabBar {...props} />}>
+				<TopTab.Screen
+					name='Invites'
+					component={InvitesScreen}
+					options={{ tabBarLabel: invites.toString() }}
+				/>
+				<TopTab.Screen
+					name='Friends'
+					component={FriendsScreen}
+					options={{ tabBarLabel: friends.toString() }}
+				/>
 				<TopTab.Screen name='Players' component={SearchUsersScreen} />
 			</TopTab.Navigator>
 		</ImageBackground>

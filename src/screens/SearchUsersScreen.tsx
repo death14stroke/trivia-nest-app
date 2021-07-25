@@ -8,7 +8,6 @@ import { Player, SocketEvent } from '@app/models';
 import {
 	apiAcceptRequest,
 	apiSearchUsers,
-	apiSendRequest,
 	apiUnfriendUser
 } from '@app/api/users';
 import { FriendsCard, SearchBar } from '@app/components';
@@ -49,10 +48,12 @@ const SearchUsersScreen: FC = () => {
 	const { mutate: sendFriendRequest } = useMutation<unknown, unknown, string>(
 		friendId => {
 			return new Promise<void>((resolve, reject) => {
+				console.log('sending friend request socket');
 				socket?.emit(
 					SocketEvent.FRIEND_REQUEST,
 					friendId,
 					(resp: any) => {
+						console.log('friend request socket callback resp');
 						if (resp.error) {
 							console.error(resp.error);
 							reject(resp.error);

@@ -10,7 +10,9 @@ import {
 } from '@app/api/users';
 import { InviteCard } from '@app/components';
 import { useContext } from 'react';
-import { ProfileContext } from '@app/context';
+import { BadgeContext, ProfileContext } from '@app/context';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 const PAGE_SIZE = 20;
 
@@ -25,6 +27,18 @@ const InvitesScreen: FC = () => {
 			undoRejectInvite
 		}
 	} = useContext(ProfileContext);
+	const {
+		state: { invites: invitesCount },
+		actions: { updateInvitesBadge }
+	} = useContext(BadgeContext);
+
+	useFocusEffect(
+		useCallback(() => {
+			if (invitesCount !== 0) {
+				updateInvitesBadge(0);
+			}
+		}, [invitesCount])
+	);
 
 	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Invite[]>(
 		'invites',

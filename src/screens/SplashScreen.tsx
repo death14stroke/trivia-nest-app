@@ -2,7 +2,7 @@ import React, { FC, useEffect, useContext } from 'react';
 import { Alert } from 'react-native';
 import { useQueryClient } from 'react-query';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { ProfileContext, SocketContext } from '@app/context';
+import { BadgeContext, ProfileContext, SocketContext } from '@app/context';
 import { SocketEvent } from '@app/models';
 
 const SplashScreen: FC = ({ children }) => {
@@ -13,6 +13,10 @@ const SplashScreen: FC = ({ children }) => {
 	const {
 		actions: { updateUserStatus }
 	} = useContext(ProfileContext);
+	const {
+		state: { invites },
+		actions: { updateInvitesBadge }
+	} = useContext(BadgeContext);
 
 	useEffect(() => {
 		socket?.on(SocketEvent.USER_UPDATE, ({ uid, status }) => {
@@ -46,6 +50,7 @@ const SplashScreen: FC = ({ children }) => {
 		});
 
 		socket?.on(SocketEvent.FRIEND_REQUEST, () => {
+			updateInvitesBadge(invites + 1);
 			queryClient.invalidateQueries('invites');
 		});
 
