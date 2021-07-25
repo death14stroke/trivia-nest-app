@@ -17,7 +17,7 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { BottomTabParamList, RootStackParamList } from '@app/navigation';
 import { FontFamily } from '@app/theme';
 import { ProfileContext } from '@app/context';
-import { CurrentUser, IntroMode, Mode } from '@app/models';
+import { CurrentUser, IntroMode, Mode, Query } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { apiGetAvatars, apiUpdateUserProfile } from '@app/api/users';
 import { showToast } from '@app/hooks/ui';
@@ -64,11 +64,10 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 		state: user,
 		actions: { updateProfile }
 	} = useContext(ProfileContext);
-
 	const [avatarModal, setAvatarModal] = useState(false);
 
-	const { data: avatars } = useQuery<string[]>('avatars', apiGetAvatars, {
-		staleTime: 120 * 60 * 1000
+	const { data: avatars } = useQuery<string[]>(Query.AVATARS, apiGetAvatars, {
+		staleTime: Infinity
 	});
 
 	const { mutate } = useMutation<

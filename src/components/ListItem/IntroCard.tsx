@@ -22,9 +22,7 @@ const IntroCard: FC<Props> = ({
 
 	return (
 		<View style={[styles.card, containerStyle]}>
-			<View style={{ height: '50%' }}>
-				<Image source={image} style={styles.image} />
-			</View>
+			<Image source={image} style={styles.image} />
 			<View style={styles.textContainer}>
 				<Text h3 h3Style={styles.title}>
 					{title}
@@ -51,6 +49,7 @@ const IntroCard: FC<Props> = ({
 
 const styles = StyleSheet.create({
 	card: {
+		justifyContent: 'space-between',
 		borderRadius: Dimens.borderRadius,
 		backgroundColor: 'black',
 		shadowOffset: { width: 0, height: 2 },
@@ -61,8 +60,7 @@ const styles = StyleSheet.create({
 	image: {
 		borderTopLeftRadius: Dimens.borderRadius,
 		borderTopRightRadius: Dimens.borderRadius,
-		height: '100%',
-		overflow: 'hidden'
+		aspectRatio: 1.2
 	},
 	title: { textAlign: 'center', fontFamily: FontFamily.Bold },
 	description: {
@@ -71,8 +69,8 @@ const styles = StyleSheet.create({
 		fontFamily: FontFamily.ExtraLight,
 		fontSize: 20
 	},
-	textContainer: { padding: 12, flex: 1, justifyContent: 'space-between' },
-	button: { margin: 12 },
+	textContainer: { padding: 12 },
+	button: { marginHorizontal: 12, marginBottom: 12 },
 	buttonTitle: { fontFamily: FontFamily.Bold, fontSize: 24 }
 });
 
