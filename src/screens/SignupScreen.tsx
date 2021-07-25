@@ -3,6 +3,7 @@ import {
 	KeyboardAvoidingView,
 	LayoutAnimation,
 	Platform,
+	ScrollView,
 	StyleSheet,
 	UIManager,
 	View
@@ -28,28 +29,35 @@ const SignupScreen: FC = () => {
 
 	return (
 		<SafeAreaView style={styles.root}>
-			<KeyboardAvoidingView
-				style={{ flex: 1 }}
-				contentContainerStyle={styles.contentContainer}
-				behavior='position'>
-				<Avatar source={require('@assets/welcome.jpg')} size='xlarge' />
-				<Text h3 h3Style={styles.header}>
-					{signup ? 'Join the battlefield!' : 'Welcome back soldier!'}
-				</Text>
-				<View style={styles.form}>
-					{signup ? <SignupForm /> : <LoginForm />}
+			<ScrollView alwaysBounceVertical={false}>
+				<KeyboardAvoidingView
+					style={{ flex: 1 }}
+					contentContainerStyle={styles.contentContainer}
+					behavior='position'>
+					<Avatar
+						source={require('@assets/welcome.jpg')}
+						size='xlarge'
+					/>
+					<Text h3 h3Style={styles.header}>
+						{signup
+							? 'Join the battlefield!'
+							: 'Welcome back soldier!'}
+					</Text>
+					<View style={styles.form}>
+						{signup ? <SignupForm /> : <LoginForm />}
+					</View>
+				</KeyboardAvoidingView>
+				<View style={styles.footer}>
+					<Text style={{ fontSize: 16 }}>
+						{signup ? 'Already a member?' : 'New to Trivia Nest?'}
+					</Text>
+					<Button.Text
+						title={signup ? 'Login' : 'Register'}
+						titleStyle={{ fontSize: 16 }}
+						onPress={toggleMode}
+					/>
 				</View>
-			</KeyboardAvoidingView>
-			<View style={styles.footer}>
-				<Text style={{ fontSize: 16 }}>
-					{signup ? 'Already a member?' : 'New to Trivia Nest?'}
-				</Text>
-				<Button.Text
-					title={signup ? 'Login' : 'Register'}
-					titleStyle={{ fontSize: 16 }}
-					onPress={toggleMode}
-				/>
-			</View>
+			</ScrollView>
 		</SafeAreaView>
 	);
 };

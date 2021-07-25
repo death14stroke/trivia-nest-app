@@ -68,7 +68,6 @@ const LoginForm: FC = () => {
 							errorMessage={(touched.email && errors.email) || ''}
 							onChangeText={handleChange('email')}
 							onBlur={handleBlur('email')}
-							containerStyle={{ marginVertical: 4 }}
 						/>
 						<Input.Password
 							value={values.password}
@@ -77,7 +76,6 @@ const LoginForm: FC = () => {
 							}
 							onChangeText={handleChange('password')}
 							onBlur={handleBlur('password')}
-							containerStyle={{ marginVertical: 4 }}
 						/>
 						<Button.Raised
 							onPress={handleSubmit}
