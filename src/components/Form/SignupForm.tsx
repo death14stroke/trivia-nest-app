@@ -65,7 +65,7 @@ const SignupForm: FC = () => {
 
 	const toggleModal = () => setOpen(!open);
 
-	if (isLoadingAvatars) {
+	if (isLoadingAvatars || avatars === undefined) {
 		return null;
 	}
 

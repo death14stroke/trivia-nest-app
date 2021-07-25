@@ -3,8 +3,8 @@ import { FlatList, ImageBackground, ListRenderItem } from 'react-native';
 import { useInfiniteQuery, useMutation } from 'react-query';
 import { useDebounce } from 'use-debounce/lib';
 import _ from 'lodash';
-import { ProfileContext } from '@app/context';
-import { Player } from '@app/models';
+import { ProfileContext, SocketContext } from '@app/context';
+import { Player, SocketEvent } from '@app/models';
 import {
 	apiAcceptRequest,
 	apiSearchUsers,
@@ -27,6 +27,7 @@ const SearchUsersScreen: FC = () => {
 			undoUnfriend
 		}
 	} = useContext(ProfileContext);
+	const socket = useContext(SocketContext);
 	const { friends, invites, requests } = state!;
 
 	const [rawQuery, setRawQuery] = useState('');
@@ -46,7 +47,22 @@ const SearchUsersScreen: FC = () => {
 	);
 
 	const { mutate: sendFriendRequest } = useMutation<unknown, unknown, string>(
-		apiSendRequest,
+		friendId => {
+			return new Promise<void>((resolve, reject) => {
+				socket?.emit(
+					SocketEvent.FRIEND_REQUEST,
+					friendId,
+					(resp: any) => {
+						if (resp.error) {
+							console.error(resp.error);
+							reject(resp.error);
+						} else {
+							resolve();
+						}
+					}
+				);
+			});
+		},
 		{
 			onMutate: addFriendRequest,
 			onError: (err, friendId) => {

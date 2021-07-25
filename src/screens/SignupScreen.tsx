@@ -7,7 +7,7 @@ import {
 	UIManager,
 	View
 } from 'react-native';
-import { Text, Image } from 'react-native-elements';
+import { Text, Avatar } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontFamily } from '@app/theme';
 import { Button, LoginForm, SignupForm } from '@app/components';
@@ -29,13 +29,10 @@ const SignupScreen: FC = () => {
 	return (
 		<SafeAreaView style={styles.root}>
 			<KeyboardAvoidingView
-				style={styles.contentContainer}
+				style={{ flex: 1 }}
 				contentContainerStyle={styles.contentContainer}
 				behavior='position'>
-				<Image
-					source={require('@assets/welcome.jpg')}
-					style={styles.logo}
-				/>
+				<Avatar source={require('@assets/welcome.jpg')} size='xlarge' />
 				<Text h3 h3Style={styles.header}>
 					{signup ? 'Join the battlefield!' : 'Welcome back soldier!'}
 				</Text>
@@ -59,13 +56,7 @@ const SignupScreen: FC = () => {
 
 const styles = StyleSheet.create({
 	root: { flex: 1, backgroundColor: 'black' },
-	contentContainer: {
-		alignItems: 'center',
-		justifyContent: 'space-evenly',
-		flex: 1,
-		width: '100%'
-	},
-	logo: { height: 200, aspectRatio: 1 },
+	contentContainer: { alignItems: 'center', flex: 1 },
 	form: { flex: 1, width: '100%', justifyContent: 'center' },
 	header: { fontFamily: FontFamily.Bold },
 	footer: {
