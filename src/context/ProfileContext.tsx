@@ -24,7 +24,9 @@ interface Action {
 		| 'undo_accept_invite'
 		| 'undo_reject_invite'
 		| 'undo_unfriend'
-		| 'update_status';
+		| 'update_status'
+		| 'received_friend_request'
+		| 'received_friend_request_accept';
 	payload?: any;
 }
 
@@ -39,7 +41,6 @@ export type ProfileState = Partial<CurrentUser> & {
 	requests: Set<string>;
 };
 
-// TODO: update user status for those friends who came online before current user
 const profileReducer = (state: ProfileState, action: Action): ProfileState => {
 	switch (action.type) {
 		case 'fetch_profile':
@@ -65,34 +66,45 @@ const profileReducer = (state: ProfileState, action: Action): ProfileState => {
 				...action.payload
 			};
 		case 'add_request':
-			state?.requests.add(action.payload);
+			state.requests.add(action.payload);
 			return { ...state };
 		case 'undo_add_request':
-			state?.requests.delete(action.payload);
+			state.requests.delete(action.payload);
 			return { ...state };
 		case 'accept_invite':
-			state?.invites.delete(action.payload);
-			state?.friends.set(action.payload, UserStatus.OFFLINE);
+			state.invites.delete(action.payload);
+			state.friends.set(action.payload, UserStatus.OFFLINE);
 			return { ...state };
 		case 'undo_accept_invite':
-			state?.invites.add(action.payload);
-			state?.friends.delete(action.payload);
+			state.invites.add(action.payload);
+			state.friends.delete(action.payload);
 			return { ...state };
 		case 'unfriend':
-			state?.friends.delete(action.payload);
+			state.friends.delete(action.payload);
 			return { ...state };
 		case 'undo_unfriend':
-			state?.friends.set(action.payload, UserStatus.OFFLINE);
+			state.friends.set(action.payload, UserStatus.OFFLINE);
 			return { ...state };
 		case 'reject_invite':
-			state?.invites.delete(action.payload);
+			state.invites.delete(action.payload);
 			return { ...state };
 		case 'undo_reject_invite':
-			state?.invites.add(action.payload);
+			state.invites.add(action.payload);
 			return { ...state };
 		case 'update_status':
 			const { friendId, status } = action.payload;
-			state?.friends.set(friendId, status);
+			state.friends.set(friendId, status);
+			return { ...state };
+		case 'received_friend_request':
+			state.invites.add(action.payload);
+			return { ...state };
+		case 'received_friend_request_accept':
+			console.log(
+				'reducer friend request accept payload:',
+				action.payload
+			);
+			state.requests.delete(action.payload);
+			state.friends.set(action.payload, UserStatus.ONLINE);
 			return { ...state };
 		default:
 			return state;
@@ -147,6 +159,16 @@ const updateUserStatus =
 		dispatch({ type: 'update_status', payload: { friendId, status } });
 	};
 
+const receivedFriendRequest =
+	(dispatch: Dispatch<Action>) => (friendId: string) => {
+		dispatch({ type: 'received_friend_request', payload: friendId });
+	};
+
+const receivedFriendRequestAccept =
+	(dispatch: Dispatch<Action>) => (friendId: string) => {
+		dispatch({ type: 'received_friend_request_accept', payload: friendId });
+	};
+
 type ContextValue = {
 	state: ProfileState;
 	actions: {
@@ -164,6 +186,10 @@ type ContextValue = {
 		updateUserStatus: ReturnType<typeof updateUserStatus>;
 		rejectInvite: ReturnType<typeof rejectInvite>;
 		undoRejectInvite: ReturnType<typeof undoRejectInvite>;
+		receivedFriendRequest: ReturnType<typeof receivedFriendRequest>;
+		receivedFriendRequestAccept: ReturnType<
+			typeof receivedFriendRequestAccept
+		>;
 	};
 };
 
@@ -224,7 +250,10 @@ const Provider: FC = ({ children }) => {
 					undoUnfriend: undoUnfriend(dispatch),
 					updateUserStatus: updateUserStatus(dispatch),
 					rejectInvite: rejectInvite(dispatch),
-					undoRejectInvite: undoRejectInvite(dispatch)
+					undoRejectInvite: undoRejectInvite(dispatch),
+					receivedFriendRequest: receivedFriendRequest(dispatch),
+					receivedFriendRequestAccept:
+						receivedFriendRequestAccept(dispatch)
 				}
 			}}>
 			{children}

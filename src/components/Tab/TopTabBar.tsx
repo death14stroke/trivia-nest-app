@@ -61,6 +61,7 @@ const TopTabBar: FC<MaterialTopTabBarProps> = ({
 
 					return (
 						<TouchableOpacity
+							key={label.toString()}
 							accessibilityRole='button'
 							accessibilityState={
 								isFocused ? { selected: true } : {}

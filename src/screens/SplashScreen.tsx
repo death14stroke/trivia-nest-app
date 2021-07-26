@@ -1,9 +1,9 @@
 import React, { FC, useEffect, useContext } from 'react';
 import { Alert } from 'react-native';
-import { useQueryClient } from 'react-query';
+import { InfiniteData, useQueryClient } from 'react-query';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { BadgeContext, ProfileContext, SocketContext } from '@app/context';
-import { SocketEvent } from '@app/models';
+import { Invite, Query, SocketEvent } from '@app/models';
 
 const SplashScreen: FC = ({ children }) => {
 	const navigation = useNavigation();
@@ -11,7 +11,13 @@ const SplashScreen: FC = ({ children }) => {
 	const queryClient = useQueryClient();
 	const socket = useContext(SocketContext);
 	const {
-		actions: { updateUserStatus }
+		actions: {
+			updateUserStatus,
+			undoAddFriendRequest,
+			receivedFriendRequest,
+			receivedFriendRequestAccept,
+			unfriend
+		}
 	} = useContext(ProfileContext);
 	const {
 		state: { invites },
@@ -49,13 +55,41 @@ const SplashScreen: FC = ({ children }) => {
 			navigation.navigate('Multiplayer', { roomId });
 		});
 
-		socket?.on(SocketEvent.FRIEND_REQUEST, () => {
+		socket?.on(SocketEvent.FRIEND_REQUEST, ({ player, time }) => {
 			updateInvitesBadge(invites + 1);
-			queryClient.invalidateQueries('invites');
+			// add to invites set in ProfileContext
+			receivedFriendRequest(player._id);
+
+			const prevData = queryClient.getQueryData<InfiniteData<Invite[]>>(
+				Query.INVITES
+			);
+			if (prevData) {
+				prevData.pages[0] = [
+					{ info: player, time },
+					...prevData.pages[0]
+				];
+				queryClient.setQueryData(Query.INVITES, prevData);
+			} else {
+				queryClient.invalidateQueries(Query.INVITES);
+			}
 		});
 
-		socket?.on(SocketEvent.FRIEND_ADDED, () => {
-			queryClient.invalidateQueries('friends');
+		socket?.on(SocketEvent.FRIEND_REQUEST_REJECT, friendId => {
+			console.log('friend request reject:', friendId);
+			undoAddFriendRequest(friendId);
+		});
+
+		socket?.on(SocketEvent.FRIEND_REQUEST_ACCEPT, friendId => {
+			// remove from requests set in ProfileContext
+			// add to friends map in ProfileContext
+			console.log('friend request accept:', friendId);
+			receivedFriendRequestAccept(friendId);
+			queryClient.invalidateQueries(Query.FRIENDS);
+		});
+
+		socket?.on(SocketEvent.UNFRIEND, friendId => {
+			unfriend(friendId);
+			queryClient.invalidateQueries(Query.FRIENDS);
 		});
 	}, [socket]);
 

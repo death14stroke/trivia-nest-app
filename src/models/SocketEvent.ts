@@ -24,5 +24,7 @@ export const SocketEvent = {
 	USER_UPDATE: 'user_update',
 	RELATIONS: 'relations',
 	FRIEND_REQUEST: 'friend_request',
-	FRIEND_ADDED: 'friend_added'
+	FRIEND_REQUEST_ACCEPT: 'friend_request_accept',
+	FRIEND_REQUEST_REJECT: 'friend_request_reject',
+	UNFRIEND: 'unfriend'
 };

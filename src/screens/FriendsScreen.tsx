@@ -6,6 +6,7 @@ import { ProfileContext } from '@app/context';
 import { Player } from '@app/models';
 import { apiGetFriends, apiUnfriendUser } from '@app/api/users';
 import { FriendsCard } from '@app/components';
+import { useUnfriendMutation } from '@app/hooks/mutations';
 
 const PAGE_SIZE = 10;
 
@@ -27,14 +28,7 @@ const FriendsScreen: FC = () => {
 		}
 	);
 
-	const { mutate: unfriendUser } = useMutation<unknown, unknown, string>(
-		apiUnfriendUser,
-		{
-			onMutate: unfriend,
-			onError: (_err, friendId) => undoUnfriend(friendId),
-			onSuccess: () => queryClient.invalidateQueries('friends')
-		}
-	);
+	const unfriendUser = useUnfriendMutation({});
 
 	const renderFriendsCard: ListRenderItem<Player> = ({ item }) => {
 		const { _id } = item;

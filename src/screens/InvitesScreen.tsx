@@ -1,36 +1,24 @@
-import React, { FC } from 'react';
+import React, { FC, useContext, useCallback } from 'react';
 import { FlatList, ImageBackground, ListRenderItem } from 'react-native';
-import { useInfiniteQuery, useMutation, useQueryClient } from 'react-query';
-import _ from 'lodash';
-import { Invite } from '@app/models';
-import {
-	apiAcceptRequest,
-	apiGetInvites,
-	apiRejectRequest
-} from '@app/api/users';
-import { InviteCard } from '@app/components';
-import { useContext } from 'react';
-import { BadgeContext, ProfileContext } from '@app/context';
+import { useInfiniteQuery } from 'react-query';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
+import _ from 'lodash';
+import { BadgeContext } from '@app/context';
+import { Invite, Query } from '@app/models';
+import { useFriendInviteMutations } from '@app/hooks/mutations';
+import { apiGetInvites } from '@app/api/users';
+import { InviteCard } from '@app/components';
 
 const PAGE_SIZE = 20;
 
-//TODO: accept/reject friend request via socket
 const InvitesScreen: FC = () => {
-	const queryClient = useQueryClient();
-	const {
-		actions: {
-			acceptInvite,
-			undoAcceptInvite,
-			rejectInvite,
-			undoRejectInvite
-		}
-	} = useContext(ProfileContext);
 	const {
 		state: { invites: invitesCount },
 		actions: { updateInvitesBadge }
 	} = useContext(BadgeContext);
+	const [acceptFriendRequest, rejectFriendRequest] = useFriendInviteMutations(
+		{}
+	);
 
 	useFocusEffect(
 		useCallback(() => {
@@ -41,39 +29,16 @@ const InvitesScreen: FC = () => {
 	);
 
 	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Invite[]>(
-		'invites',
+		Query.INVITES,
 		async ({ pageParam }) => apiGetInvites(PAGE_SIZE, pageParam),
 		{
-			staleTime: 5 * 60 * 1000,
+			staleTime: Infinity,
 			getNextPageParam: lastPage =>
 				lastPage.length === PAGE_SIZE
 					? lastPage[lastPage.length - 1]
 					: undefined
 		}
 	);
-
-	const { mutate: acceptFriendRequest } = useMutation<
-		unknown,
-		unknown,
-		string
-	>(apiAcceptRequest, {
-		onMutate: acceptInvite,
-		onError: (_err, friendId) => undoAcceptInvite(friendId),
-		onSuccess: () => {
-			queryClient.invalidateQueries('invites');
-			queryClient.invalidateQueries('friends');
-		}
-	});
-
-	const { mutate: rejectFriendRequest } = useMutation<
-		unknown,
-		unknown,
-		string
-	>(apiRejectRequest, {
-		onMutate: rejectInvite,
-		onError: (_err, friendId) => undoRejectInvite(friendId),
-		onSuccess: () => queryClient.invalidateQueries('invites')
-	});
 
 	const renderInviteCard: ListRenderItem<Invite> = ({ item }) => {
 		const {

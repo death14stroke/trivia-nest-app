@@ -1,3 +1,5 @@
 export const Query = {
-	AVATARS: 'avatars'
+	AVATARS: 'avatars',
+	INVITES: 'invites',
+	FRIENDS: 'friends'
 };
