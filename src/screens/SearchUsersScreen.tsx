@@ -1,16 +1,16 @@
 import React, { FC, useState, useContext } from 'react';
 import { FlatList, ImageBackground, ListRenderItem } from 'react-native';
-import { useInfiniteQuery, useMutation } from 'react-query';
+import { useInfiniteQuery } from 'react-query';
 import { useDebounce } from 'use-debounce/lib';
 import _ from 'lodash';
 import { ProfileContext } from '@app/context';
-import { Player } from '@app/models';
+import { Player, Query } from '@app/models';
 import {
 	useFriendInviteMutations,
 	useSendFriendRequestMutation,
 	useUnfriendMutation
 } from '@app/hooks/mutations';
-import { apiSearchUsers, apiUnfriendUser } from '@app/api/users';
+import { apiSearchUsers } from '@app/api/users';
 import { FriendsCard, SearchBar } from '@app/components';
 
 const PAGE_SIZE = 10;
@@ -18,17 +18,14 @@ const PAGE_SIZE = 10;
 const SearchUsersScreen: FC = () => {
 	const [acceptFriendRequest] = useFriendInviteMutations({});
 	const sendFriendRequest = useSendFriendRequestMutation({});
-	const {
-		state,
-		actions: { unfriend, undoUnfriend }
-	} = useContext(ProfileContext);
-
+	const unfriendUser = useUnfriendMutation({});
+	const { state } = useContext(ProfileContext);
 	const [rawQuery, setRawQuery] = useState('');
 	const [query] = useDebounce(rawQuery, 1000);
 	const { friends, invites, requests } = state!;
 
 	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Player[]>(
-		['users', query],
+		[Query.USERS, query],
 		async ({ pageParam }) => apiSearchUsers(query, PAGE_SIZE, pageParam),
 		{
 			enabled: query.length > 0,
@@ -39,8 +36,6 @@ const SearchUsersScreen: FC = () => {
 					: undefined
 		}
 	);
-
-	const unfriendUser = useUnfriendMutation({});
 
 	const renderPlayerCard: ListRenderItem<Player> = ({ item }) => {
 		const { _id } = item;
@@ -53,8 +48,6 @@ const SearchUsersScreen: FC = () => {
 		} else if (requests.has(_id)) {
 			iconType = 'invite';
 		}
-
-		console.log('friendId:', item._id, iconType);
 
 		return (
 			<FriendsCard

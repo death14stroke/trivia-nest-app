@@ -9,7 +9,7 @@ import { useFriendInviteMutations } from '@app/hooks/mutations';
 import { apiGetInvites } from '@app/api/users';
 import { InviteCard } from '@app/components';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 25;
 
 const InvitesScreen: FC = () => {
 	const {
@@ -20,24 +20,24 @@ const InvitesScreen: FC = () => {
 		{}
 	);
 
-	useFocusEffect(
-		useCallback(() => {
-			if (invitesCount !== 0) {
-				updateInvitesBadge(0);
-			}
-		}, [invitesCount])
-	);
-
 	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Invite[]>(
 		Query.INVITES,
 		async ({ pageParam }) => apiGetInvites(PAGE_SIZE, pageParam),
 		{
 			staleTime: Infinity,
 			getNextPageParam: lastPage =>
-				lastPage.length === PAGE_SIZE
+				lastPage.length >= PAGE_SIZE
 					? lastPage[lastPage.length - 1]
 					: undefined
 		}
+	);
+
+	useFocusEffect(
+		useCallback(() => {
+			if (invitesCount !== 0) {
+				updateInvitesBadge(0);
+			}
+		}, [invitesCount])
 	);
 
 	const renderInviteCard: ListRenderItem<Invite> = ({ item }) => {

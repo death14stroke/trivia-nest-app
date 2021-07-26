@@ -57,7 +57,6 @@ const SplashScreen: FC = ({ children }) => {
 
 		socket?.on(SocketEvent.FRIEND_REQUEST, ({ player, time }) => {
 			updateInvitesBadge(invites + 1);
-			// add to invites set in ProfileContext
 			receivedFriendRequest(player._id);
 
 			const prevData = queryClient.getQueryData<InfiniteData<Invite[]>>(
@@ -75,14 +74,10 @@ const SplashScreen: FC = ({ children }) => {
 		});
 
 		socket?.on(SocketEvent.FRIEND_REQUEST_REJECT, friendId => {
-			console.log('friend request reject:', friendId);
 			undoAddFriendRequest(friendId);
 		});
 
 		socket?.on(SocketEvent.FRIEND_REQUEST_ACCEPT, friendId => {
-			// remove from requests set in ProfileContext
-			// add to friends map in ProfileContext
-			console.log('friend request accept:', friendId);
 			receivedFriendRequestAccept(friendId);
 			queryClient.invalidateQueries(Query.FRIENDS);
 		});

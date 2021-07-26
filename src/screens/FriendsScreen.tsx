@@ -1,34 +1,28 @@
-import React, { FC, useContext } from 'react';
+import React, { FC } from 'react';
 import { FlatList, ImageBackground, ListRenderItem } from 'react-native';
-import { useInfiniteQuery, useMutation, useQueryClient } from 'react-query';
+import { useInfiniteQuery } from 'react-query';
 import _ from 'lodash';
-import { ProfileContext } from '@app/context';
-import { Player } from '@app/models';
-import { apiGetFriends, apiUnfriendUser } from '@app/api/users';
-import { FriendsCard } from '@app/components';
+import { Player, Query } from '@app/models';
+import { apiGetFriends } from '@app/api/users';
 import { useUnfriendMutation } from '@app/hooks/mutations';
+import { FriendsCard } from '@app/components';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 25;
 
 const FriendsScreen: FC = () => {
-	const queryClient = useQueryClient();
-	const {
-		actions: { unfriend, undoUnfriend }
-	} = useContext(ProfileContext);
+	const unfriendUser = useUnfriendMutation({});
 
 	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Player[]>(
-		'friends',
+		Query.FRIENDS,
 		async ({ pageParam }) => apiGetFriends(PAGE_SIZE, pageParam),
 		{
-			staleTime: 5 * 60 * 1000,
+			staleTime: 30 * 60 * 1000,
 			getNextPageParam: lastPage =>
 				lastPage.length === PAGE_SIZE
 					? lastPage[lastPage.length - 1]
 					: undefined
 		}
 	);
-
-	const unfriendUser = useUnfriendMutation({});
 
 	const renderFriendsCard: ListRenderItem<Player> = ({ item }) => {
 		const { _id } = item;

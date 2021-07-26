@@ -6,7 +6,7 @@ import {
 	useQueryClient
 } from 'react-query';
 import { ProfileContext, SocketContext } from '@app/context';
-import { Invite, Query, SocketEvent } from '@app/models';
+import { Invite, Player, Query, SocketEvent } from '@app/models';
 
 type Response = {
 	status: 'success' | 'error';
@@ -148,6 +148,7 @@ const updateInvitesQueryData = (friendId: string, queryClient: QueryClient) => {
 	);
 };
 
+// Send friend request
 export const useSendFriendRequestMutation = ({
 	onMutate,
 	onError
@@ -188,13 +189,20 @@ export const useSendFriendRequestMutation = ({
 	return sendFriendRequest;
 };
 
+// Unfriend user
 export const useUnfriendMutation = ({ onMutate, onError }: MutateCallbacks) => {
+	const queryClient = useQueryClient();
 	const {
 		actions: { unfriend, undoUnfriend }
 	} = useContext(ProfileContext);
 	const socket = useContext(SocketContext);
 
-	const { mutate: unfriendUser } = useMutation<unknown, string, string>(
+	const { mutate: unfriendUser } = useMutation<
+		unknown,
+		string,
+		string,
+		InfiniteData<Player[]> | undefined
+	>(
 		friendId =>
 			new Promise<void>((resolve, reject) => {
 				socket?.emit(
@@ -213,9 +221,44 @@ export const useUnfriendMutation = ({ onMutate, onError }: MutateCallbacks) => {
 			onMutate: friendId => {
 				unfriend(friendId);
 				onMutate?.('Removed friend');
+
+				const prevData = queryClient.getQueryData<
+					InfiniteData<Player[]> | undefined
+				>(Query.FRIENDS);
+				queryClient.setQueryData<InfiniteData<Player[]> | undefined>(
+					Query.FRIENDS,
+					old => {
+						const oldData = old && { ...old };
+						if (oldData) {
+							oldData.pages = [...oldData.pages];
+						}
+
+						oldData?.pages.every((page, index) => {
+							const pos = page.findIndex(
+								({ _id }) => _id === friendId
+							);
+							if (pos === 0) {
+								oldData.pages[index] = [...page.slice(1)];
+								return false;
+							} else if (pos > 0) {
+								oldData.pages[index] = [
+									...page.slice(0, pos),
+									...page.slice(pos + 1)
+								];
+								return false;
+							}
+
+							return true;
+						});
+
+						return oldData;
+					}
+				);
+				return prevData;
 			},
-			onError: (err, friendId) => {
+			onError: (err, friendId, context) => {
 				undoUnfriend(friendId);
+				queryClient.setQueryData(Query.FRIENDS, context);
 				onError?.(err);
 			}
 		}
