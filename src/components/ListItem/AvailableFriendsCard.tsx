@@ -19,7 +19,9 @@ const AvailableFriendsCard: FC<Props> = ({
 	isInvited = false,
 	onInvite
 }) => {
-	const styles = useStyles(useTheme().theme);
+	const { theme } = useTheme();
+	const { colors } = theme;
+	const styles = useStyles(theme);
 	const { username, avatar, level, status } = player;
 
 	let badgeStyle: ViewStyle;
@@ -45,12 +47,16 @@ const AvailableFriendsCard: FC<Props> = ({
 				<Text style={styles.username}>{username}</Text>
 				<Text style={styles.level}>{level}</Text>
 			</View>
-			{!isInvited && status === UserStatus.ONLINE ? (
+			{!isInvited ? (
 				<Icon
 					type='ionicon'
 					name='add-circle-outline'
-					color='black'
+					color={
+						status === UserStatus.ONLINE ? 'black' : colors?.grey3
+					}
 					onPress={onInvite}
+					disabledStyle={{ backgroundColor: 'transparent' }}
+					disabled={status !== UserStatus.ONLINE}
 				/>
 			) : (
 				<Icon type='ionicon' name='timer-outline' color='black' />
@@ -91,7 +97,7 @@ const useStyles = ({ colors }: Theme) =>
 		badgeBusy: { backgroundColor: 'orange' },
 		badgeOffline: {
 			borderColor: colors?.disabled,
-			backgroundColor: colors?.grey5,
+			backgroundColor: colors?.grey3,
 			borderWidth: 0.5
 		}
 	});

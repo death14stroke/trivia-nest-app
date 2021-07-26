@@ -3,7 +3,7 @@ export * from './HistoryScreen';
 export * from './HomeScreen';
 export * from './InvitesScreen';
 export * from './MatchMakingScreen';
-export * from './MultiplayerRoomScreen';
+export * from './MultiplayerRoom/MultiplayerRoomScreen';
 export * from './PracticeScreen';
 export * from './QuizScreen';
 export * from './ResultsScreen';

@@ -46,7 +46,6 @@ const profileReducer = (state: ProfileState, action: Action): ProfileState => {
 		case 'fetch_profile':
 			return { ...state, ...action.payload };
 		case 'fetch_friends':
-			console.log('fetch_friends:', action.payload);
 			const { invite, request, accepted } = _.groupBy(
 				action.payload,
 				rel => rel.status
@@ -99,10 +98,6 @@ const profileReducer = (state: ProfileState, action: Action): ProfileState => {
 			state.invites.add(action.payload);
 			return { ...state };
 		case 'received_friend_request_accept':
-			console.log(
-				'reducer friend request accept payload:',
-				action.payload
-			);
 			state.requests.delete(action.payload);
 			state.friends.set(action.payload, UserStatus.ONLINE);
 			return { ...state };

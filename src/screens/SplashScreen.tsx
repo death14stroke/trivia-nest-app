@@ -4,6 +4,7 @@ import { InfiniteData, useQueryClient } from 'react-query';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { BadgeContext, ProfileContext, SocketContext } from '@app/context';
 import { Invite, Query, SocketEvent } from '@app/models';
+import _ from 'lodash';
 
 const SplashScreen: FC = ({ children }) => {
 	const navigation = useNavigation();
@@ -20,28 +21,27 @@ const SplashScreen: FC = ({ children }) => {
 		}
 	} = useContext(ProfileContext);
 	const {
-		state: { invites },
-		actions: { updateInvitesBadge }
+		state: { invites, friends },
+		actions: { updateInvitesBadge, updateFriendsBadge }
 	} = useContext(BadgeContext);
 
 	useEffect(() => {
 		socket?.on(SocketEvent.USER_UPDATE, ({ uid, status }) => {
 			updateUserStatus(uid, status);
+			queryClient.invalidateQueries(Query.FRIENDS);
 		});
 
 		socket?.on(
 			SocketEvent.INVITE_MULTIPLAYER_ROOM,
 			({ roomId, player }) => {
+				console.log('invite:', roomId, player.username);
+				//TODO: figure out another way to restrict screens
 				if (route.name in ['Multiplayer', 'MatchMaking', 'Quiz']) {
 					return;
 				}
 
 				Alert.alert('Room invite', `${player.username} invited you`, [
-					{
-						text: 'Cancel',
-						onPress: () => console.log('Cancel Pressed'),
-						style: 'cancel'
-					},
+					{ text: 'Cancel', style: 'cancel' },
 					{
 						text: 'Join',
 						onPress: () => joinRoom(roomId),
@@ -63,10 +63,10 @@ const SplashScreen: FC = ({ children }) => {
 				Query.INVITES
 			);
 			if (prevData) {
-				prevData.pages[0] = [
-					{ info: player, time },
-					...prevData.pages[0]
-				];
+				prevData.pages[0] = _.uniqBy(
+					[{ info: player, time }, ...prevData.pages[0]],
+					({ info }) => info._id
+				);
 				queryClient.setQueryData(Query.INVITES, prevData);
 			} else {
 				queryClient.invalidateQueries(Query.INVITES);
@@ -78,6 +78,7 @@ const SplashScreen: FC = ({ children }) => {
 		});
 
 		socket?.on(SocketEvent.FRIEND_REQUEST_ACCEPT, friendId => {
+			updateFriendsBadge(friends + 1);
 			receivedFriendRequestAccept(friendId);
 			queryClient.invalidateQueries(Query.FRIENDS);
 		});

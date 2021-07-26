@@ -6,5 +6,6 @@ export * from './Player';
 export * from './Query';
 export * from './Question';
 export * from './Relation';
+export * from './Response';
 export * from './Result';
 export * from './SocketEvent';

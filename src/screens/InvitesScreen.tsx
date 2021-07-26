@@ -12,13 +12,13 @@ import { InviteCard } from '@app/components';
 const PAGE_SIZE = 25;
 
 const InvitesScreen: FC = () => {
+	const [acceptFriendRequest, rejectFriendRequest] = useFriendInviteMutations(
+		{}
+	);
 	const {
 		state: { invites: invitesCount },
 		actions: { updateInvitesBadge }
 	} = useContext(BadgeContext);
-	const [acceptFriendRequest, rejectFriendRequest] = useFriendInviteMutations(
-		{}
-	);
 
 	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Invite[]>(
 		Query.INVITES,

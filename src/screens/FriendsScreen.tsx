@@ -1,8 +1,10 @@
-import React, { FC } from 'react';
+import React, { FC, useCallback, useContext } from 'react';
 import { FlatList, ImageBackground, ListRenderItem } from 'react-native';
 import { useInfiniteQuery } from 'react-query';
+import { useFocusEffect } from '@react-navigation/native';
 import _ from 'lodash';
 import { Player, Query } from '@app/models';
+import { BadgeContext } from '@app/context';
 import { apiGetFriends } from '@app/api/users';
 import { useUnfriendMutation } from '@app/hooks/mutations';
 import { FriendsCard } from '@app/components';
@@ -11,6 +13,10 @@ const PAGE_SIZE = 25;
 
 const FriendsScreen: FC = () => {
 	const unfriendUser = useUnfriendMutation({});
+	const {
+		state: { friends: friendsCount },
+		actions: { updateFriendsBadge }
+	} = useContext(BadgeContext);
 
 	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Player[]>(
 		Query.FRIENDS,
@@ -22,6 +28,14 @@ const FriendsScreen: FC = () => {
 					? lastPage[lastPage.length - 1]
 					: undefined
 		}
+	);
+
+	useFocusEffect(
+		useCallback(() => {
+			if (friendsCount !== 0) {
+				updateFriendsBadge(0);
+			}
+		}, [friendsCount])
 	);
 
 	const renderFriendsCard: ListRenderItem<Player> = ({ item }) => {

@@ -1,5 +1,4 @@
-import React, { FC } from 'react';
-import { memo } from 'react';
+import React, { FC, memo } from 'react';
 import { ImageBackground } from 'react-native';
 import { Text } from 'react-native-elements';
 

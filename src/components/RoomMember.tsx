@@ -22,8 +22,6 @@ const RoomMember: FC<Props> = ({
 	const styles = useStyles(theme);
 	const { colors } = theme;
 
-	console.log('owner:', ownerId);
-
 	if (!player) {
 		return (
 			<View style={{ flex: 0.5, alignItems: 'center' }}>

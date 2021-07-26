@@ -6,12 +6,7 @@ import {
 	useQueryClient
 } from 'react-query';
 import { ProfileContext, SocketContext } from '@app/context';
-import { Invite, Player, Query, SocketEvent } from '@app/models';
-
-type Response = {
-	status: 'success' | 'error';
-	message?: string;
-};
+import { Invite, Player, Query, Response, SocketEvent } from '@app/models';
 
 type MutateCallbacks = {
 	onMutate?: (msg: string) => void;

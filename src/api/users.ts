@@ -54,22 +54,6 @@ export const apiSearchUsers = async (
 		})
 	).data;
 
-// Send friend request
-export const apiSendRequest = (friendId: string) =>
-	client.post(`/friends/request/${friendId}`);
-
-// Accept friend request
-export const apiAcceptRequest = (friendId: string) =>
-	client.post(`/invites/${friendId}`);
-
-// Reject friend request
-export const apiRejectRequest = (friendId: string) =>
-	client.delete(`/invites/${friendId}`);
-
-// Unfriend user
-export const apiUnfriendUser = (friendId: string) =>
-	client.delete(`/friends/${friendId}`);
-
 // Get friends
 export const apiGetFriends = async (pageSize: number, pageParam?: Player) =>
 	(
