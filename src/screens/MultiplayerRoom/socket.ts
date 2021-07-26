@@ -1,11 +1,11 @@
 import { useContext, useEffect, useReducer, useState } from 'react';
+import { Alert } from 'react-native';
 import _ from 'lodash';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@app/navigation';
 import { ProfileContext, SocketContext } from '@app/context';
 import { Player, Response, SocketEvent } from '@app/models';
 import { showToast } from '@app/hooks/ui';
-import { Alert } from 'react-native';
 
 type Room = {
 	ownerId: string;
@@ -85,14 +85,6 @@ export const useSockets = (
 				}
 			);
 		} else {
-			socket?.emit(
-				SocketEvent.CREATE_MULTIPLAYER_ROOM,
-				(resp: Response) => {
-					if (resp.status === 'error') {
-						Alert.alert(resp.message);
-					}
-				}
-			);
 			socket?.once(
 				SocketEvent.CREATE_MULTIPLAYER_ROOM,
 				(roomId: string) => {
@@ -105,6 +97,14 @@ export const useSockets = (
 						}
 					});
 					setLoading(false);
+				}
+			);
+			socket?.emit(
+				SocketEvent.CREATE_MULTIPLAYER_ROOM,
+				(resp: Response) => {
+					if (resp.status === 'error') {
+						Alert.alert(resp.message);
+					}
 				}
 			);
 		}

@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 import { Text, View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { Avatar, Badge, Icon, Theme, useTheme } from 'react-native-elements';
+import LottieView from 'lottie-react-native';
 import { Colors, FontFamily } from '@app/theme';
 import { Player, UserStatus } from '@app/models';
 import { BASE_URL } from '@app/api/client';
@@ -12,16 +13,15 @@ interface Props {
 	onInvite?: () => void;
 }
 
-//TODO: 15 sec lottie timer animation small
 const AvailableFriendsCard: FC<Props> = ({
 	player,
 	containerStyle,
-	isInvited = false,
+	isInvited,
 	onInvite
 }) => {
 	const { theme } = useTheme();
-	const { colors } = theme;
 	const styles = useStyles(theme);
+	const { colors } = theme;
 	const { username, avatar, level, status } = player;
 
 	let badgeStyle: ViewStyle;
@@ -59,7 +59,11 @@ const AvailableFriendsCard: FC<Props> = ({
 					disabled={status !== UserStatus.ONLINE}
 				/>
 			) : (
-				<Icon type='ionicon' name='timer-outline' color='black' />
+				<LottieView
+					autoPlay
+					source={require('@assets/inviteTimer')}
+					style={styles.lottie}
+				/>
 			)}
 		</View>
 	);
@@ -67,11 +71,7 @@ const AvailableFriendsCard: FC<Props> = ({
 
 const useStyles = ({ colors }: Theme) =>
 	StyleSheet.create({
-		root: {
-			borderRadius: 12,
-			flexDirection: 'row',
-			alignItems: 'center'
-		},
+		root: { borderRadius: 12, flexDirection: 'row', alignItems: 'center' },
 		username: {
 			fontFamily: FontFamily.ExtraBold,
 			color: Colors.purpleHeart,
@@ -99,7 +99,8 @@ const useStyles = ({ colors }: Theme) =>
 			borderColor: colors?.disabled,
 			backgroundColor: colors?.grey3,
 			borderWidth: 0.5
-		}
+		},
+		lottie: { height: 30, aspectRatio: 1 }
 	});
 
 export { AvailableFriendsCard };
