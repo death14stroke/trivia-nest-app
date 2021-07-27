@@ -8,14 +8,16 @@ import {
 } from 'react-native';
 import { Avatar, Text } from 'react-native-elements';
 import { FlatList } from 'react-native-gesture-handler';
+import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@app/navigation';
 import { Colors } from '@app/theme';
 import { ProfileContext, SocketContext } from '@app/context';
-import { Player, Question, SocketEvent } from '@app/models';
+import { Player, Question, Response, SocketEvent } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { showToast } from '@app/hooks/ui';
 import { QuestionView } from '@app/components';
+import { useQueryClient } from 'react-query';
 
 type State = {
 	battleId?: string;
@@ -28,6 +30,11 @@ type State = {
 type Action = {
 	type: 'update_opponent' | 'update_question' | 'update_correct_answer';
 	payload?: any;
+};
+
+type Game = {
+	battleId: string;
+	players: Player[];
 };
 
 const quizReducer = (state: State, action: Action): State => {
@@ -49,43 +56,47 @@ const quizReducer = (state: State, action: Action): State => {
 
 interface Props {
 	navigation: StackNavigationProp<RootStackParamList, 'Quiz'>;
+	route: RouteProp<RootStackParamList, 'Quiz'>;
 }
 
-//TODO: navigate here on 'STARTING' event. Send 'READY' event in useeffect and wait for 'START' from server. On server set a timeout if all players ready in time like 5 sec
-const QuizScreen: FC<Props> = ({ navigation }) => {
+const QuizScreen: FC<Props> = ({ navigation, route }) => {
+	const queryClient = useQueryClient();
 	const { state: currentUser } = useContext(ProfileContext);
 	const socket = useContext(SocketContext);
-
 	const [loading, setLoading] = useState(true);
 	const [duration, setDuration] = useState<number>(15);
 	const [state, dispatch] = useReducer(quizReducer, {
 		opponents: [],
 		position: 0
 	});
+	const { battleId, type } = route.params;
 
 	useEffect(() => {
-		socket?.emit(SocketEvent.READY);
-
-		socket?.once(
-			SocketEvent.START,
-			({
+		if (type === '1v1') {
+			socket?.emit(SocketEvent.READY_1V1, battleId);
+		} else {
+			socket?.emit(
+				SocketEvent.READY_MULTI,
 				battleId,
-				players
-			}: {
-				battleId: string;
-				players: Player[];
-			}) => {
-				dispatch({
-					type: 'update_opponent',
-					payload: {
-						battleId,
-						opponents: players.filter(
-							player => player._id !== currentUser!._id
-						)
+				(resp: Response) => {
+					if (resp.status === 'error') {
+						showToast(resp.message);
 					}
-				});
-			}
-		);
+				}
+			);
+		}
+
+		socket?.once(SocketEvent.START, ({ battleId, players }: Game) => {
+			dispatch({
+				type: 'update_opponent',
+				payload: {
+					battleId,
+					opponents: players.filter(
+						player => player._id !== currentUser!._id
+					)
+				}
+			});
+		});
 
 		socket?.on(SocketEvent.QUESTION, ({ pos, question, next, prevAns }) => {
 			if (pos === 0) {
@@ -114,7 +125,11 @@ const QuizScreen: FC<Props> = ({ navigation }) => {
 		});
 
 		socket?.on(SocketEvent.RESULTS, ({ results, prevAns }) => {
+			//TODO: remove this and check if working
 			socket.off(SocketEvent.LEAVE_1V1_BATTLE);
+			queryClient.invalidateQueries('battles');
+			//TODO: set query enabled in ProfileContext
+			queryClient.invalidateQueries('me');
 			dispatch({
 				type: 'update_correct_answer',
 				payload: prevAns
@@ -161,7 +176,7 @@ const QuizScreen: FC<Props> = ({ navigation }) => {
 		</View>
 	);
 
-	const { battleId, opponents, question, correctAnswer, position } = state;
+	const { opponents, question, correctAnswer, position } = state;
 
 	if (loading) {
 		return <Text>Loading...</Text>;

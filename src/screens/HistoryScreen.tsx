@@ -21,6 +21,7 @@ const HistoryScreen: FC = () => {
 	const styles = useStyles(useSafeAreaInsets());
 	const { state: user } = useContext(ProfileContext);
 
+	//TODO: show battle end time not start time
 	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Battle[]>(
 		'battles',
 		async ({ pageParam }) => apiBattleHistory(PAGE_SIZE, pageParam),

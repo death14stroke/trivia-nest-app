@@ -23,8 +23,8 @@ const MatchMakingScreen: FC<Props> = ({ navigation }) => {
 
 		socket?.emit(SocketEvent.JOIN_WAITING_ROOM);
 
-		socket?.once(SocketEvent.STARTING, () => {
-			navigation.navigate('Quiz');
+		socket?.once(SocketEvent.STARTING, (battleId: string) => {
+			navigation.replace('Quiz', { battleId, type: '1v1' });
 		});
 
 		return () => {

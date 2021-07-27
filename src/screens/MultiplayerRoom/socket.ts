@@ -119,9 +119,9 @@ export const useSockets = (
 			dispatch({ type: 'remove_player', payload: player._id });
 		});
 
-		socket?.once(SocketEvent.STARTING, () => {
+		socket?.once(SocketEvent.STARTING, (battleId: string) => {
 			socket.off(SocketEvent.LEAVE_MULTIPLAYER_ROOM_ALERT);
-			navigation.navigate('Quiz');
+			navigation.replace('Quiz', { battleId, type: 'multi' });
 		});
 
 		socket?.on(SocketEvent.ROOM_OWNER_UPDATE, ownerId => {
@@ -148,7 +148,6 @@ export const useSockets = (
 
 	const startGame = () => {
 		socket?.emit(SocketEvent.STARTING, state.roomId);
-		navigation.replace('Quiz');
 	};
 
 	return { state, loading, sendInvite, startGame };

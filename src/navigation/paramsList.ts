@@ -9,7 +9,7 @@ export type RootStackParamList = {
 	Main: undefined;
 	Results: Result[];
 	Multiplayer: { roomId: string } | undefined;
-	Quiz: undefined;
+	Quiz: { battleId: string; type: '1v1' | 'multi' };
 	MatchMaking: undefined;
 	Practice: undefined;
 };

@@ -13,7 +13,8 @@ export const SocketEvent = {
 	ROOM_OWNER_UPDATE: 'room_owner_update',
 	// battle events
 	STARTING: 'starting',
-	READY: 'ready',
+	READY_1V1: 'ready_1v1',
+	READY_MULTI: 'ready_multi',
 	START: 'start',
 	QUESTION: 'question',
 	ANSWER: 'answer',
