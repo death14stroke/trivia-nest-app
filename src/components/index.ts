@@ -1,7 +1,7 @@
 export * from './Button';
 export * from './Form';
 export * from './Input';
-export * from './QuestionView';
+export { default as QuestionView } from './QuestionView';
 export * from './Overlay';
 export * from './SearchBar';
 export * from './Tab';

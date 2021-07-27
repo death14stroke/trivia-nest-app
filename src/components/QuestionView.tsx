@@ -158,4 +158,4 @@ const styles = StyleSheet.create({
 	}
 });
 
-export { QuestionView };
+export default QuestionView;

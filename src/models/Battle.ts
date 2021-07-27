@@ -1,7 +1,7 @@
 export interface Battle {
 	_id: string;
 	type: '1v1' | 'multi';
-	startTime: string;
+	endTime: string;
 	results: {
 		_id: string;
 		coins: number;

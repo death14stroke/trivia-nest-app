@@ -1,14 +1,13 @@
 import React, { FC, useEffect, useContext } from 'react';
 import { Alert } from 'react-native';
 import { InfiniteData, useQueryClient } from 'react-query';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import _ from 'lodash';
 import { BadgeContext, ProfileContext, SocketContext } from '@app/context';
 import { Invite, Query, SocketEvent } from '@app/models';
-import _ from 'lodash';
 
 const SplashScreen: FC = ({ children }) => {
 	const navigation = useNavigation();
-	const route = useRoute();
 	const queryClient = useQueryClient();
 	const socket = useContext(SocketContext);
 	const {
@@ -34,12 +33,6 @@ const SplashScreen: FC = ({ children }) => {
 		socket?.on(
 			SocketEvent.INVITE_MULTIPLAYER_ROOM,
 			({ roomId, player }) => {
-				console.log('invite:', roomId, player.username);
-				//TODO: figure out another way to restrict screens
-				if (route.name in ['Multiplayer', 'MatchMaking', 'Quiz']) {
-					return;
-				}
-
 				Alert.alert('Room invite', `${player.username} invited you`, [
 					{ text: 'Cancel', style: 'cancel' },
 					{

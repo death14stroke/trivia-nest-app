@@ -20,7 +20,6 @@ export const SocketEvent = {
 	ANSWER: 'answer',
 	RESULTS: 'results',
 	LEAVE_BATTLE: 'leave_battle',
-	LEAVE_1V1_BATTLE: 'leave_1v1_battle',
 	// others
 	USER_UPDATE: 'user_update',
 	RELATIONS: 'relations',

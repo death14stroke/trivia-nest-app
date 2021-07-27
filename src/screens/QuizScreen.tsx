@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { Avatar, Text } from 'react-native-elements';
 import { FlatList } from 'react-native-gesture-handler';
+import { useQueryClient } from 'react-query';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@app/navigation';
@@ -16,8 +17,7 @@ import { ProfileContext, SocketContext } from '@app/context';
 import { Player, Question, Response, SocketEvent } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { showToast } from '@app/hooks/ui';
-import { QuestionView } from '@app/components';
-import { useQueryClient } from 'react-query';
+import { Loading, QuestionView } from '@app/components';
 
 type State = {
 	battleId?: string;
@@ -25,6 +25,7 @@ type State = {
 	question?: Question;
 	correctAnswer?: string;
 	position: number;
+	duration: number;
 };
 
 type Action = {
@@ -59,15 +60,16 @@ interface Props {
 	route: RouteProp<RootStackParamList, 'Quiz'>;
 }
 
+//FIXME: countdown timer going till only 2-3 seconds. Server side duration working fine
 const QuizScreen: FC<Props> = ({ navigation, route }) => {
 	const queryClient = useQueryClient();
 	const { state: currentUser } = useContext(ProfileContext);
 	const socket = useContext(SocketContext);
 	const [loading, setLoading] = useState(true);
-	const [duration, setDuration] = useState<number>(15);
 	const [state, dispatch] = useReducer(quizReducer, {
 		opponents: [],
-		position: 0
+		position: 0,
+		duration: 15
 	});
 	const { battleId, type } = route.params;
 
@@ -102,10 +104,14 @@ const QuizScreen: FC<Props> = ({ navigation, route }) => {
 			if (pos === 0) {
 				dispatch({
 					type: 'update_question',
-					payload: { question, position: pos }
+					payload: {
+						question,
+						position: pos,
+						duration: Math.round((next - Date.now()) / 1000)
+					}
 				});
 				setLoading(false);
-				setDuration(Math.round((next - Date.now()) / 1000));
+
 				return;
 			}
 
@@ -117,30 +123,28 @@ const QuizScreen: FC<Props> = ({ navigation, route }) => {
 			setTimeout(() => {
 				dispatch({
 					type: 'update_question',
-					payload: { question, position: pos }
+					payload: {
+						question,
+						position: pos,
+						duration: Math.round((next - Date.now()) / 1000)
+					}
 				});
-				setLoading(false);
-				setDuration(Math.round((next - Date.now()) / 1000));
 			}, 1000);
 		});
 
 		socket?.on(SocketEvent.RESULTS, ({ results, prevAns }) => {
-			//TODO: remove this and check if working
-			socket.off(SocketEvent.LEAVE_1V1_BATTLE);
+			socket.off(SocketEvent.LEAVE_BATTLE);
 			queryClient.invalidateQueries('battles');
-			//TODO: set query enabled in ProfileContext
 			queryClient.invalidateQueries('me');
 			dispatch({
 				type: 'update_correct_answer',
 				payload: prevAns
 			});
 
-			setTimeout(() => {
-				navigation.replace('Results', results);
-			}, 1000);
+			setTimeout(() => navigation.replace('Results', results), 1000);
 		});
 
-		socket?.on(SocketEvent.LEAVE_1V1_BATTLE, uid => {
+		socket?.on(SocketEvent.LEAVE_BATTLE, uid => {
 			const player = opponents.find(({ _id }) => _id === uid);
 			showToast(`${player?.username} has left the battle`);
 		});
@@ -176,10 +180,10 @@ const QuizScreen: FC<Props> = ({ navigation, route }) => {
 		</View>
 	);
 
-	const { opponents, question, correctAnswer, position } = state;
+	const { opponents, question, correctAnswer, position, duration } = state;
 
 	if (loading) {
-		return <Text>Loading...</Text>;
+		return <Loading message='Preparing questions...' />;
 	}
 
 	const playerUser: Player = {
@@ -224,15 +228,8 @@ const styles = StyleSheet.create({
 		width: '100%',
 		paddingHorizontal: 12
 	},
-	username: {
-		marginTop: 4,
-		fontSize: 12,
-		flexWrap: 'wrap'
-	},
-	currentUser: {
-		borderWidth: 2,
-		borderColor: Colors.curiousBlue
-	}
+	username: { marginTop: 4, fontSize: 12, flexWrap: 'wrap' },
+	currentUser: { borderWidth: 2, borderColor: Colors.curiousBlue }
 });
 
 export { QuizScreen };

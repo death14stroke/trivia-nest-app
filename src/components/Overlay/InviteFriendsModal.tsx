@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useContext } from 'react';
 import {
 	FlatList,
 	Platform,
@@ -11,14 +11,13 @@ import { Divider, Overlay, Text, Theme, useTheme } from 'react-native-elements';
 import { useInfiniteQuery } from 'react-query';
 import _ from 'lodash';
 import { FontFamily } from '@app/theme';
-import { Player, UserStatus } from '@app/models';
+import { ProfileContext } from '@app/context';
+import { Player, Query, UserStatus } from '@app/models';
 import { apiGetFriends } from '@app/api/users';
 import { Button } from '../Button';
 import { AvailableFriendsCard } from '../ListItem';
-import { useContext } from 'react';
-import { ProfileContext } from '@app/context';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 25;
 
 interface Props {
 	open?: boolean;
@@ -28,7 +27,6 @@ interface Props {
 	onInviteFriend?: (friendId: string) => void;
 }
 
-//TODO: status not updating...update status fetch from react query with socket events
 const InviteFriendsModal: FC<Props> = ({
 	open = false,
 	roomInvites,
@@ -42,7 +40,7 @@ const InviteFriendsModal: FC<Props> = ({
 	} = useContext(ProfileContext);
 
 	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Player[]>(
-		'friends',
+		Query.FRIENDS,
 		async ({ pageParam }) => apiGetFriends(PAGE_SIZE, pageParam),
 		{
 			staleTime: 5 * 60 * 1000,
@@ -55,7 +53,6 @@ const InviteFriendsModal: FC<Props> = ({
 
 	const renderFriendCard: ListRenderItem<Player> = ({ item }) => {
 		const { _id } = item;
-
 		item.status = friends.get(_id) ?? item.status;
 
 		return (

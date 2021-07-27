@@ -33,7 +33,7 @@ export const apiBattleHistory = async (pageSize: number, pageParam?: Battle) =>
 		await client.get<Battle[]>('/battles/me', {
 			params: {
 				pageSize,
-				...(pageParam && { prevKey: new Date(pageParam.startTime) })
+				...(pageParam && { prevKey: new Date(pageParam.endTime) })
 			}
 		})
 	).data;

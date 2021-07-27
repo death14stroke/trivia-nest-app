@@ -1,4 +1,3 @@
-// FIXME: Library issue - Carousel not sliding automatically to next position sometimes on Android
 import React, { FC, useContext, useState } from 'react';
 import {
 	View,

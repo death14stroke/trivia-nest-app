@@ -207,7 +207,7 @@ const Provider: FC = ({ children }) => {
 				predicate: q => q.queryKey[0] !== 'me'
 			});
 		},
-		enabled: false
+		staleTime: Infinity
 	});
 
 	useEffect(() => {
