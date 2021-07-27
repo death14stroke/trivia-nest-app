@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect } from 'react';
+import React, { FC, useState, useEffect, memo } from 'react';
 import {
 	Animated,
 	FlatList,
@@ -158,4 +158,11 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default QuestionView;
+export default memo(
+	QuestionView,
+	(prevProps, nextProps) =>
+		prevProps.correctAnswer === nextProps.correctAnswer &&
+		prevProps.duration === nextProps.duration &&
+		prevProps.position === nextProps.position &&
+		prevProps.question === nextProps.question
+);
