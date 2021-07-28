@@ -2,6 +2,7 @@ import React, { FC, useState, useContext } from 'react';
 import { ImageBackground, StyleSheet, View } from 'react-native';
 import { Text, Theme, useTheme } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { RNToasty } from 'react-native-toasty';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import _ from 'lodash';
@@ -26,11 +27,26 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 	const styles = useStyles(useTheme().theme);
 	const { state, loading, sendInvite, startGame } = useSockets(
 		navigation,
-		route.params?.roomId
+		route.params?.roomId,
+		{
+			onJoinRoom: (username: string) =>
+				RNToasty.Info({
+					title: `${username} joined`,
+					duration: 1,
+					withIcon: false,
+					fontFamily: FontFamily.Bold
+				}),
+			onLeaveRoom: (username: string) =>
+				RNToasty.Error({
+					title: `${username} left`,
+					duration: 1,
+					withIcon: false,
+					fontFamily: FontFamily.Bold
+				})
+		}
 	);
 	const { state: currentUser } = useContext(ProfileContext);
 	const [open, setOpen] = useState(false);
-	const { ownerId, players, roomInvites } = state;
 
 	const toggleOpen = () => setOpen(!open);
 
@@ -47,6 +63,7 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 		return <Loading message='Creating room...' />;
 	}
 
+	const { ownerId, players, roomInvites } = state;
 	const playerUser: Player = {
 		_id: currentUser._id!,
 		avatar: currentUser.avatar!,

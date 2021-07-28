@@ -7301,6 +7301,11 @@ react-native-gesture-handler@^1.10.3:
     invariant "^2.2.4"
     prop-types "^15.7.2"
 
+react-native-image-helper@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/react-native-image-helper/-/react-native-image-helper-0.0.3.tgz#68eb4dc24ae5ba642f11c0d6784dee24e091e0a4"
+  integrity sha512-a4tPpxdnIy+qbd1XACHDO+DnmPsCt8qV0of/8zlLj6ssZuERCexD+n/9086O+05qj9K1m5x6mvECFsLmC5PFmg==
+
 react-native-iphone-x-helper@^1.3.0:
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/react-native-iphone-x-helper/-/react-native-iphone-x-helper-1.3.1.tgz#20c603e9a0e765fd6f97396638bdeb0e5a60b010"
@@ -7372,6 +7377,11 @@ react-native-tab-view@^2.16.0:
   version "2.16.0"
   resolved "https://registry.yarnpkg.com/react-native-tab-view/-/react-native-tab-view-2.16.0.tgz#cae72c7084394bd328fac5fefb86cd966df37a86"
   integrity sha512-ac2DmT7+l13wzIFqtbfXn4wwfgtPoKzWjjZyrK1t+T8sdemuUvD4zIt+UImg03fu3s3VD8Wh/fBrIdcqQyZJWg==
+
+react-native-toasty@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-toasty/-/react-native-toasty-2.0.0.tgz#4f08e00fe87a0a87e20571be7ff1a3c1060a7298"
+  integrity sha512-AsmDNUJlJb6r7UYI5Wc+GF6Tp8eo0Ft1IujCKv47PavBrhXI8DHQol0/SDRN52hJ4ysxb9Q8tXAe2EBcYssf1w==
 
 react-native-unimodules@^0.14.5:
   version "0.14.5"

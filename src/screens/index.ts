@@ -5,7 +5,7 @@ export * from './InvitesScreen';
 export * from './MatchMakingScreen';
 export * from './MultiplayerRoom/MultiplayerRoomScreen';
 export * from './PracticeScreen';
-export * from './QuizScreen';
+export * from './Quiz/QuizScreen';
 export * from './ResultsScreen';
 export * from './SearchUsersScreen';
 export * from './SignupScreen';

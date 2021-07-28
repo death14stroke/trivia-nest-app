@@ -12,6 +12,11 @@ type Room = {
 	players: Player[];
 };
 
+type Callbacks = {
+	onJoinRoom?: (username: string) => void;
+	onLeaveRoom?: (username: string) => void;
+};
+
 type State = {
 	roomId?: string;
 	ownerId?: string;
@@ -64,7 +69,8 @@ const INVITE_TIMEOUT_MS = 10000;
 
 export const useSockets = (
 	navigation: StackNavigationProp<RootStackParamList, 'Multiplayer'>,
-	paramsRoomId?: string
+	paramsRoomId: string | undefined,
+	{ onJoinRoom, onLeaveRoom }: Callbacks
 ) => {
 	const socket = useContext(SocketContext);
 	const { state: currentUser } = useContext(ProfileContext);
@@ -109,15 +115,21 @@ export const useSockets = (
 			);
 		}
 
-		socket?.on(SocketEvent.JOIN_MULTIPLAYER_ROOM_ALERT, player => {
-			showToast(`${player.username} has joined the room!`);
-			dispatch({ type: 'add_player', payload: player });
-		});
+		socket?.on(
+			SocketEvent.JOIN_MULTIPLAYER_ROOM_ALERT,
+			(player: Player) => {
+				onJoinRoom?.(player.username);
+				dispatch({ type: 'add_player', payload: player });
+			}
+		);
 
-		socket?.on(SocketEvent.LEAVE_MULTIPLAYER_ROOM_ALERT, player => {
-			showToast(`${player.username} has left the room!`);
-			dispatch({ type: 'remove_player', payload: player._id });
-		});
+		socket?.on(
+			SocketEvent.LEAVE_MULTIPLAYER_ROOM_ALERT,
+			(player: Player) => {
+				onLeaveRoom?.(player.username);
+				dispatch({ type: 'remove_player', payload: player._id });
+			}
+		);
 
 		socket?.once(SocketEvent.STARTING, (battleId: string) => {
 			socket.off(SocketEvent.LEAVE_MULTIPLAYER_ROOM_ALERT);
