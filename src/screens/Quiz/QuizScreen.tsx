@@ -61,7 +61,8 @@ const QuizScreen: FC<Props> = ({ navigation, route }) => {
 		</View>
 	);
 
-	if (loading) {
+	//TODO: add lottie anim of loading on this
+	if (true) {
 		return <Loading message='Preparing questions...' />;
 	}
 

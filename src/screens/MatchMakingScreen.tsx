@@ -1,6 +1,7 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
-import { ImageBackground, StyleSheet } from 'react-native';
+import { ImageBackground, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-elements';
+import LottieView from 'lottie-react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@app/navigation';
 import { FontFamily } from '@app/theme';
@@ -45,30 +46,36 @@ const MatchMakingScreen: FC<Props> = ({ navigation }) => {
 		<ImageBackground
 			style={styles.root}
 			source={require('@assets/background.jpg')}>
-			<Text h2 h2Style={styles.text}>
-				Searching Opponent...
-			</Text>
-			<Text h1 h1Style={styles.timer}>
-				{time}
-			</Text>
-			<Button.Raised onPress={onCancel}>
-				<Text style={{ fontSize: 24, fontFamily: FontFamily.Bold }}>
-					Cancel
+			<View style={styles.animContainer}>
+				<LottieView autoPlay source={require('@assets/search.json')} />
+			</View>
+			<View>
+				<Text h2 h2Style={styles.text}>
+					Searching Opponent...
 				</Text>
-			</Button.Raised>
+				<Text h1 h1Style={styles.timer}>
+					{time}
+				</Text>
+				<Button.Raised onPress={onCancel}>
+					<Text style={{ fontSize: 24, fontFamily: FontFamily.Bold }}>
+						Cancel
+					</Text>
+				</Button.Raised>
+			</View>
 		</ImageBackground>
 	);
 };
 
 const styles = StyleSheet.create({
-	root: { flex: 1, justifyContent: 'center', paddingHorizontal: 12 },
+	root: { flex: 1, paddingHorizontal: 12 },
 	timer: {
 		textAlign: 'center',
 		marginTop: 16,
 		marginBottom: 48,
 		fontFamily: FontFamily.Bold
 	},
-	text: { textAlign: 'center', fontFamily: FontFamily.Regular }
+	text: { textAlign: 'center', fontFamily: FontFamily.Regular },
+	animContainer: { height: '35%', marginTop: '25%' }
 });
 
 export { MatchMakingScreen };

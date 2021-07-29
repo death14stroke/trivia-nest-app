@@ -11,7 +11,7 @@ import {
 	useUnfriendMutation
 } from '@app/hooks/mutations';
 import { apiSearchUsers } from '@app/api/users';
-import { FriendsCard, SearchBar } from '@app/components';
+import { FriendsCard, ListItem, Loading, SearchBar } from '@app/components';
 
 const PAGE_SIZE = 10;
 
@@ -24,7 +24,9 @@ const SearchUsersScreen: FC = () => {
 	const [query] = useDebounce(rawQuery, 1000);
 	const { friends, invites, requests } = state!;
 
-	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Player[]>(
+	const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery<
+		Player[]
+	>(
 		[Query.USERS, query],
 		async ({ pageParam }) => apiSearchUsers(query, PAGE_SIZE, pageParam),
 		{
@@ -61,6 +63,15 @@ const SearchUsersScreen: FC = () => {
 		);
 	};
 
+	const renderEmptyCard = () => {
+		return !isLoading ? (
+			<ListItem.Empty message='No players found' />
+		) : null;
+	};
+	const renderLoadingFooter = () => {
+		return hasNextPage && players.length !== 0 ? <ListItem.Footer /> : null;
+	};
+
 	const players = _.flatten(data?.pages);
 
 	return (
@@ -75,18 +86,23 @@ const SearchUsersScreen: FC = () => {
 				autoCompleteType='off'
 				containerStyle={{ marginTop: 8 }}
 			/>
-			<FlatList
-				data={players}
-				keyExtractor={player => player._id}
-				renderItem={renderPlayerCard}
-				style={{ flex: 1 }}
-				contentContainerStyle={{ marginHorizontal: 8 }}
-				onEndReached={() => {
-					if (!isLoading) {
-						fetchNextPage();
-					}
-				}}
-			/>
+			{isLoading && players.length === 0 ? (
+				<Loading />
+			) : (
+				<FlatList
+					data={players}
+					keyExtractor={player => player._id}
+					renderItem={renderPlayerCard}
+					contentContainerStyle={{ marginHorizontal: 8, flexGrow: 1 }}
+					onEndReached={() => {
+						if (!isLoading) {
+							fetchNextPage();
+						}
+					}}
+					ListEmptyComponent={renderEmptyCard()}
+					ListFooterComponent={renderLoadingFooter()}
+				/>
+			)}
 		</ImageBackground>
 	);
 };

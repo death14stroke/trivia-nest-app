@@ -7,7 +7,7 @@ import { Player, Query } from '@app/models';
 import { BadgeContext } from '@app/context';
 import { apiGetFriends } from '@app/api/users';
 import { useUnfriendMutation } from '@app/hooks/mutations';
-import { FriendsCard } from '@app/components';
+import { FriendsCard, ListItem, Loading } from '@app/components';
 
 const PAGE_SIZE = 25;
 
@@ -18,7 +18,9 @@ const FriendsScreen: FC = () => {
 		actions: { updateFriendsBadge }
 	} = useContext(BadgeContext);
 
-	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Player[]>(
+	const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery<
+		Player[]
+	>(
 		Query.FRIENDS,
 		async ({ pageParam }) => apiGetFriends(PAGE_SIZE, pageParam),
 		{
@@ -51,23 +53,40 @@ const FriendsScreen: FC = () => {
 		);
 	};
 
+	const renderEmptyCard = () => {
+		return !isLoading ? (
+			<ListItem.Empty message='No friends found' />
+		) : null;
+	};
+	const renderLoadingFooter = () => {
+		return hasNextPage && friendsList.length !== 0 ? (
+			<ListItem.Footer />
+		) : null;
+	};
+
 	const friendsList = _.flatten(data?.pages);
 
 	return (
 		<ImageBackground
 			source={require('@assets/background.jpg')}
 			style={{ flex: 1, paddingHorizontal: 8 }}>
-			<FlatList
-				data={friendsList}
-				keyExtractor={player => player._id}
-				renderItem={renderFriendsCard}
-				style={{ flex: 1 }}
-				onEndReached={() => {
-					if (!isLoading) {
-						fetchNextPage();
-					}
-				}}
-			/>
+			{isLoading && friendsList.length === 0 ? (
+				<Loading />
+			) : (
+				<FlatList
+					data={friendsList}
+					keyExtractor={player => player._id}
+					renderItem={renderFriendsCard}
+					onEndReached={() => {
+						if (!isLoading) {
+							fetchNextPage();
+						}
+					}}
+					contentContainerStyle={{ flexGrow: 1 }}
+					ListEmptyComponent={renderEmptyCard()}
+					ListFooterComponent={renderLoadingFooter()}
+				/>
+			)}
 		</ImageBackground>
 	);
 };

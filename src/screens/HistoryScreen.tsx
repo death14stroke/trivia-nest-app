@@ -13,7 +13,7 @@ import { FontFamily } from '@app/theme';
 import { ProfileContext } from '@app/context';
 import { Battle, Query } from '@app/models';
 import { apiBattleHistory } from '@app/api/users';
-import { BattleCard } from '@app/components';
+import { BattleCard, ListItem, Loading } from '@app/components';
 
 const PAGE_SIZE = 25;
 
@@ -21,7 +21,9 @@ const HistoryScreen: FC = () => {
 	const styles = useStyles(useSafeAreaInsets());
 	const { state: user } = useContext(ProfileContext);
 
-	const { data, isLoading, fetchNextPage } = useInfiniteQuery<Battle[]>(
+	const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery<
+		Battle[]
+	>(
 		Query.BATTLES,
 		async ({ pageParam }) => apiBattleHistory(PAGE_SIZE, pageParam),
 		{
@@ -57,6 +59,15 @@ const HistoryScreen: FC = () => {
 		);
 	};
 
+	const renderEmptyCard = () => {
+		return !isLoading ? (
+			<ListItem.Empty message='No battles found' />
+		) : null;
+	};
+	const renderLoadingFooter = () => {
+		return hasNextPage && battles.length !== 0 ? <ListItem.Footer /> : null;
+	};
+
 	const battles = _.flatten(data?.pages);
 
 	return (
@@ -66,18 +77,24 @@ const HistoryScreen: FC = () => {
 			<Text h3 h3Style={styles.header}>
 				Recent matches
 			</Text>
-			<FlatList
-				data={battles}
-				keyExtractor={battle => battle._id}
-				renderItem={renderBattleCard}
-				showsVerticalScrollIndicator={false}
-				style={{ flex: 1 }}
-				onEndReached={() => {
-					if (!isLoading) {
-						fetchNextPage();
-					}
-				}}
-			/>
+			{isLoading && battles.length === 0 ? (
+				<Loading />
+			) : (
+				<FlatList
+					data={battles}
+					keyExtractor={battle => battle._id}
+					renderItem={renderBattleCard}
+					showsVerticalScrollIndicator={false}
+					contentContainerStyle={{ flexGrow: 1 }}
+					onEndReached={() => {
+						if (!isLoading) {
+							fetchNextPage();
+						}
+					}}
+					ListEmptyComponent={renderEmptyCard()}
+					ListFooterComponent={renderLoadingFooter()}
+				/>
+			)}
 		</ImageBackground>
 	);
 };
