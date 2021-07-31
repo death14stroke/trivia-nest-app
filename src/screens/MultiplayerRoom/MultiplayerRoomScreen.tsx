@@ -23,6 +23,7 @@ interface Props {
 	route: RouteProp<RootStackParamList, 'Multiplayer'>;
 }
 
+//TODO: onBackpress show alert to leave room
 const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 	const styles = useStyles(useTheme().theme);
 	const { state, loading, sendInvite, startGame } = useSockets(

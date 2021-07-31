@@ -39,6 +39,9 @@ const TopTabBar: FC<MaterialTopTabBarProps> = ({
 							: 0;
 
 					const isFocused = state.index === index;
+					if (isFocused) {
+						translateValue.value = withSpring(index * tabWidth);
+					}
 
 					const onPress = () => {
 						const event = navigation.emit({
@@ -46,7 +49,6 @@ const TopTabBar: FC<MaterialTopTabBarProps> = ({
 							target: route.key,
 							canPreventDefault: true
 						});
-						translateValue.value = withSpring(index * tabWidth);
 						if (!isFocused && !event.defaultPrevented) {
 							navigation.navigate(route.name);
 						}
@@ -95,11 +97,7 @@ const TopTabBar: FC<MaterialTopTabBarProps> = ({
 
 const useStyles = ({ colors }: Theme) =>
 	StyleSheet.create({
-		slider: {
-			marginTop: 8,
-			height: 2,
-			backgroundColor: colors?.primary
-		}
+		slider: { marginTop: 8, height: 2, backgroundColor: colors?.primary }
 	});
 
 export { TopTabBar };

@@ -3,6 +3,7 @@ import {
 	Alert,
 	ImageBackground,
 	SafeAreaView,
+	StatusBar,
 	StyleSheet,
 	View
 } from 'react-native';
@@ -14,6 +15,7 @@ import { Colors } from '@app/theme';
 import { ProfileContext } from '@app/context';
 import { BASE_URL } from '@app/api/client';
 import { QuestionView } from '@app/components';
+import { Platform } from 'react-native';
 
 const QUESTION_DURATION = 15;
 
@@ -97,7 +99,14 @@ const PracticeScreen: FC<Props> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-	root: { flex: 1 },
+	root: {
+		flex: 1,
+		...Platform.select({
+			android: {
+				paddingTop: (StatusBar.currentHeight ?? 0) + 4
+			}
+		})
+	},
 	avatar: {
 		borderRadius: 12,
 		borderWidth: 2,

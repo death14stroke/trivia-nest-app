@@ -5,12 +5,13 @@ import { FontFamily } from '@app/theme';
 
 interface Props {
 	message: string;
+	color?: string;
 }
 
-const EmptyView: FC<Props> = ({ message }) => {
+const EmptyView: FC<Props> = ({ message, color }) => {
 	return (
 		<View style={styles.root}>
-			<Text h3 h3Style={styles.empty}>
+			<Text h3 h3Style={[styles.empty, color ? { color } : {}]}>
 				{message}
 			</Text>
 		</View>

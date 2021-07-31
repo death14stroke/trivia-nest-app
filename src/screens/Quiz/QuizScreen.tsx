@@ -2,7 +2,9 @@ import React, { FC } from 'react';
 import {
 	ImageBackground,
 	ListRenderItem,
+	Platform,
 	SafeAreaView,
+	StatusBar,
 	StyleSheet,
 	View
 } from 'react-native';
@@ -23,6 +25,8 @@ interface Props {
 	route: RouteProp<RootStackParamList, 'Quiz'>;
 }
 
+//FIXME: draw tabs below navigation bar
+//TODO: onBackpress show alert to leave game
 const QuizScreen: FC<Props> = ({ navigation, route }) => {
 	const { battleId, type } = route.params;
 	const {
@@ -99,7 +103,16 @@ const QuizScreen: FC<Props> = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
-	root: { flex: 1, padding: 12, justifyContent: 'space-between' },
+	root: {
+		flex: 1,
+		padding: 12,
+		justifyContent: 'space-between',
+		...Platform.select({
+			android: {
+				paddingTop: (StatusBar.currentHeight ?? 0) + 4
+			}
+		})
+	},
 	avatar: { borderRadius: 12 },
 	playersContainer: { flexDirection: 'row', justifyContent: 'space-between' },
 	contentContainer: {

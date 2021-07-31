@@ -4,7 +4,8 @@ import {
 	StyleSheet,
 	Dimensions,
 	ListRenderItem,
-	ImageBackground
+	ImageBackground,
+	Platform
 } from 'react-native';
 import { Avatar, Icon, Text } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -57,6 +58,7 @@ interface Props {
 	>;
 }
 
+//TODO: remove showToast
 const HomeScreen: FC<Props> = ({ navigation }) => {
 	const queryClient = useQueryClient();
 	const {
@@ -168,7 +170,7 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-	root: { flex: 1 },
+	root: { flex: 1, ...Platform.select({ android: { marginTop: 4 } }) },
 	header: {
 		flexDirection: 'row',
 		backgroundColor: 'black',
