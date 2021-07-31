@@ -10,6 +10,7 @@ import {
 import { Avatar, Icon, Text } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Carousel from 'react-native-snap-carousel';
+import { RNToasty } from 'react-native-toasty';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -20,7 +21,6 @@ import { ProfileContext } from '@app/context';
 import { CurrentUser, IntroMode, Mode, Query } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { apiGetAvatars, apiUpdateUserProfile } from '@app/api/users';
-import { showToast } from '@app/hooks/ui';
 import { IntroCard, SelectAvatarModal } from '@app/components';
 
 const modes: IntroMode[] = [
@@ -58,7 +58,6 @@ interface Props {
 	>;
 }
 
-//TODO: remove showToast
 const HomeScreen: FC<Props> = ({ navigation }) => {
 	const queryClient = useQueryClient();
 	const {
@@ -86,9 +85,18 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 
 			return prevProfile;
 		},
-		onSuccess: () => showToast('Profile updated!'),
+		onSuccess: () =>
+			RNToasty.Success({
+				title: 'Profile updated!',
+				duration: 0,
+				withIcon: false
+			}),
 		onError: (_err, _params, context) => {
-			showToast('Could not update profile');
+			RNToasty.Error({
+				title: 'Could not update profile',
+				duration: 0,
+				withIcon: false
+			});
 			queryClient.setQueryData('me', context);
 		}
 	});

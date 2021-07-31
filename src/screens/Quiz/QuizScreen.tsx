@@ -14,7 +14,7 @@ import { RNToasty } from 'react-native-toasty';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@app/navigation';
-import { Colors, FontFamily } from '@app/theme';
+import { Colors } from '@app/theme';
 import { Player } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { Loading, QuestionView } from '@app/components';
@@ -44,8 +44,7 @@ const QuizScreen: FC<Props> = ({ navigation, route }) => {
 			RNToasty.Info({
 				title: `${username} left the match`,
 				duration: 1,
-				withIcon: false,
-				fontFamily: FontFamily.Bold
+				withIcon: false
 			})
 	});
 

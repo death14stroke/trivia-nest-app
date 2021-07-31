@@ -1,5 +1,5 @@
 import React, { FC, useState, useEffect, useContext } from 'react';
-import { ImageBackground } from 'react-native';
+import { ImageBackground, StatusBar } from 'react-native';
 import { ThemeProvider, Avatar } from 'react-native-elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
@@ -173,6 +173,7 @@ const NavigationProvider: FC = () => {
 	return (
 		<ThemeProvider theme={AppNativeTheme} useDark>
 			<NavigationContainer theme={AppNavigationTheme}>
+				<StatusBar barStyle='light-content' />
 				<AppStack.Navigator
 					initialRouteName={getInitialRoute()}
 					screenOptions={{ headerShown: false }}>

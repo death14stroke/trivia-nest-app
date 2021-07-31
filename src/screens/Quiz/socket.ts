@@ -1,8 +1,8 @@
 import { useContext, useEffect, useReducer, useState } from 'react';
+import { Alert } from 'react-native';
 import { useQueryClient } from 'react-query';
 import { ProfileContext, SocketContext } from '@app/context';
 import { Player, Question, Response, Result, SocketEvent } from '@app/models';
-import { showToast } from '@app/hooks/ui';
 
 type State = {
 	battleId?: string;
@@ -82,7 +82,7 @@ export const useSockets = (
 				battleId,
 				(resp: Response) => {
 					if (resp.status === 'error') {
-						showToast(resp.message);
+						Alert.alert(resp.message);
 					}
 				}
 			);

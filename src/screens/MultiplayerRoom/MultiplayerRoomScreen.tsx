@@ -34,15 +34,13 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 				RNToasty.Info({
 					title: `${username} joined`,
 					duration: 1,
-					withIcon: false,
-					fontFamily: FontFamily.Bold
+					withIcon: false
 				}),
 			onLeaveRoom: (username: string) =>
 				RNToasty.Error({
 					title: `${username} left`,
 					duration: 1,
-					withIcon: false,
-					fontFamily: FontFamily.Bold
+					withIcon: false
 				})
 		}
 	);

@@ -5,7 +5,6 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@app/navigation';
 import { ProfileContext, SocketContext } from '@app/context';
 import { Player, Response, SocketEvent } from '@app/models';
-import { showToast } from '@app/hooks/ui';
 
 type Room = {
 	ownerId: string;

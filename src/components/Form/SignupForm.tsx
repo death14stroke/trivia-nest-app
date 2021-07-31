@@ -1,6 +1,7 @@
 import React, { FC, useState } from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { Avatar, Text, Theme, useTheme } from 'react-native-elements';
+import { RNToasty } from 'react-native-toasty';
 import { useMutation, useQuery } from 'react-query';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -11,7 +12,6 @@ import { Query } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { apiGetAvatars } from '@app/api/users';
 import { signupWithEmailPassword } from '@app/hooks/auth';
-import { showToast } from '@app/hooks/ui';
 import { SelectAvatarModal } from '../Overlay';
 import { Input } from '../Input';
 import { Button } from '../Button';
@@ -58,7 +58,8 @@ const SignupForm: FC = () => {
 	>(signupWithEmailPassword, {
 		onSuccess: async () =>
 			navigation.reset({ index: 0, routes: [{ name: 'mainFlow' }] }),
-		onError: err => showToast(err.message)
+		onError: err =>
+			RNToasty.Error({ title: err.message, duration: 0, withIcon: false })
 	});
 
 	const _onSubmit = (values: Values) => mutate(values);

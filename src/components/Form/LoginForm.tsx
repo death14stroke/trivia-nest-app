@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { Text, Theme, useTheme } from 'react-native-elements';
+import { RNToasty } from 'react-native-toasty';
 import { useMutation } from 'react-query';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -8,7 +9,6 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { AppStackParamList } from '@app/navigation';
 import { loginWithEmailPassword } from '@app/hooks/auth';
-import { showToast } from '@app/hooks/ui';
 import { Input } from '../Input';
 import { Button } from '../Button';
 
@@ -43,7 +43,8 @@ const LoginForm: FC = () => {
 	>(loginWithEmailPassword, {
 		onSuccess: async () =>
 			navigation.reset({ index: 0, routes: [{ name: 'mainFlow' }] }),
-		onError: err => showToast(err.message)
+		onError: err =>
+			RNToasty.Error({ title: err.message, duration: 0, withIcon: false })
 	});
 
 	const _onSubmit = (values: Values) => mutate(values);
