@@ -131,7 +131,7 @@ export const useSockets = (
 			}, 1000);
 		});
 
-		socket?.on(SocketEvent.RESULTS, ({ results, prevAns }) => {
+		socket?.once(SocketEvent.RESULTS, ({ results, prevAns }) => {
 			socket.off(SocketEvent.LEAVE_BATTLE);
 			queryClient.invalidateQueries('battles');
 			queryClient.invalidateQueries('me');
@@ -147,7 +147,11 @@ export const useSockets = (
 			onPlayerLeft?.(player.username);
 		});
 
-		return leaveRoom;
+		return () => {
+			socket?.off(SocketEvent.QUESTION);
+			socket?.off(SocketEvent.LEAVE_BATTLE);
+			leaveRoom();
+		};
 	}, []);
 
 	return {

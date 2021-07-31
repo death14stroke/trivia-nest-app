@@ -40,8 +40,16 @@ const ResultsScreen: FC<Props> = ({ route, navigation }) => {
 		/>
 	);
 
-	const winner = results[0];
-	const isPlayerWinner = winner.player._id === currentUser!._id;
+	const player = results.find(
+		({ player }) => player._id === currentUser._id
+	)!;
+	const isPlayerWinner = player?.score === results[0].score;
+	let winner: Result;
+	if (isPlayerWinner) {
+		winner = player;
+	} else {
+		winner = results[0];
+	}
 
 	const renderWinner = () => {
 		const badgeBackgroundColor = isPlayerWinner
@@ -104,7 +112,9 @@ const ResultsScreen: FC<Props> = ({ route, navigation }) => {
 					</View>
 					{renderWinner()}
 					<FlatList
-						data={results.slice(1)}
+						data={results.filter(
+							({ player }) => player._id !== winner.player._id
+						)}
 						keyExtractor={result => result.player._id}
 						renderItem={renderPlayer}
 						style={{ marginTop: 24, flexGrow: 0 }}

@@ -80,6 +80,16 @@ const SplashScreen: FC = ({ children }) => {
 			unfriend(friendId);
 			queryClient.invalidateQueries(Query.FRIENDS);
 		});
+
+		return () => {
+			socket?.off(SocketEvent.USER_UPDATE);
+			socket?.off(SocketEvent.INVITE_MULTIPLAYER_ROOM);
+			socket?.off(SocketEvent.JOIN_MULTIPLAYER_ROOM);
+			socket?.off(SocketEvent.FRIEND_REQUEST);
+			socket?.off(SocketEvent.FRIEND_REQUEST_REJECT);
+			socket?.off(SocketEvent.FRIEND_REQUEST_ACCEPT);
+			socket?.off(SocketEvent.UNFRIEND);
+		};
 	}, [socket]);
 
 	const joinRoom = (roomId: string) => {

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useReducer, useState } from 'react';
+import { useContext, useEffect, useReducer, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import _ from 'lodash';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -76,6 +76,7 @@ export const useSockets = (
 	const { state: currentUser } = useContext(ProfileContext);
 	const [loading, setLoading] = useState(true);
 	const [state, dispatch] = useReducer(roomReducer, INITIAL_STATE);
+	const timersMap = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
 	useEffect(() => {
 		if (paramsRoomId) {
@@ -140,7 +141,13 @@ export const useSockets = (
 			dispatch({ type: 'update_owner', payload: ownerId });
 		});
 
-		return leaveRoom;
+		return () => {
+			socket?.off(SocketEvent.JOIN_MULTIPLAYER_ROOM_ALERT);
+			socket?.off(SocketEvent.LEAVE_MULTIPLAYER_ROOM_ALERT);
+			socket?.off(SocketEvent.ROOM_OWNER_UPDATE);
+			leaveRoom();
+			timersMap.current.forEach(timer => clearTimeout(timer));
+		};
 	}, []);
 
 	const leaveRoom = () => {
@@ -153,9 +160,12 @@ export const useSockets = (
 			friendId
 		});
 		dispatch({ type: 'add_invite', payload: friendId });
-		setTimeout(() => {
-			dispatch({ type: 'remove_invite', payload: friendId });
-		}, INVITE_TIMEOUT_MS);
+		timersMap.current.set(
+			friendId,
+			setTimeout(() => {
+				dispatch({ type: 'remove_invite', payload: friendId });
+			}, INVITE_TIMEOUT_MS)
+		);
 	};
 
 	const startGame = () => {
