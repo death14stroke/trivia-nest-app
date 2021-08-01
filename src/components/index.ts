@@ -8,3 +8,4 @@ export * from './Tab';
 export * from './ListItem';
 export { default as Loading } from './Loading';
 export * from './RoomMember';
+export { default as Dialog } from './Dialog';

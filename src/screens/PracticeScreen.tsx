@@ -1,7 +1,7 @@
 import React, { FC, useState, useContext } from 'react';
 import {
-	Alert,
 	ImageBackground,
+	Platform,
 	SafeAreaView,
 	StatusBar,
 	StyleSheet,
@@ -12,10 +12,9 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import questions from '@assets/practice.json';
 import { RootStackParamList } from '@app/navigation';
 import { Colors } from '@app/theme';
-import { ProfileContext } from '@app/context';
+import { AlertContext, ProfileContext } from '@app/context';
 import { BASE_URL } from '@app/api/client';
 import { QuestionView } from '@app/components';
-import { Platform } from 'react-native';
 
 const QUESTION_DURATION = 15;
 
@@ -25,6 +24,7 @@ interface Props {
 
 const PracticeScreen: FC<Props> = ({ navigation }) => {
 	const { state: currentUser } = useContext(ProfileContext);
+	const Alert = useContext(AlertContext);
 	const [position, setPosition] = useState(0);
 	const [correctAnswer, setCorrectAnswer] = useState<string | undefined>();
 	const [score, setScore] = useState(0);
@@ -43,25 +43,17 @@ const PracticeScreen: FC<Props> = ({ navigation }) => {
 		}, 1000);
 	};
 
-	//TODO: replace all Alert.alert()
-	//TODO: use react-native-dialog in avatar and invite overlay
 	const nextQuestion = () => {
 		if (position < questions.length - 1) {
 			setCorrectAnswer(undefined);
 			setPosition(position + 1);
 		} else {
 			setCorrectAnswer(undefined);
-			Alert.alert(
-				'Results',
-				`Your score: ${score} / ${questions.length}`,
-				[
-					{
-						text: 'Ok',
-						onPress: () => navigation.navigate('Main'),
-						style: 'default'
-					}
-				]
-			);
+			Alert.alert({
+				title: 'Results',
+				description: `Your score: ${score} / ${questions.length}`,
+				onSuccess: () => navigation.replace('Main')
+			});
 		}
 	};
 
@@ -104,9 +96,7 @@ const styles = StyleSheet.create({
 	root: {
 		flex: 1,
 		...Platform.select({
-			android: {
-				paddingTop: (StatusBar.currentHeight ?? 0) + 4
-			}
+			android: { paddingTop: (StatusBar.currentHeight ?? 0) + 4 }
 		})
 	},
 	avatar: {
@@ -114,11 +104,7 @@ const styles = StyleSheet.create({
 		borderWidth: 2,
 		borderColor: Colors.curiousBlue
 	},
-	username: {
-		marginTop: 4,
-		fontSize: 12,
-		flexWrap: 'wrap'
-	}
+	username: { marginTop: 4, fontSize: 12, flexWrap: 'wrap' }
 });
 
 export { PracticeScreen };

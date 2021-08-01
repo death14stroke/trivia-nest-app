@@ -1,4 +1,4 @@
-import React, { FC, useState, useContext } from 'react';
+import React, { FC, useState, useContext, useEffect } from 'react';
 import { ImageBackground, StyleSheet, View } from 'react-native';
 import { Text, Theme, useTheme } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,7 +8,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import _ from 'lodash';
 import { RootStackParamList } from '@app/navigation';
 import { FontFamily } from '@app/theme';
-import { ProfileContext } from '@app/context';
+import { AlertContext, ProfileContext } from '@app/context';
 import { Player } from '@app/models';
 import {
 	Button,
@@ -23,7 +23,6 @@ interface Props {
 	route: RouteProp<RootStackParamList, 'Multiplayer'>;
 }
 
-//TODO: onBackpress show alert to leave room
 const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 	const styles = useStyles(useTheme().theme);
 	const { state, loading, sendInvite, startGame } = useSockets(
@@ -44,8 +43,25 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 				})
 		}
 	);
+	const Alert = useContext(AlertContext);
 	const { state: currentUser } = useContext(ProfileContext);
 	const [open, setOpen] = useState(false);
+	const { ownerId, players, roomInvites } = state;
+
+	useEffect(() => {
+		navigation.addListener('beforeRemove', e => {
+			if (e.data.action.type === 'POP' && players.length > 1) {
+				e.preventDefault();
+
+				Alert.confirm({
+					title: 'Confirmation',
+					description: 'Are you sure you want to leave the room?',
+					positiveBtnTitle: 'Yes',
+					onSuccess: () => navigation.dispatch(e.data.action)
+				});
+			}
+		});
+	}, [navigation, players]);
 
 	const toggleOpen = () => setOpen(!open);
 
@@ -62,7 +78,6 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 		return <Loading message='Creating room...' />;
 	}
 
-	const { ownerId, players, roomInvites } = state;
 	const playerUser: Player = {
 		_id: currentUser._id!,
 		avatar: currentUser.avatar!,

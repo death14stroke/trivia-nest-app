@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import _ from 'lodash';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@app/navigation';
-import { ProfileContext, SocketContext } from '@app/context';
+import { AlertContext, ProfileContext, SocketContext } from '@app/context';
 import { Player, Response, SocketEvent } from '@app/models';
 
 type Room = {
@@ -72,6 +72,7 @@ export const useSockets = (
 	{ onJoinRoom, onLeaveRoom }: Callbacks
 ) => {
 	const socket = useContext(SocketContext);
+	const Alert = useContext(AlertContext);
 	const { state: currentUser } = useContext(ProfileContext);
 	const [loading, setLoading] = useState(true);
 	const [state, dispatch] = useReducer(roomReducer, INITIAL_STATE);
@@ -109,7 +110,10 @@ export const useSockets = (
 				SocketEvent.CREATE_MULTIPLAYER_ROOM,
 				(resp: Response) => {
 					if (resp.status === 'error') {
-						Alert.alert(resp.message);
+						Alert.alert({
+							title: 'Error',
+							description: resp.message
+						});
 					}
 				}
 			);

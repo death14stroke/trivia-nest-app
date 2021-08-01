@@ -1,7 +1,6 @@
 import { useContext, useEffect, useReducer, useState } from 'react';
-import { Alert } from 'react-native';
 import { useQueryClient } from 'react-query';
-import { ProfileContext, SocketContext } from '@app/context';
+import { AlertContext, ProfileContext, SocketContext } from '@app/context';
 import { Player, Question, Response, Result, SocketEvent } from '@app/models';
 
 type State = {
@@ -52,6 +51,7 @@ export const useSockets = (
 ) => {
 	const queryClient = useQueryClient();
 	const socket = useContext(SocketContext);
+	const Alert = useContext(AlertContext);
 	const { state: currentUser } = useContext(ProfileContext);
 	const [state, dispatch] = useReducer(quizReducer, {
 		opponents: [],
@@ -82,7 +82,10 @@ export const useSockets = (
 				battleId,
 				(resp: Response) => {
 					if (resp.status === 'error') {
-						Alert.alert(resp.message);
+						Alert.alert({
+							title: 'Error',
+							description: resp.message
+						});
 					}
 				}
 			);

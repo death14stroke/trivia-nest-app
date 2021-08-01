@@ -10,6 +10,7 @@ interface Props {
 	style?: StyleProp<ViewStyle>;
 }
 
+//TODO: optimize rendering
 const Container: FC<Props> = ({
 	children,
 	visible = false,
@@ -25,20 +26,26 @@ const Container: FC<Props> = ({
 		[];
 	const otherChildren: ReactElement<any, NamedExoticComponent>[] = [];
 	React.Children.forEach(children, child => {
+		const { name, displayName } = child.type;
+
 		if (
-			child.type.name === 'DialogTitle' ||
-			child.type.displayName === 'DialogTitle'
+			name === 'DialogTitle' ||
+			displayName === 'DialogTitle' ||
+			name === 'DialogDescription' ||
+			displayName === 'DialogDescription'
 		) {
 			titleChildren.push(child);
 		} else if (
-			child.type.name === 'DialogButtonContainer' ||
-			child.type.displayName === 'DialogButtonContainer'
+			name === 'DialogButtonContainer' ||
+			displayName === 'DialogButtonContainer'
 		) {
 			buttonContainerChildren.push(child);
 		} else {
 			otherChildren.push(child);
 		}
 	});
+
+	//console.log('Dialog container rendered:');
 
 	return (
 		<Overlay
@@ -52,11 +59,6 @@ const Container: FC<Props> = ({
 				style={[StyleSheet.absoluteFill, { borderRadius: 16 }]}
 			/>
 			{titleChildren}
-			<Divider
-				orientation='horizontal'
-				color={colors?.grey2}
-				style={{ marginBottom: 8 }}
-			/>
 			{otherChildren}
 			<Divider
 				orientation='horizontal'

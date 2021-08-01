@@ -10,6 +10,7 @@ import {
 } from '@app/context';
 import { Invite, Query, SocketEvent } from '@app/models';
 
+//FIXME: invite friend, leave the room before friend joins. Desired behaviour: User should get 'Room does not exist' error
 const SplashScreen: FC = ({ children }) => {
 	const navigation = useNavigation();
 	const queryClient = useQueryClient();
@@ -38,7 +39,7 @@ const SplashScreen: FC = ({ children }) => {
 		socket?.on(
 			SocketEvent.INVITE_MULTIPLAYER_ROOM,
 			({ roomId, player }) => {
-				Alert.show({
+				Alert.confirm({
 					title: 'Room invite',
 					description: `${player.username} invited you`,
 					positiveBtnTitle: 'Join',

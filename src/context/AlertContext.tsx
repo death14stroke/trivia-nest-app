@@ -1,11 +1,8 @@
 import React, { FC, useReducer, createContext, Dispatch } from 'react';
-import { StyleSheet } from 'react-native';
-import Dialog from 'react-native-dialog';
-import { BlurView } from '@react-native-community/blur';
-import { useTheme } from 'react-native-elements';
+import { Dialog } from '@app/components';
 
 interface Action {
-	type: 'show_alert' | 'hide_alert';
+	type: 'show_alert' | 'show_confirm' | 'hide';
 	payload?: any;
 }
 
@@ -13,6 +10,7 @@ type State = {
 	open: boolean;
 	title: string;
 	description: string;
+	type: 'alert' | 'confirm';
 	positiveBtnTitle: string;
 	onSuccess?: () => void;
 };
@@ -27,8 +25,10 @@ type Config = {
 const alertReducer = (state: State, action: Action): State => {
 	switch (action.type) {
 		case 'show_alert':
-			return { open: true, ...action.payload };
-		case 'hide_alert':
+			return { open: true, type: 'alert', ...action.payload };
+		case 'show_confirm':
+			return { open: true, type: 'confirm', ...action.payload };
+		case 'hide':
 			return { ...state, open: false };
 		default:
 			return state;
@@ -47,60 +47,63 @@ const showAlert =
 				onSuccess
 			}
 		});
+const showConfirm =
+	(dispatch: Dispatch<Action>) =>
+	({ title, description, positiveBtnTitle = 'OK', onSuccess }: Config) =>
+		dispatch({
+			type: 'show_confirm',
+			payload: {
+				title,
+				description,
+				positiveBtnTitle,
+				onSuccess
+			}
+		});
 
 type ContextValue = {
-	show: ReturnType<typeof showAlert>;
+	alert: ReturnType<typeof showAlert>;
+	confirm: ReturnType<typeof showConfirm>;
 };
 
 const INITIAL_VALUE: State = {
 	title: '',
 	description: '',
 	open: false,
-	positiveBtnTitle: 'Ok'
+	type: 'alert',
+	positiveBtnTitle: 'OK'
 };
 
 const Context = createContext<ContextValue>(undefined!);
 
 const Provider: FC = ({ children }) => {
-	const {
-		theme: { colors }
-	} = useTheme();
 	const [state, dispatch] = useReducer(alertReducer, INITIAL_VALUE);
-	const { open, title, description, positiveBtnTitle, onSuccess } = state;
+	const { open, title, description, type, positiveBtnTitle, onSuccess } =
+		state;
 
-	const hideAlert = () => dispatch({ type: 'hide_alert' });
-
-	const blurComponentIOS = (
-		<BlurView
-			style={StyleSheet.absoluteFill}
-			blurType='xlight'
-			blurAmount={50}
-		/>
-	);
+	const hide = () => dispatch({ type: 'hide' });
 
 	return (
-		<Context.Provider value={{ show: showAlert(dispatch) }}>
+		<Context.Provider
+			value={{
+				alert: showAlert(dispatch),
+				confirm: showConfirm(dispatch)
+			}}>
 			{children}
-			<Dialog.Container
-				visible={open}
-				blurComponentIOS={blurComponentIOS}>
+			<Dialog.Container visible={open} style={{ width: '75%' }}>
 				<Dialog.Title>{title}</Dialog.Title>
 				<Dialog.Description>{description}</Dialog.Description>
-				<Dialog.Button
-					label='Cancel'
-					bold
-					color={colors?.primary}
-					onPress={hideAlert}
-				/>
-				<Dialog.Button
-					label={positiveBtnTitle}
-					bold
-					color={colors?.primary}
-					onPress={() => {
-						onSuccess?.();
-						hideAlert();
-					}}
-				/>
+				<Dialog.ButtonContainer>
+					{type === 'confirm' && (
+						<Dialog.Button title='Cancel' onPress={hide} />
+					)}
+					<Dialog.Button
+						title={positiveBtnTitle}
+						onPress={() => {
+							onSuccess?.();
+							hide();
+						}}
+					/>
+				</Dialog.ButtonContainer>
 			</Dialog.Container>
 		</Context.Provider>
 	);

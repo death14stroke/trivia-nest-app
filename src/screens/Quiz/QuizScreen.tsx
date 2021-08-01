@@ -19,6 +19,9 @@ import { Player } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { Loading, QuestionView } from '@app/components';
 import { useSockets } from './socket';
+import { useContext } from 'react';
+import { AlertContext } from '@app/context';
+import { useEffect } from 'react';
 
 interface Props {
 	navigation: StackNavigationProp<RootStackParamList, 'Quiz'>;
@@ -26,7 +29,6 @@ interface Props {
 }
 
 //FIXME: draw tabs below navigation bar
-//TODO: onBackpress show alert to leave game
 const QuizScreen: FC<Props> = ({ navigation, route }) => {
 	const { battleId, type } = route.params;
 	const {
@@ -47,6 +49,22 @@ const QuizScreen: FC<Props> = ({ navigation, route }) => {
 				withIcon: false
 			})
 	});
+	const Alert = useContext(AlertContext);
+
+	useEffect(() => {
+		navigation.addListener('beforeRemove', e => {
+			if (e.data.action.type === 'POP') {
+				e.preventDefault();
+
+				Alert.confirm({
+					title: 'Confirmation',
+					description: 'Are you sure you want to leave the match?',
+					positiveBtnTitle: 'Yes',
+					onSuccess: () => navigation.dispatch(e.data.action)
+				});
+			}
+		});
+	}, [navigation]);
 
 	const renderPlayer: ListRenderItem<Player> = ({
 		item: { _id, username, avatar }
