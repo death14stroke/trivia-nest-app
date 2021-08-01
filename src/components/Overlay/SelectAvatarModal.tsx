@@ -1,18 +1,14 @@
 import React, { FC, useState } from 'react';
 import {
 	FlatList,
-	View,
 	Image,
 	ListRenderItem,
 	TouchableOpacity,
-	StyleSheet,
-	PlatformColor,
-	Platform
+	StyleSheet
 } from 'react-native';
-import { Divider, Overlay, Text, Theme, useTheme } from 'react-native-elements';
-import { FontFamily } from '@app/theme';
+import { Theme, useTheme } from 'react-native-elements';
 import { BASE_URL } from '@app/api/client';
-import { Button } from '../Button';
+import Dialog from '../Dialog';
 
 interface Props {
 	open: boolean;
@@ -31,8 +27,7 @@ const SelectAvatarModal: FC<Props> = ({
 	onSuccess,
 	onCancel
 }) => {
-	const { theme } = useTheme();
-	const styles = useStyles(theme);
+	const styles = useStyles(useTheme().theme);
 	const [selected, setSelected] = useState<string>(defaultAvatar);
 
 	const renderAvatar: ListRenderItem<string> = ({ item }) => (
@@ -49,15 +44,8 @@ const SelectAvatarModal: FC<Props> = ({
 	);
 
 	return (
-		<Overlay
-			isVisible={open}
-			onBackdropPress={onBackdropPress}
-			transparent
-			overlayStyle={styles.overlay}>
-			<View style={styles.header}>
-				<Text style={styles.headerText}>Select avatar</Text>
-			</View>
-			<Divider orientation='horizontal' style={{ marginBottom: 8 }} />
+		<Dialog.Container visible={open} onBackdropPress={onBackdropPress}>
+			<Dialog.Title>Select avatar</Dialog.Title>
 			<FlatList
 				data={data}
 				keyExtractor={uri => uri}
@@ -65,25 +53,14 @@ const SelectAvatarModal: FC<Props> = ({
 				numColumns={3}
 				style={{ flexGrow: 0 }}
 			/>
-			<Divider orientation='horizontal' style={{ marginTop: 8 }} />
-			<View style={styles.buttonContainer}>
-				<Button.Text
-					title='Cancel'
-					titleStyle={styles.buttonTitle}
-					containerStyle={{ flex: 1, borderBottomStartRadius: 16 }}
-					buttonStyle={{ borderBottomStartRadius: 16 }}
-					onPress={onCancel}
-				/>
-				<Divider orientation='vertical' />
-				<Button.Text
+			<Dialog.ButtonContainer>
+				<Dialog.Button title='Cancel' onPress={onCancel} />
+				<Dialog.Button
 					title='OK'
-					titleStyle={styles.buttonTitle}
-					containerStyle={{ flex: 1, borderBottomEndRadius: 16 }}
-					buttonStyle={{ borderBottomEndRadius: 16 }}
 					onPress={() => onSuccess?.(selected)}
 				/>
-			</View>
-		</Overlay>
+			</Dialog.ButtonContainer>
+		</Dialog.Container>
 	);
 };
 
@@ -95,38 +72,7 @@ const useStyles = ({ colors }: Theme) =>
 			margin: 4,
 			borderRadius: 8
 		},
-		avatarSelected: { borderWidth: 4, borderColor: colors?.primary },
-		header: {
-			overflow: 'hidden',
-			borderTopLeftRadius: 16,
-			borderTopRightRadius: 16
-		},
-		headerText: {
-			fontSize: 20,
-			padding: 8,
-			color: 'black',
-			textAlign: 'center',
-			fontFamily: FontFamily.SemiBold
-		},
-		overlay: {
-			padding: 0,
-			borderRadius: 16,
-			elevation: 8,
-			shadowColor: colors?.grey1,
-			shadowOffset: { width: 0, height: 4 },
-			shadowOpacity: 0.8,
-			shadowRadius: 12,
-			...Platform.select({
-				ios: { backgroundColor: PlatformColor('systemGray6') },
-				android: { backgroundColor: 'rgb(242, 242, 247)' }
-			})
-		},
-		buttonContainer: {
-			flexDirection: 'row',
-			borderBottomLeftRadius: 16,
-			borderBottomRightRadius: 16
-		},
-		buttonTitle: { fontFamily: FontFamily.Bold }
+		avatarSelected: { borderWidth: 4, borderColor: colors?.primary }
 	});
 
 export { SelectAvatarModal };

@@ -112,7 +112,11 @@ const InviteFriendsModal: FC<Props> = ({
 					keyExtractor={player => player._id}
 					renderItem={renderFriendCard}
 					style={{ flex: 1 }}
-					contentContainerStyle={{ marginHorizontal: 4, flexGrow: 1 }}
+					contentContainerStyle={{
+						marginHorizontal: 4,
+						flexGrow: 1,
+						justifyContent: 'center'
+					}}
 					onEndReached={() => {
 						if (!isLoading) {
 							fetchNextPage();

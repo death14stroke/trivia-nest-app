@@ -8,6 +8,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import {
+	AlertProvider,
 	BadgeContext,
 	BadgeProvider,
 	ProfileProvider,
@@ -46,28 +47,37 @@ const mainStackScreens: FC = () => {
 		<ProfileProvider>
 			<SocketProvider>
 				<BadgeProvider>
-					<SplashScreen>
-						<Stack.Navigator screenOptions={{ headerShown: false }}>
-							<Stack.Screen name='Main' component={bottomTabs} />
-							<Stack.Screen
-								name='Results'
-								component={ResultsScreen}
-							/>
-							<Stack.Screen
-								name='Multiplayer'
-								component={MultiplayerRoomScreen}
-							/>
-							<Stack.Screen name='Quiz' component={QuizScreen} />
-							<Stack.Screen
-								name='MatchMaking'
-								component={MatchMakingScreen}
-							/>
-							<Stack.Screen
-								name='Practice'
-								component={PracticeScreen}
-							/>
-						</Stack.Navigator>
-					</SplashScreen>
+					<AlertProvider>
+						<SplashScreen>
+							<Stack.Navigator
+								screenOptions={{ headerShown: false }}>
+								<Stack.Screen
+									name='Main'
+									component={bottomTabs}
+								/>
+								<Stack.Screen
+									name='Results'
+									component={ResultsScreen}
+								/>
+								<Stack.Screen
+									name='Multiplayer'
+									component={MultiplayerRoomScreen}
+								/>
+								<Stack.Screen
+									name='Quiz'
+									component={QuizScreen}
+								/>
+								<Stack.Screen
+									name='MatchMaking'
+									component={MatchMakingScreen}
+								/>
+								<Stack.Screen
+									name='Practice'
+									component={PracticeScreen}
+								/>
+							</Stack.Navigator>
+						</SplashScreen>
+					</AlertProvider>
 				</BadgeProvider>
 			</SocketProvider>
 		</ProfileProvider>

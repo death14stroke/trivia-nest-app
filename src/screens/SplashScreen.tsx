@@ -1,9 +1,13 @@
 import React, { FC, useEffect, useContext } from 'react';
-import { Alert } from 'react-native';
 import { InfiniteData, useQueryClient } from 'react-query';
 import { useNavigation } from '@react-navigation/native';
 import _ from 'lodash';
-import { BadgeContext, ProfileContext, SocketContext } from '@app/context';
+import {
+	AlertContext,
+	BadgeContext,
+	ProfileContext,
+	SocketContext
+} from '@app/context';
 import { Invite, Query, SocketEvent } from '@app/models';
 
 const SplashScreen: FC = ({ children }) => {
@@ -23,6 +27,7 @@ const SplashScreen: FC = ({ children }) => {
 		state: { invites, friends },
 		actions: { updateInvitesBadge, updateFriendsBadge }
 	} = useContext(BadgeContext);
+	const Alert = useContext(AlertContext);
 
 	useEffect(() => {
 		socket?.on(SocketEvent.USER_UPDATE, ({ uid, status }) => {
@@ -33,14 +38,12 @@ const SplashScreen: FC = ({ children }) => {
 		socket?.on(
 			SocketEvent.INVITE_MULTIPLAYER_ROOM,
 			({ roomId, player }) => {
-				Alert.alert('Room invite', `${player.username} invited you`, [
-					{ text: 'Cancel', style: 'cancel' },
-					{
-						text: 'Join',
-						onPress: () => joinRoom(roomId),
-						style: 'default'
-					}
-				]);
+				Alert.show({
+					title: 'Room invite',
+					description: `${player.username} invited you`,
+					positiveBtnTitle: 'Join',
+					onSuccess: () => joinRoom(roomId)
+				});
 			}
 		);
 

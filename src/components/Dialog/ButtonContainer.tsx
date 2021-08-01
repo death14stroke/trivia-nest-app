@@ -1,0 +1,39 @@
+import React, { FC } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Divider, useTheme } from 'react-native-elements';
+
+const ButtonContainer: FC = ({ children }) => {
+	const {
+		theme: { colors }
+	} = useTheme();
+
+	const buttonsWithSeparators: any[] = [];
+	React.Children.forEach(children, child => {
+		if (!child) {
+			return;
+		}
+
+		buttonsWithSeparators.push(
+			child,
+			<Divider orientation='vertical' color={colors?.grey2} />
+		);
+	});
+
+	return (
+		<View style={styles.buttonContainer}>
+			{buttonsWithSeparators.slice(0, -1)}
+		</View>
+	);
+};
+
+ButtonContainer.displayName = 'DialogButtonContainer';
+
+const styles = StyleSheet.create({
+	buttonContainer: {
+		flexDirection: 'row',
+		borderBottomLeftRadius: 16,
+		borderBottomRightRadius: 16
+	}
+});
+
+export { ButtonContainer };

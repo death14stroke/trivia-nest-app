@@ -43,6 +43,8 @@ const PracticeScreen: FC<Props> = ({ navigation }) => {
 		}, 1000);
 	};
 
+	//TODO: replace all Alert.alert()
+	//TODO: use react-native-dialog in avatar and invite overlay
 	const nextQuestion = () => {
 		if (position < questions.length - 1) {
 			setCorrectAnswer(undefined);
