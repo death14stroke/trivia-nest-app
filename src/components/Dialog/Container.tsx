@@ -45,7 +45,7 @@ const Container: FC<Props> = ({
 		}
 	});
 
-	console.log('Dialog container rendered:', titleChildren);
+	//console.log('Dialog container rendered:', titleChildren);
 
 	return (
 		<Overlay
