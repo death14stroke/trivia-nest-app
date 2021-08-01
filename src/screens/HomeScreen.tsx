@@ -22,7 +22,7 @@ import { ProfileContext } from '@app/context';
 import { CurrentUser, IntroMode, Mode, Query } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { apiGetAvatars, apiUpdateUserProfile } from '@app/api/users';
-import { IntroCard, SelectAvatarModal } from '@app/components';
+import { IntroCard, SelectAvatarModal, SettingsModal } from '@app/components';
 
 const modes: IntroMode[] = [
 	{
@@ -66,6 +66,7 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 		actions: { updateProfile }
 	} = useContext(ProfileContext);
 	const [avatarModal, setAvatarModal] = useState(false);
+	const [settingsModal, setSettingsModal] = useState(false);
 
 	const { data: avatars, isLoading } = useQuery<string[]>(
 		Query.AVATARS,
@@ -105,6 +106,8 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 	});
 
 	const toggleAvatarModal = () => setAvatarModal(!avatarModal);
+
+	const toggleSettingsModal = () => setSettingsModal(!settingsModal);
 
 	const navigateToGame = (key: Mode) => {
 		if (key === '1v1') {
@@ -158,6 +161,12 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 							{user?.coins}
 						</Text>
 					</View>
+					<Icon
+						type='ionicon'
+						name='settings'
+						onPress={toggleSettingsModal}
+						containerStyle={{ marginEnd: 12 }}
+					/>
 				</View>
 				<Carousel
 					data={modes}
@@ -181,6 +190,10 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 						mutate({ avatar });
 						toggleAvatarModal();
 					}}
+				/>
+				<SettingsModal
+					open={settingsModal}
+					onBackdropPress={toggleSettingsModal}
 				/>
 			</SafeAreaView>
 		</ImageBackground>
