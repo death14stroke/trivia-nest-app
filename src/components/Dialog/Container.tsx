@@ -1,5 +1,5 @@
 import React, { FC, NamedExoticComponent, ReactElement } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { Divider, Overlay, Theme, useTheme } from 'react-native-elements';
 import { BlurView } from '@react-native-community/blur';
 
@@ -7,12 +7,14 @@ interface Props {
 	visible?: boolean;
 	onBackdropPress?: () => void;
 	children: ReactElement<any, NamedExoticComponent>[];
+	style?: StyleProp<ViewStyle>;
 }
 
 const Container: FC<Props> = ({
 	children,
 	visible = false,
-	onBackdropPress
+	onBackdropPress,
+	style
 }) => {
 	const { theme } = useTheme();
 	const styles = useStyles(theme);
@@ -43,7 +45,7 @@ const Container: FC<Props> = ({
 			isVisible={visible}
 			onBackdropPress={onBackdropPress}
 			transparent
-			overlayStyle={styles.overlay}>
+			overlayStyle={[styles.overlay, style]}>
 			<BlurView
 				blurType='xlight'
 				blurAmount={50}

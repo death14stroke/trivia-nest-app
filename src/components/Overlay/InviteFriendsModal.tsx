@@ -1,23 +1,13 @@
 import React, { FC, useContext } from 'react';
-import {
-	FlatList,
-	Platform,
-	PlatformColor,
-	StyleSheet,
-	View,
-	ListRenderItem
-} from 'react-native';
-import { Divider, Overlay, Text, Theme, useTheme } from 'react-native-elements';
+import { FlatList, StyleSheet, View, ListRenderItem } from 'react-native';
 import { useInfiniteQuery } from 'react-query';
 import LottieView from 'lottie-react-native';
 import _ from 'lodash';
-import { FontFamily } from '@app/theme';
 import { ProfileContext } from '@app/context';
 import { Player, Query, UserStatus } from '@app/models';
 import { apiGetFriends } from '@app/api/users';
-import { Button } from '../Button';
 import { AvailableFriendsCard, ListItem } from '../ListItem';
-import Loading from '../Loading';
+import Dialog from '../Dialog';
 
 const PAGE_SIZE = 25;
 
@@ -36,7 +26,6 @@ const InviteFriendsModal: FC<Props> = ({
 	onBackdropPress,
 	onInviteFriend
 }) => {
-	const styles = useStyles(useTheme().theme);
 	const {
 		state: { friends }
 	} = useContext(ProfileContext);
@@ -89,15 +78,11 @@ const InviteFriendsModal: FC<Props> = ({
 		.value();
 
 	return (
-		<Overlay
-			isVisible={open}
+		<Dialog.Container
+			visible={open}
 			onBackdropPress={onBackdropPress}
-			transparent
-			overlayStyle={styles.overlay}>
-			<View style={styles.header}>
-				<Text style={styles.headerText}>Invite Friends</Text>
-			</View>
-			<Divider orientation='horizontal' style={{ marginBottom: 8 }} />
+			style={{ width: '90%' }}>
+			<Dialog.Title>Invite Friends</Dialog.Title>
 			{isLoading && friendsList.length === 0 ? (
 				<View style={styles.lottieContainer}>
 					<LottieView
@@ -111,73 +96,30 @@ const InviteFriendsModal: FC<Props> = ({
 					data={friendsList}
 					keyExtractor={player => player._id}
 					renderItem={renderFriendCard}
-					style={{ flex: 1 }}
-					contentContainerStyle={{
-						marginHorizontal: 4,
-						flexGrow: 1,
-						justifyContent: 'center'
-					}}
+					contentContainerStyle={{ marginHorizontal: 4 }}
 					onEndReached={() => {
 						if (!isLoading) {
 							fetchNextPage();
 						}
 					}}
-					ListEmptyComponent={renderEmptyCard()}
+					ListEmptyComponent={renderEmptyCard}
 					ListFooterComponent={renderLoadingFooter()}
 				/>
 			)}
-			<Divider orientation='horizontal' style={{ marginTop: 8 }} />
-			<View style={styles.buttonContainer}>
-				<Button.Text
-					title='Done'
-					titleStyle={styles.buttonTitle}
-					onPress={onBackdropPress}
-				/>
-			</View>
-		</Overlay>
+			<Dialog.ButtonContainer>
+				<Dialog.Button title='Cancel' onPress={onBackdropPress} />
+			</Dialog.ButtonContainer>
+		</Dialog.Container>
 	);
 };
 
-const useStyles = ({ colors }: Theme) =>
-	StyleSheet.create({
-		overlay: {
-			minHeight: '25%',
-			padding: 0,
-			borderRadius: 16,
-			elevation: 8,
-			shadowColor: colors?.grey1,
-			shadowOffset: { width: 0, height: 4 },
-			shadowOpacity: 0.8,
-			shadowRadius: 12,
-			width: '90%',
-			...Platform.select({
-				ios: { backgroundColor: PlatformColor('systemGray6') },
-				android: { backgroundColor: 'rgb(242, 242, 247)' }
-			})
-		},
-		header: {
-			overflow: 'hidden',
-			borderTopLeftRadius: 16,
-			borderTopRightRadius: 16
-		},
-		headerText: {
-			fontSize: 20,
-			padding: 8,
-			color: 'black',
-			textAlign: 'center',
-			fontFamily: FontFamily.SemiBold
-		},
-		buttonContainer: {
-			borderBottomLeftRadius: 16,
-			borderBottomRightRadius: 16
-		},
-		buttonTitle: { fontFamily: FontFamily.Bold },
-		lottie: { height: 50, aspectRatio: 1 },
-		lottieContainer: {
-			flex: 1,
-			justifyContent: 'center',
-			alignItems: 'center'
-		}
-	});
+const styles = StyleSheet.create({
+	lottie: { height: 50, aspectRatio: 1 },
+	lottieContainer: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center'
+	}
+});
 
 export { InviteFriendsModal };
