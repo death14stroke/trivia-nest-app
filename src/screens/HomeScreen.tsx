@@ -11,6 +11,7 @@ import { Avatar, Icon, Text } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Carousel from 'react-native-snap-carousel';
 import { RNToasty } from 'react-native-toasty';
+import SplashScreen from 'react-native-splash-screen';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -21,7 +22,7 @@ import { ProfileContext } from '@app/context';
 import { CurrentUser, IntroMode, Mode, Query } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { apiGetAvatars, apiUpdateUserProfile } from '@app/api/users';
-import { IntroCard, Loading, SelectAvatarModal } from '@app/components';
+import { IntroCard, SelectAvatarModal } from '@app/components';
 
 const modes: IntroMode[] = [
 	{
@@ -125,8 +126,11 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 	);
 
 	if (isLoading) {
-		return <Loading />;
+		return null;
 	}
+
+	console.log('hiding splash screen');
+	SplashScreen.hide();
 
 	return (
 		<ImageBackground

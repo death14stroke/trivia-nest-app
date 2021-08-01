@@ -10,7 +10,6 @@ import {
 } from '@app/context';
 import { Invite, Query, Response, SocketEvent } from '@app/models';
 
-//TODO: add splash screen (AppLoading)
 const SplashScreen: FC = ({ children }) => {
 	const navigation = useNavigation();
 	const queryClient = useQueryClient();

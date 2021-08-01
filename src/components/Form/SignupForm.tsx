@@ -2,6 +2,7 @@ import React, { FC, useState } from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { Avatar, Text, Theme, useTheme } from 'react-native-elements';
 import { RNToasty } from 'react-native-toasty';
+import SplashScreen from 'react-native-splash-screen';
 import { useMutation, useQuery } from 'react-query';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -69,6 +70,8 @@ const SignupForm: FC = () => {
 	if (isLoadingAvatars || avatars === undefined) {
 		return null;
 	}
+
+	SplashScreen.hide();
 
 	return (
 		<Formik
