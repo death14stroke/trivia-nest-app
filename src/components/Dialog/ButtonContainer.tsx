@@ -1,8 +1,12 @@
-import React, { FC } from 'react';
+import React, { FC, memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Divider, useTheme } from 'react-native-elements';
 
-const ButtonContainer: FC = ({ children }) => {
+interface Props {
+	children: Element[];
+}
+
+const ButtonContainer: FC<Props> = ({ children }) => {
 	const {
 		theme: { colors }
 	} = useTheme();
@@ -36,4 +40,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export { ButtonContainer };
+export default memo(
+	ButtonContainer,
+	(prevProps, nextProps) => prevProps.children === nextProps.children
+);

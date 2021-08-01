@@ -1,9 +1,13 @@
-import React, { FC } from 'react';
+import React, { FC, memo } from 'react';
 import { StyleSheet } from 'react-native';
 import { Text } from 'react-native-elements';
 import { FontFamily } from '@app/theme';
 
-const Title: FC = ({ children }) => {
+interface Props {
+	children: string;
+}
+
+const Title: FC<Props> = ({ children }) => {
 	return <Text style={styles.text}>{children}</Text>;
 };
 
@@ -19,4 +23,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export { Title };
+export default memo(
+	Title,
+	(prevProps, nextProps) => prevProps.children === nextProps.children
+);

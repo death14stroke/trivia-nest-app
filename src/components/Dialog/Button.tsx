@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, memo } from 'react';
 import { StyleSheet } from 'react-native';
 import { FontFamily } from '@app/theme';
 import { Button as CustomButton } from '../Button';
@@ -25,4 +25,9 @@ const styles = StyleSheet.create({
 	buttonTitle: { fontFamily: FontFamily.Bold }
 });
 
-export { Button };
+export default memo(
+	Button,
+	(prevProps, nextProps) =>
+		prevProps.title === nextProps.title &&
+		prevProps.onPress === nextProps.onPress
+);

@@ -1,8 +1,7 @@
-import React, { FC, NamedExoticComponent, ReactElement } from 'react';
+import React, { FC, memo, NamedExoticComponent, ReactElement } from 'react';
 import { StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { Divider, Overlay, Theme, useTheme } from 'react-native-elements';
 import { BlurView } from '@react-native-community/blur';
-import { memo } from 'react';
 
 interface Props {
 	visible?: boolean;
