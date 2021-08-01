@@ -21,7 +21,7 @@ import { ProfileContext } from '@app/context';
 import { CurrentUser, IntroMode, Mode, Query } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { apiGetAvatars, apiUpdateUserProfile } from '@app/api/users';
-import { IntroCard, SelectAvatarModal } from '@app/components';
+import { IntroCard, Loading, SelectAvatarModal } from '@app/components';
 
 const modes: IntroMode[] = [
 	{
@@ -66,9 +66,11 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 	} = useContext(ProfileContext);
 	const [avatarModal, setAvatarModal] = useState(false);
 
-	const { data: avatars } = useQuery<string[]>(Query.AVATARS, apiGetAvatars, {
-		staleTime: Infinity
-	});
+	const { data: avatars, isLoading } = useQuery<string[]>(
+		Query.AVATARS,
+		apiGetAvatars,
+		{ staleTime: Infinity }
+	);
 
 	const { mutate } = useMutation<
 		unknown,
@@ -122,6 +124,10 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 		/>
 	);
 
+	if (isLoading) {
+		return <Loading />;
+	}
+
 	return (
 		<ImageBackground
 			source={require('@assets/background.jpg')}
@@ -165,7 +171,7 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 				<SelectAvatarModal
 					open={avatarModal}
 					data={avatars ?? []}
-					defaultAvatar={user?.avatar}
+					defaultAvatar={user!.avatar}
 					onCancel={toggleAvatarModal}
 					onSuccess={avatar => {
 						mutate({ avatar });

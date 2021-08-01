@@ -2,6 +2,7 @@ import React, { FC, NamedExoticComponent, ReactElement } from 'react';
 import { StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { Divider, Overlay, Theme, useTheme } from 'react-native-elements';
 import { BlurView } from '@react-native-community/blur';
+import { memo } from 'react';
 
 interface Props {
 	visible?: boolean;
@@ -45,7 +46,7 @@ const Container: FC<Props> = ({
 		}
 	});
 
-	//console.log('Dialog container rendered:');
+	console.log('Dialog container rendered:', titleChildren);
 
 	return (
 		<Overlay
@@ -84,4 +85,9 @@ const useStyles = ({ colors }: Theme) =>
 		}
 	});
 
-export { Container };
+export default memo(
+	Container,
+	(prevProps, nextProps) =>
+		prevProps.visible === nextProps.visible &&
+		prevProps.children === nextProps.children
+);

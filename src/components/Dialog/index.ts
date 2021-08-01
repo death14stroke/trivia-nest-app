@@ -1,6 +1,6 @@
 import { Button } from './Button';
 import { ButtonContainer } from './ButtonContainer';
-import { Container } from './Container';
+import Container from './Container';
 import { Description } from './Description';
 import { Title } from './Title';
 

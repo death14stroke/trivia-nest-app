@@ -8,9 +8,9 @@ import {
 	ProfileContext,
 	SocketContext
 } from '@app/context';
-import { Invite, Query, SocketEvent } from '@app/models';
+import { Invite, Query, Response, SocketEvent } from '@app/models';
 
-//FIXME: invite friend, leave the room before friend joins. Desired behaviour: User should get 'Room does not exist' error
+//TODO: add splash screen (AppLoading)
 const SplashScreen: FC = ({ children }) => {
 	const navigation = useNavigation();
 	const queryClient = useQueryClient();
@@ -47,10 +47,6 @@ const SplashScreen: FC = ({ children }) => {
 				});
 			}
 		);
-
-		socket?.on(SocketEvent.JOIN_MULTIPLAYER_ROOM, roomId => {
-			navigation.navigate('Multiplayer', { roomId });
-		});
 
 		socket?.on(SocketEvent.FRIEND_REQUEST, ({ player, time }) => {
 			updateInvitesBadge(invites + 1);
@@ -97,7 +93,22 @@ const SplashScreen: FC = ({ children }) => {
 	}, [socket]);
 
 	const joinRoom = (roomId: string) => {
-		socket?.emit(SocketEvent.JOIN_MULTIPLAYER_ROOM, roomId);
+		socket?.emit(
+			SocketEvent.JOIN_MULTIPLAYER_ROOM,
+			roomId,
+			(resp: Response) => {
+				if (resp.status === 'error') {
+					Alert.alert({
+						title: 'Error',
+						description: resp.message,
+						positiveBtnTitle: 'OK'
+					});
+					return;
+				}
+
+				navigation.navigate('Multiplayer', { roomId });
+			}
+		);
 	};
 
 	return <>{children}</>;
