@@ -132,7 +132,6 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 		return null;
 	}
 
-	console.log('hiding splash screen');
 	SplashScreen.hide();
 
 	return (

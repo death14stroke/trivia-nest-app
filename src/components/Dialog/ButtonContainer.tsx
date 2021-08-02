@@ -12,14 +12,18 @@ const ButtonContainer: FC<Props> = ({ children }) => {
 	} = useTheme();
 
 	const buttonsWithSeparators: any[] = [];
-	React.Children.forEach(children, child => {
+	React.Children.forEach(children, (child, index) => {
 		if (!child) {
 			return;
 		}
 
 		buttonsWithSeparators.push(
 			child,
-			<Divider orientation='vertical' color={colors?.grey2} />
+			<Divider
+				orientation='vertical'
+				color={colors?.grey2}
+				key={`divider_${index}`}
+			/>
 		);
 	});
 

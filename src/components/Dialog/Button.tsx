@@ -11,6 +11,7 @@ interface Props {
 const Button: FC<Props> = ({ title, onPress }) => {
 	return (
 		<CustomButton.Text
+			key={title}
 			title={title}
 			titleStyle={styles.buttonTitle}
 			containerStyle={styles.container}

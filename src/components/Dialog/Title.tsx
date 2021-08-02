@@ -11,7 +11,7 @@ interface Props {
 
 const Title: FC<Props> = ({ children, showCloseIcon, onClose }) => {
 	return (
-		<View style={styles.root}>
+		<View style={styles.root} key='title'>
 			<Text style={styles.text}>{children}</Text>
 			{showCloseIcon && (
 				<Icon

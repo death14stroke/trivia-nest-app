@@ -10,7 +10,6 @@ interface Props {
 	style?: StyleProp<ViewStyle>;
 }
 
-//TODO: optimize rendering
 const Container: FC<Props> = ({
 	children,
 	visible = false,
@@ -44,8 +43,6 @@ const Container: FC<Props> = ({
 			otherChildren.push(child);
 		}
 	});
-
-	//console.log('Dialog container rendered:', titleChildren);
 
 	return (
 		<Overlay
