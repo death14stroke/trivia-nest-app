@@ -1,5 +1,11 @@
 import React, { FC } from 'react';
-import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import {
+	View,
+	StyleSheet,
+	TouchableOpacity,
+	Dimensions,
+	Platform
+} from 'react-native';
 import Animated, {
 	useAnimatedStyle,
 	useSharedValue,
@@ -31,7 +37,11 @@ const BottomTabBar: FC<BottomTabBarProps> = ({
 	}));
 
 	return (
-		<View style={styles.tabContainer}>
+		<View
+			style={[
+				styles.tabContainer,
+				{ paddingBottom: Platform.OS === 'ios' ? bottom : 8 }
+			]}>
 			<Animated.View
 				style={[
 					styles.slider,
@@ -80,12 +90,7 @@ const BottomTabBar: FC<BottomTabBarProps> = ({
 						testID={options.tabBarTestID}
 						onPress={onPress}
 						onLongPress={onLongPress}
-						style={{
-							flex: 1,
-							marginBottom: bottom,
-							paddingTop: 4,
-							justifyContent: 'center'
-						}}>
+						style={styles.tab}>
 						<BottomMenuItem
 							icon={tabBarIcon?.({
 								color: 'white',
@@ -103,10 +108,8 @@ const BottomTabBar: FC<BottomTabBarProps> = ({
 };
 
 const styles = StyleSheet.create({
-	tabContainer: {
-		flexDirection: 'row',
-		backgroundColor: Colors.daisyBush
-	},
+	tabContainer: { flexDirection: 'row', backgroundColor: Colors.daisyBush },
+	tab: { flex: 1, paddingTop: 4, justifyContent: 'center' },
 	slider: {
 		position: 'absolute',
 		top: 0,

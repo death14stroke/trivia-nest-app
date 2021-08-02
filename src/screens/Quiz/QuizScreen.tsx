@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useContext, useEffect } from 'react';
 import {
 	ImageBackground,
 	ListRenderItem,
@@ -15,20 +15,17 @@ import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@app/navigation';
 import { Colors } from '@app/theme';
+import { AlertContext } from '@app/context';
 import { Player } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { Loading, QuestionView } from '@app/components';
 import { useSockets } from './socket';
-import { useContext } from 'react';
-import { AlertContext } from '@app/context';
-import { useEffect } from 'react';
 
 interface Props {
 	navigation: StackNavigationProp<RootStackParamList, 'Quiz'>;
 	route: RouteProp<RootStackParamList, 'Quiz'>;
 }
 
-//FIXME: draw tabs below navigation bar
 const QuizScreen: FC<Props> = ({ navigation, route }) => {
 	const { battleId, type } = route.params;
 	const {
@@ -125,9 +122,7 @@ const styles = StyleSheet.create({
 		padding: 12,
 		justifyContent: 'space-between',
 		...Platform.select({
-			android: {
-				paddingTop: (StatusBar.currentHeight ?? 0) + 4
-			}
+			android: { paddingTop: (StatusBar.currentHeight ?? 0) + 4 }
 		})
 	},
 	avatar: { borderRadius: 12 },
