@@ -200,15 +200,11 @@ const Provider: FC = ({ children }) => {
 	const [state, dispatch] = useReducer(profileReducer, INITIAL_VALUE);
 	const queryClient = useQueryClient();
 
-	//TODO: fix NPE on logout
 	const { refetch } = useQuery<CurrentUser>('me', apiCurrentUser, {
 		onSuccess: user => {
 			dispatch({ type: 'fetch_profile', payload: user });
-			queryClient.invalidateQueries({
-				predicate: q => q.queryKey[0] !== 'me'
-			});
 		},
-		staleTime: Infinity
+		enabled: false
 	});
 
 	useEffect(() => {
@@ -217,6 +213,7 @@ const Provider: FC = ({ children }) => {
 			if (!user) {
 				dispatch({ type: 'fetch_profile', payload: null });
 			} else {
+				queryClient.invalidateQueries();
 				await refetch();
 			}
 		});

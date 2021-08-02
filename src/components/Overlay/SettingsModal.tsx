@@ -4,6 +4,7 @@ import { AlertContext } from '@app/context';
 import { signOutUser } from '@app/hooks/auth';
 import { Button } from '../Button';
 import Dialog from '../Dialog';
+import { useNavigation } from '@react-navigation/native';
 
 interface Props {
 	open?: boolean;
@@ -11,11 +12,13 @@ interface Props {
 }
 
 const SettingsModal: FC<Props> = ({ open, onBackdropPress }) => {
+	const navigation = useNavigation();
 	const Alert = useContext(AlertContext);
 
 	const logout = async () => {
 		try {
 			signOutUser();
+			navigation.reset({ index: 0, routes: [{ name: 'Signup' }] });
 		} catch (err) {
 			console.error(err);
 			Alert.alert({

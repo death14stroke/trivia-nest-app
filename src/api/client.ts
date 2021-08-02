@@ -8,6 +8,7 @@ const client = axios.create({ baseURL: BASE_URL });
 
 client.interceptors.request.use(
 	async config => {
+		console.log('axios request:', config.url, config.params);
 		const token = await useCurrentUser()?.getIdToken();
 		if (token) {
 			config.headers.Authorization = `Bearer ${token}`;

@@ -21,7 +21,6 @@ LogBox.ignoreLogs(['Setting a timer', 'Constants.']);
 
 const queryClient = new QueryClient();
 
-//TODO: add signout button
 const App: FC = () => {
 	let [fontsLoaded] = useFonts({
 		Nunito_200ExtraLight,

@@ -12,14 +12,16 @@ type ContextValue = Socket | undefined;
 const Context = createContext<ContextValue>(undefined!);
 
 const Provider: FC = ({ children }) => {
-	const user = useCurrentUser()!;
+	const user = useCurrentUser();
 	const {
 		actions: { updateFriends }
 	} = useContext(ProfileContext);
 	const socket = useRef<Socket>();
 
 	useEffect(() => {
-		init(user);
+		if (user) {
+			init(user);
+		}
 
 		socket.current?.once(SocketEvent.RELATIONS, (relations: Relation[]) => {
 			updateFriends(relations);
@@ -28,7 +30,7 @@ const Provider: FC = ({ children }) => {
 		return () => {
 			socket.current?.disconnect();
 		};
-	}, [user.uid]);
+	}, [user?.uid]);
 
 	const init = async (user?: FirebaseAuthTypes.User) => {
 		const token = await user?.getIdToken();

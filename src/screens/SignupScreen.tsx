@@ -29,7 +29,12 @@ const SignupScreen: FC = () => {
 
 	return (
 		<SafeAreaView style={styles.root}>
-			<ScrollView alwaysBounceVertical={false}>
+			<ScrollView
+				alwaysBounceVertical={false}
+				contentContainerStyle={{
+					justifyContent: 'space-between',
+					flexGrow: 1
+				}}>
 				<KeyboardAvoidingView
 					style={{ flex: 1 }}
 					contentContainerStyle={styles.contentContainer}
