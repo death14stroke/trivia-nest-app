@@ -18,7 +18,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { BottomTabParamList, RootStackParamList } from '@app/navigation';
 import { FontFamily } from '@app/theme';
-import { ProfileContext } from '@app/context';
+import { ProfileContext, SoundContext } from '@app/context';
 import { CurrentUser, IntroMode, Mode, Query } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { apiGetAvatars, apiUpdateUserProfile } from '@app/api/users';
@@ -65,6 +65,7 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 		state: user,
 		actions: { updateProfile }
 	} = useContext(ProfileContext);
+	const { playButtonSound } = useContext(SoundContext);
 	const [avatarModal, setAvatarModal] = useState(false);
 	const [settingsModal, setSettingsModal] = useState(false);
 
@@ -145,7 +146,10 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 						source={{ uri: BASE_URL + user?.avatar }}
 						containerStyle={styles.avatar}
 						avatarStyle={styles.avatar}
-						onPress={toggleAvatarModal}
+						onPress={async () => {
+							toggleAvatarModal();
+							await playButtonSound();
+						}}
 					/>
 					<View style={styles.nameContainer}>
 						<Text style={styles.username}>{user?.username}</Text>
@@ -163,7 +167,10 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 					<Icon
 						type='ionicon'
 						name='settings'
-						onPress={toggleSettingsModal}
+						onPress={async () => {
+							toggleSettingsModal();
+							await playButtonSound();
+						}}
 						containerStyle={{ marginEnd: 12 }}
 					/>
 				</View>

@@ -21,7 +21,6 @@ LogBox.ignoreLogs(['Setting a timer', 'Constants.']);
 
 const queryClient = new QueryClient();
 
-//TODO: sound on button click
 //TODO: game sound
 const App: FC = () => {
 	let [fontsLoaded] = useFonts({

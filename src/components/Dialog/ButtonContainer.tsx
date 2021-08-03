@@ -1,4 +1,4 @@
-import React, { FC, memo } from 'react';
+import React, { FC, FunctionComponent, memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Divider, useTheme } from 'react-native-elements';
 
@@ -6,7 +6,7 @@ interface Props {
 	children: Element[];
 }
 
-const ButtonContainer: FC<Props> = ({ children }) => {
+const ButtonContainer: FunctionComponent<Props> = ({ children }) => {
 	const {
 		theme: { colors }
 	} = useTheme();
@@ -44,7 +44,10 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default memo(
+const Component = memo(
 	ButtonContainer,
 	(prevProps, nextProps) => prevProps.children === nextProps.children
 );
+Component.displayName = 'DialogButtonContainer';
+
+export default Component;

@@ -44,7 +44,7 @@ const SettingsModal: FC<Props> = ({ open, onBackdropPress }) => {
 };
 
 const styles = StyleSheet.create({
-	root: { width: '75%' },
+	root: { width: '75%', paddingBottom: 12 },
 	buttonContainer: { marginHorizontal: 12 }
 });
 

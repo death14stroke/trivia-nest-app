@@ -12,7 +12,8 @@ import {
 	BadgeContext,
 	BadgeProvider,
 	ProfileProvider,
-	SocketProvider
+	SocketProvider,
+	SoundProvider
 } from '@app/context';
 import { AppNativeTheme, AppNavigationTheme } from '@app/theme';
 import {
@@ -182,18 +183,23 @@ const NavigationProvider: FC = () => {
 
 	return (
 		<ThemeProvider theme={AppNativeTheme} useDark>
-			<NavigationContainer theme={AppNavigationTheme}>
-				<StatusBar barStyle='light-content' />
-				<AppStack.Navigator
-					initialRouteName={getInitialRoute()}
-					screenOptions={{ headerShown: false }}>
-					<AppStack.Screen name='Signup' component={SignupScreen} />
-					<AppStack.Screen
-						name='mainFlow'
-						component={mainStackScreens}
-					/>
-				</AppStack.Navigator>
-			</NavigationContainer>
+			<SoundProvider>
+				<NavigationContainer theme={AppNavigationTheme}>
+					<StatusBar barStyle='light-content' />
+					<AppStack.Navigator
+						initialRouteName={getInitialRoute()}
+						screenOptions={{ headerShown: false }}>
+						<AppStack.Screen
+							name='Signup'
+							component={SignupScreen}
+						/>
+						<AppStack.Screen
+							name='mainFlow'
+							component={mainStackScreens}
+						/>
+					</AppStack.Navigator>
+				</NavigationContainer>
+			</SoundProvider>
 		</ThemeProvider>
 	);
 };

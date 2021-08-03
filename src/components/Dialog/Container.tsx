@@ -26,6 +26,7 @@ const Container: FC<Props> = ({
 	const otherChildren: ReactElement<any, NamedExoticComponent>[] = [];
 	React.Children.forEach(children, child => {
 		const { name, displayName } = child.type;
+		//FIXME: displayname not working
 
 		if (
 			name === 'DialogTitle' ||
@@ -57,11 +58,13 @@ const Container: FC<Props> = ({
 			/>
 			{titleChildren}
 			{otherChildren}
-			<Divider
-				orientation='horizontal'
-				style={{ marginTop: 8 }}
-				color={colors?.grey2}
-			/>
+			{buttonContainerChildren.length > 0 && (
+				<Divider
+					orientation='horizontal'
+					style={{ marginTop: 8 }}
+					color={colors?.grey2}
+				/>
+			)}
 			{buttonContainerChildren}
 		</Overlay>
 	);

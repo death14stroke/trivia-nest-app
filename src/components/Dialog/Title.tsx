@@ -1,4 +1,4 @@
-import React, { FC, memo } from 'react';
+import React, { FC, FunctionComponent, memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Icon, Text } from 'react-native-elements';
 import { FontFamily } from '@app/theme';
@@ -9,7 +9,11 @@ interface Props {
 	onClose?: () => void;
 }
 
-const Title: FC<Props> = ({ children, showCloseIcon, onClose }) => {
+const Title: FunctionComponent<Props> = ({
+	children,
+	showCloseIcon,
+	onClose
+}) => {
 	return (
 		<View style={styles.root} key='title'>
 			<Text style={styles.text}>{children}</Text>
@@ -25,8 +29,6 @@ const Title: FC<Props> = ({ children, showCloseIcon, onClose }) => {
 		</View>
 	);
 };
-
-Title.displayName = 'DialogTitle';
 
 const styles = StyleSheet.create({
 	root: { flexDirection: 'row', alignItems: 'center' },
@@ -49,7 +51,10 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default memo(
+const Component = memo(
 	Title,
 	(prevProps, nextProps) => prevProps.children === nextProps.children
 );
+Component.displayName = 'DialogTitle';
+
+export default Component;
