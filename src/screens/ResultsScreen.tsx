@@ -4,7 +4,8 @@ import {
 	ImageBackground,
 	ListRenderItem,
 	View,
-	StyleSheet
+	StyleSheet,
+	ActivityIndicator
 } from 'react-native';
 import { Text, useTheme, Avatar, Badge } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -64,6 +65,7 @@ const ResultsScreen: FC<Props> = ({ route, navigation }) => {
 						rounded
 						source={{ uri: BASE_URL + winner.player.avatar }}
 						avatarStyle={isPlayerWinner ? styles.avatarWinner : {}}
+						renderPlaceholderContent={<ActivityIndicator />}
 					/>
 					<Badge
 						value={winner.score}
@@ -90,6 +92,7 @@ const ResultsScreen: FC<Props> = ({ route, navigation }) => {
 							size='small'
 							source={require('@assets/coins.png')}
 							containerStyle={{ marginStart: 4 }}
+							renderPlaceholderContent={<ActivityIndicator />}
 						/>
 					</View>
 				</View>

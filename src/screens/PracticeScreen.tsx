@@ -1,5 +1,6 @@
 import React, { FC, useState, useContext } from 'react';
 import {
+	ActivityIndicator,
 	ImageBackground,
 	Platform,
 	SafeAreaView,
@@ -66,6 +67,7 @@ const PracticeScreen: FC<Props> = ({ navigation }) => {
 					size='large'
 					source={{ uri: BASE_URL + avatar }}
 					avatarStyle={styles.avatar}
+					renderPlaceholderContent={<ActivityIndicator />}
 				/>
 				<Text style={styles.username}>{username}</Text>
 			</View>

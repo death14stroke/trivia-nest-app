@@ -1,5 +1,12 @@
 import React, { FC } from 'react';
-import { Text, View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import {
+	Text,
+	View,
+	StyleSheet,
+	StyleProp,
+	ViewStyle,
+	ActivityIndicator
+} from 'react-native';
 import { Avatar, Badge, Icon, Theme, useTheme } from 'react-native-elements';
 import LottieView from 'lottie-react-native';
 import { Colors, FontFamily } from '@app/theme';
@@ -40,6 +47,7 @@ const AvailableFriendsCard: FC<Props> = ({
 					rounded
 					size='medium'
 					source={{ uri: BASE_URL + avatar }}
+					renderPlaceholderContent={<ActivityIndicator />}
 				/>
 				<Badge badgeStyle={[styles.badge, badgeStyle]} />
 			</View>

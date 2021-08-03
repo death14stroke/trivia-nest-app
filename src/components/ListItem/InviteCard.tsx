@@ -1,5 +1,11 @@
 import React, { FC } from 'react';
-import { StyleSheet, View, ViewStyle, StyleProp } from 'react-native';
+import {
+	StyleSheet,
+	View,
+	ViewStyle,
+	StyleProp,
+	ActivityIndicator
+} from 'react-native';
 import { Text, Avatar, Icon, useTheme, Theme } from 'react-native-elements';
 import { LinearGradient } from 'expo-linear-gradient';
 import { formatDistance } from 'date-fns';
@@ -36,6 +42,7 @@ const InviteCard: FC<Props> = ({
 						size='medium'
 						rounded
 						source={{ uri: BASE_URL + avatar }}
+						renderPlaceholderContent={<ActivityIndicator />}
 					/>
 					<View style={styles.infoContainer}>
 						<Text style={styles.username}>{username}</Text>

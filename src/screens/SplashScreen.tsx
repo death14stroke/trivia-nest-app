@@ -47,6 +47,10 @@ const SplashScreen: FC = ({ children }) => {
 			}
 		);
 
+		socket?.on(SocketEvent.JOIN_MULTIPLAYER_ROOM, (roomId: string) => {
+			navigation.navigate('Multiplayer', { roomId });
+		});
+
 		socket?.on(SocketEvent.FRIEND_REQUEST, ({ player, time }) => {
 			updateInvitesBadge(invites + 1);
 			receivedFriendRequest(player._id);
@@ -102,10 +106,7 @@ const SplashScreen: FC = ({ children }) => {
 						description: resp.message,
 						positiveBtnTitle: 'OK'
 					});
-					return;
 				}
-
-				navigation.navigate('Multiplayer', { roomId });
 			}
 		);
 	};

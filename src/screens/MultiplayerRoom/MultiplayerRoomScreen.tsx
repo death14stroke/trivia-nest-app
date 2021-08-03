@@ -50,7 +50,10 @@ const MultiplayerRoomScreen: FC<Props> = ({ navigation, route }) => {
 
 	useEffect(() => {
 		navigation.addListener('beforeRemove', e => {
-			if (e.data.action.type === 'POP' && players.length > 1) {
+			if (
+				['POP', 'GO_BACK'].includes(e.data.action.type) &&
+				players.length > 1
+			) {
 				e.preventDefault();
 
 				Alert.confirm({

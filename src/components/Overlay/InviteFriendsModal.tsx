@@ -81,7 +81,7 @@ const InviteFriendsModal: FC<Props> = ({
 		<Dialog.Container
 			visible={open}
 			onBackdropPress={onBackdropPress}
-			style={{ width: '90%' }}>
+			overlayStyle={{ width: '90%' }}>
 			<Dialog.Title>Invite Friends</Dialog.Title>
 			{isLoading && friendsList.length === 0 ? (
 				<View style={styles.lottieContainer}>

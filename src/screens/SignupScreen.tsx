@@ -1,5 +1,6 @@
 import React, { FC, useState } from 'react';
 import {
+	ActivityIndicator,
 	KeyboardAvoidingView,
 	LayoutAnimation,
 	Platform,
@@ -42,6 +43,7 @@ const SignupScreen: FC = () => {
 					<Avatar
 						source={require('@assets/welcome.jpg')}
 						size='xlarge'
+						renderPlaceholderContent={<ActivityIndicator />}
 					/>
 					<Text h3 h3Style={styles.header}>
 						{signup

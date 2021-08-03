@@ -1,5 +1,5 @@
 import React, { FC, useState, useEffect, useContext } from 'react';
-import { ImageBackground, StatusBar } from 'react-native';
+import { ActivityIndicator, ImageBackground, StatusBar } from 'react-native';
 import { ThemeProvider, Avatar } from 'react-native-elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
@@ -99,6 +99,7 @@ const bottomTabs: FC = () => {
 						<Avatar
 							size='small'
 							source={require('@assets/history.png')}
+							renderPlaceholderContent={<ActivityIndicator />}
 						/>
 					)
 				}}
@@ -112,6 +113,7 @@ const bottomTabs: FC = () => {
 						<Avatar
 							size='small'
 							source={require('@assets/battle.png')}
+							renderPlaceholderContent={<ActivityIndicator />}
 						/>
 					)
 				}}
@@ -125,6 +127,7 @@ const bottomTabs: FC = () => {
 						<Avatar
 							size='small'
 							source={require('@assets/friends.png')}
+							renderPlaceholderContent={<ActivityIndicator />}
 						/>
 					)
 				}}

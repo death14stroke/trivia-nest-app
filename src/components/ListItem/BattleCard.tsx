@@ -1,5 +1,11 @@
 import React, { FC } from 'react';
-import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import {
+	View,
+	StyleSheet,
+	StyleProp,
+	ViewStyle,
+	ActivityIndicator
+} from 'react-native';
 import { Text, Avatar, Theme, useTheme } from 'react-native-elements';
 import { LinearGradient } from 'expo-linear-gradient';
 import { formatDistance } from 'date-fns';
@@ -69,6 +75,7 @@ const BattleCard: FC<Props> = ({
 						size='small'
 						rounded
 						source={{ uri: BASE_URL + userInfo.avatar }}
+						renderPlaceholderContent={<ActivityIndicator />}
 					/>
 					<View style={{ justifyContent: 'center', marginStart: 4 }}>
 						<Text style={styles.playerName}>
@@ -93,6 +100,7 @@ const BattleCard: FC<Props> = ({
 						size='small'
 						rounded
 						source={{ uri: BASE_URL + opponentInfo?.avatar }}
+						renderPlaceholderContent={<ActivityIndicator />}
 					/>
 				</LinearGradient>
 				<View style={styles.typeContainer}>
@@ -103,6 +111,7 @@ const BattleCard: FC<Props> = ({
 								? require('@assets/battle.png')
 								: require('@assets/friends.png')
 						}
+						renderPlaceholderContent={<ActivityIndicator />}
 					/>
 				</View>
 			</View>
@@ -118,6 +127,7 @@ const BattleCard: FC<Props> = ({
 					<Avatar
 						size='small'
 						source={require('@assets/coins.png')}
+						renderPlaceholderContent={<ActivityIndicator />}
 					/>
 				</View>
 			</View>

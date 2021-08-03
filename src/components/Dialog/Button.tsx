@@ -15,14 +15,13 @@ const Button: FC<Props> = ({ title, onPress }) => {
 			title={title}
 			titleStyle={styles.buttonTitle}
 			containerStyle={styles.container}
-			buttonStyle={{ borderBottomEndRadius: 16 }}
 			onPress={onPress}
 		/>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: { flex: 1, borderBottomEndRadius: 16 },
+	container: { flex: 1, borderRadius: 0 },
 	buttonTitle: { fontFamily: FontFamily.Bold }
 });
 

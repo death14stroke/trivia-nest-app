@@ -1,5 +1,10 @@
 import React, { FC } from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+	View,
+	TouchableOpacity,
+	StyleSheet,
+	ActivityIndicator
+} from 'react-native';
 import { Text, Icon, Avatar, Theme, useTheme } from 'react-native-elements';
 import { Colors } from '@app/theme';
 import { Player } from '@app/models';
@@ -54,12 +59,14 @@ const RoomMember: FC<Props> = ({
 						...styles.avatar,
 						...(_id === currentUserId && styles.currentUser)
 					}}
+					renderPlaceholderContent={<ActivityIndicator />}
 				/>
 				{ownerId === _id && (
 					<Avatar
 						size='large'
 						source={require('@assets/king.png')}
 						containerStyle={styles.ownerBadge}
+						renderPlaceholderContent={<ActivityIndicator />}
 					/>
 				)}
 			</View>

@@ -1,5 +1,11 @@
 import React, { FC, memo } from 'react';
-import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import {
+	View,
+	StyleSheet,
+	StyleProp,
+	ViewStyle,
+	ActivityIndicator
+} from 'react-native';
 import { Avatar, Image, Text } from 'react-native-elements';
 import { Dimens, FontFamily } from '@app/theme';
 import { IntroMode } from '@app/models';
@@ -22,7 +28,11 @@ const IntroCard: FC<Props> = ({
 
 	return (
 		<View style={[styles.card, containerStyle]}>
-			<Image source={image} style={styles.image} />
+			<Image
+				source={image}
+				style={styles.image}
+				PlaceholderContent={<ActivityIndicator />}
+			/>
 			<View style={styles.textContainer}>
 				<Text h3 h3Style={styles.title}>
 					{title}
@@ -40,6 +50,7 @@ const IntroCard: FC<Props> = ({
 						size='small'
 						source={require('@assets/coins.png')}
 						containerStyle={{ marginStart: 8 }}
+						renderPlaceholderContent={<ActivityIndicator />}
 					/>
 				</Button.Raised>
 			</View>

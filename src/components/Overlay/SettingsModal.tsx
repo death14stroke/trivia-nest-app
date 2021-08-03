@@ -32,7 +32,8 @@ const SettingsModal: FC<Props> = ({ open, onBackdropPress }) => {
 		<Dialog.Container
 			visible={open}
 			onBackdropPress={onBackdropPress}
-			style={styles.root}>
+			overlayStyle={styles.overlay}
+			containerStyle={styles.container}>
 			<Dialog.Title showCloseIcon onClose={onBackdropPress}>
 				Settings
 			</Dialog.Title>
@@ -44,7 +45,8 @@ const SettingsModal: FC<Props> = ({ open, onBackdropPress }) => {
 };
 
 const styles = StyleSheet.create({
-	root: { width: '75%', paddingBottom: 12 },
+	overlay: { width: '75%' },
+	container: { paddingBottom: 12 },
 	buttonContainer: { marginHorizontal: 12 }
 });
 

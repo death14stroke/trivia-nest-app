@@ -1,12 +1,12 @@
 import React, { FC, useState } from 'react';
 import {
 	FlatList,
-	Image,
 	ListRenderItem,
 	TouchableOpacity,
-	StyleSheet
+	StyleSheet,
+	ActivityIndicator
 } from 'react-native';
-import { Theme, useTheme } from 'react-native-elements';
+import { Image, Theme, useTheme } from 'react-native-elements';
 import { BASE_URL } from '@app/api/client';
 import Dialog from '../Dialog';
 
@@ -39,6 +39,7 @@ const SelectAvatarModal: FC<Props> = ({
 					styles.avatar,
 					selected === item && styles.avatarSelected
 				]}
+				PlaceholderContent={<ActivityIndicator />}
 			/>
 		</TouchableOpacity>
 	);

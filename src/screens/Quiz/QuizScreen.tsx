@@ -1,5 +1,6 @@
 import React, { FC, useContext, useEffect } from 'react';
 import {
+	ActivityIndicator,
 	ImageBackground,
 	ListRenderItem,
 	Platform,
@@ -50,7 +51,7 @@ const QuizScreen: FC<Props> = ({ navigation, route }) => {
 
 	useEffect(() => {
 		navigation.addListener('beforeRemove', e => {
-			if (e.data.action.type === 'POP') {
+			if (['POP', 'GO_BACK'].includes(e.data.action.type)) {
 				e.preventDefault();
 
 				Alert.confirm({
@@ -74,6 +75,7 @@ const QuizScreen: FC<Props> = ({ navigation, route }) => {
 					...styles.avatar,
 					...(_id === currentUser._id && styles.currentUser)
 				}}
+				renderPlaceholderContent={<ActivityIndicator />}
 			/>
 			<Text style={styles.username}>{username}</Text>
 		</View>

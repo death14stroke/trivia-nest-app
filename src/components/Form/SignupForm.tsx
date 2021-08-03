@@ -101,6 +101,7 @@ const SignupForm: FC = () => {
 							containerStyle={styles.avatar}
 							activeOpacity={0.8}
 							onPress={toggleModal}
+							renderPlaceholderContent={<ActivityIndicator />}
 						/>
 						<Input.Username
 							value={values.username}

@@ -1,5 +1,11 @@
 import React, { FC } from 'react';
-import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import {
+	View,
+	StyleSheet,
+	StyleProp,
+	ViewStyle,
+	ActivityIndicator
+} from 'react-native';
 import { Text, Avatar, useTheme, Theme } from 'react-native-elements';
 import { Colors, FontFamily } from '@app/theme';
 import { Player } from '@app/models';
@@ -35,6 +41,7 @@ const ResultCard: FC<Props> = ({
 					size='medium'
 					rounded
 					containerStyle={{ marginHorizontal: 8 }}
+					renderPlaceholderContent={<ActivityIndicator />}
 				/>
 				<View style={styles.infoContainer}>
 					<View style={{ flex: 1, justifyContent: 'space-between' }}>
@@ -48,6 +55,7 @@ const ResultCard: FC<Props> = ({
 							<Avatar
 								size='small'
 								source={require('@assets/coins.png')}
+								renderPlaceholderContent={<ActivityIndicator />}
 							/>
 						</View>
 					</View>

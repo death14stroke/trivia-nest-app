@@ -89,7 +89,7 @@ const Provider: FC = ({ children }) => {
 				confirm: showConfirm(dispatch)
 			}}>
 			{children}
-			<Dialog.Container visible={open} style={{ width: '75%' }}>
+			<Dialog.Container visible={open} overlayStyle={{ width: '75%' }}>
 				<Dialog.Title>{title}</Dialog.Title>
 				<Dialog.Description>{description}</Dialog.Description>
 				<Dialog.ButtonContainer>

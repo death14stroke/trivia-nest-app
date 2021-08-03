@@ -1,5 +1,12 @@
 import React, { FC } from 'react';
-import { View, Text, StyleSheet, ViewStyle, StyleProp } from 'react-native';
+import {
+	View,
+	Text,
+	StyleSheet,
+	ViewStyle,
+	StyleProp,
+	ActivityIndicator
+} from 'react-native';
 import { Avatar, Icon, Theme, useTheme } from 'react-native-elements';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, FontFamily } from '@app/theme';
@@ -71,6 +78,7 @@ const FriendsCard: FC<Props> = ({
 						size='medium'
 						rounded
 						source={{ uri: BASE_URL + avatar }}
+						renderPlaceholderContent={<ActivityIndicator />}
 					/>
 					<View style={styles.infoContainer}>
 						<Text style={styles.username}>{username}</Text>

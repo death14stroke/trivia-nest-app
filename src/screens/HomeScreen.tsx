@@ -5,7 +5,8 @@ import {
 	Dimensions,
 	ListRenderItem,
 	ImageBackground,
-	Platform
+	Platform,
+	ActivityIndicator
 } from 'react-native';
 import { Avatar, Icon, Text } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -150,6 +151,7 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 							toggleAvatarModal();
 							await playButtonSound();
 						}}
+						renderPlaceholderContent={<ActivityIndicator />}
 					/>
 					<View style={styles.nameContainer}>
 						<Text style={styles.username}>{user?.username}</Text>
@@ -159,6 +161,7 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
 						<Avatar
 							source={require('@assets/coins.png')}
 							size='small'
+							renderPlaceholderContent={<ActivityIndicator />}
 						/>
 						<Text style={{ textAlign: 'right' }}>
 							{user?.coins}
