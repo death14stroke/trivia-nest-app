@@ -24,7 +24,6 @@ const SplashScreen: FC = ({ children }) => {
 		}
 	} = useContext(ProfileContext);
 	const {
-		state: { invites, friends },
 		actions: { updateInvitesBadge, updateFriendsBadge }
 	} = useContext(BadgeContext);
 	const Alert = useContext(AlertContext);
@@ -52,7 +51,7 @@ const SplashScreen: FC = ({ children }) => {
 		});
 
 		socket?.on(SocketEvent.FRIEND_REQUEST, ({ player }) => {
-			updateInvitesBadge(invites + 1);
+			updateInvitesBadge();
 			receivedFriendRequest(player._id);
 
 			const prevData = queryClient.getQueryData<InfiniteData<Invite[]>>(
@@ -61,7 +60,7 @@ const SplashScreen: FC = ({ children }) => {
 			if (prevData) {
 				prevData.pages[0] = _.uniqBy(
 					[
-						{ info: player, time: new Date().toString() },
+						{ info: player, time: new Date().toUTCString() },
 						...prevData.pages[0]
 					],
 					({ info }) => info._id
@@ -77,7 +76,7 @@ const SplashScreen: FC = ({ children }) => {
 		});
 
 		socket?.on(SocketEvent.FRIEND_REQUEST_ACCEPT, friendId => {
-			updateFriendsBadge(friends + 1);
+			updateFriendsBadge();
 			receivedFriendRequestAccept(friendId);
 			queryClient.invalidateQueries(Query.FRIENDS);
 		});

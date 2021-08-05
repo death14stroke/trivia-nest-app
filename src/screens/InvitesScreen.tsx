@@ -25,7 +25,7 @@ const InvitesScreen: FC = () => {
 	);
 	const {
 		state: { invites: invitesCount },
-		actions: { updateInvitesBadge }
+		actions: { resetInvitesBadge }
 	} = useContext(BadgeContext);
 
 	const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery<
@@ -45,7 +45,7 @@ const InvitesScreen: FC = () => {
 	useFocusEffect(
 		useCallback(() => {
 			if (invitesCount !== 0) {
-				updateInvitesBadge(0);
+				resetInvitesBadge();
 			}
 		}, [invitesCount])
 	);

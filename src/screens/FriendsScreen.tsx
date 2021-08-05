@@ -15,7 +15,7 @@ const FriendsScreen: FC = () => {
 	const unfriendUser = useUnfriendMutation({});
 	const {
 		state: { friends: friendsCount },
-		actions: { updateFriendsBadge }
+		actions: { resetFriendsBadge }
 	} = useContext(BadgeContext);
 
 	const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery<
@@ -35,7 +35,7 @@ const FriendsScreen: FC = () => {
 	useFocusEffect(
 		useCallback(() => {
 			if (friendsCount !== 0) {
-				updateFriendsBadge(0);
+				resetFriendsBadge();
 			}
 		}, [friendsCount])
 	);
