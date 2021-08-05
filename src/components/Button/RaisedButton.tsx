@@ -12,7 +12,6 @@ interface Props {
 	loading?: boolean;
 }
 
-//TODO: mpeg not supported format
 const RaisedButton: FC<Props> = ({
 	onPress,
 	disabled = false,
@@ -29,9 +28,9 @@ const RaisedButton: FC<Props> = ({
 		<AwesomeButton
 			stretch
 			progress={loading}
-			backgroundShadow='#800000'
-			backgroundColor={colors?.primary}
-			backgroundDarker='#960018'
+			backgroundShadow={!disabled ? '#800000' : colors?.grey5}
+			backgroundColor={!disabled ? colors?.primary : colors?.grey3}
+			backgroundDarker={!disabled ? '#960018' : colors?.grey4}
 			borderRadius={24}
 			onPress={async () => {
 				onPress?.();

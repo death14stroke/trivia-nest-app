@@ -18,6 +18,9 @@ const SearchBar: FC<Props> = ({ inputContainerStyle, ...props }) => {
 				name: 'search-outline',
 				color: colors?.grey3
 			}}
+			autoCorrect={false}
+			autoCapitalize='none'
+			autoCompleteType='off'
 			leftIconContainerStyle={{ marginEnd: 8 }}
 			inputStyle={{ color: 'black' }}
 			placeholderTextColor={colors?.grey2}

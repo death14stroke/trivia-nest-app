@@ -16,7 +16,7 @@ import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@app/navigation';
 import { Colors } from '@app/theme';
-import { AlertContext } from '@app/context';
+import { AlertContext, ProfileContext } from '@app/context';
 import { Player } from '@app/models';
 import { BASE_URL } from '@app/api/client';
 import { Loading, QuestionView } from '@app/components';
@@ -48,6 +48,9 @@ const QuizScreen: FC<Props> = ({ navigation, route }) => {
 			})
 	});
 	const Alert = useContext(AlertContext);
+	const {
+		actions: { refreshProfile }
+	} = useContext(ProfileContext);
 
 	useEffect(() => {
 		navigation.addListener('beforeRemove', e => {
@@ -58,7 +61,10 @@ const QuizScreen: FC<Props> = ({ navigation, route }) => {
 					title: 'Confirmation',
 					description: 'Are you sure you want to leave the match?',
 					positiveBtnTitle: 'Yes',
-					onSuccess: () => navigation.dispatch(e.data.action)
+					onSuccess: () => {
+						refreshProfile();
+						navigation.dispatch(e.data.action);
+					}
 				});
 			}
 		});

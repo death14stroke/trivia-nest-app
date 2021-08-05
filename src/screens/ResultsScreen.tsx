@@ -1,4 +1,4 @@
-import React, { FC, useContext } from 'react';
+import React, { FC, useContext, useEffect } from 'react';
 import {
 	FlatList,
 	ImageBackground,
@@ -25,10 +25,17 @@ interface Props {
 
 const ResultsScreen: FC<Props> = ({ route, navigation }) => {
 	const results = route.params;
-	const { state: currentUser } = useContext(ProfileContext);
+	const {
+		state: currentUser,
+		actions: { refreshProfile }
+	} = useContext(ProfileContext);
 	const {
 		theme: { colors }
 	} = useTheme();
+
+	useEffect(() => {
+		refreshProfile();
+	}, []);
 
 	const renderPlayer: ListRenderItem<Result> = ({
 		item: { player, score, coins }

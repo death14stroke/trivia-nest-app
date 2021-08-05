@@ -89,7 +89,8 @@ const bottomTabs: FC = () => {
 	return (
 		<Tab.Navigator
 			initialRouteName='Home'
-			tabBar={props => <BottomTabBar {...props} />}>
+			tabBar={props => <BottomTabBar {...props} />}
+			backBehavior='initialRoute'>
 			<Tab.Screen
 				name='History'
 				component={HistoryScreen}
@@ -148,6 +149,7 @@ const topTabs: FC = () => {
 			style={{ flex: 1 }}>
 			<TopTab.Navigator
 				style={{ marginTop: top }}
+				backBehavior='initialRoute'
 				tabBar={props => <TopTabBar {...props} />}>
 				<TopTab.Screen
 					name='Invites'
