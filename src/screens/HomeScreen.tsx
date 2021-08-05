@@ -38,7 +38,7 @@ const modes: IntroMode[] = [
 		key: 'multi',
 		title: 'Multiplayer',
 		description: "Challenge your friends and beat 'em all",
-		cost: 20,
+		cost: 30,
 		image: require('@assets/mode_multi.jpg')
 	},
 	{
