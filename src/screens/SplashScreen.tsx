@@ -51,7 +51,7 @@ const SplashScreen: FC = ({ children }) => {
 			navigation.navigate('Multiplayer', { roomId });
 		});
 
-		socket?.on(SocketEvent.FRIEND_REQUEST, ({ player, time }) => {
+		socket?.on(SocketEvent.FRIEND_REQUEST, ({ player }) => {
 			updateInvitesBadge(invites + 1);
 			receivedFriendRequest(player._id);
 
@@ -60,7 +60,10 @@ const SplashScreen: FC = ({ children }) => {
 			);
 			if (prevData) {
 				prevData.pages[0] = _.uniqBy(
-					[{ info: player, time }, ...prevData.pages[0]],
+					[
+						{ info: player, time: new Date().toString() },
+						...prevData.pages[0]
+					],
 					({ info }) => info._id
 				);
 				queryClient.setQueryData(Query.INVITES, prevData);
